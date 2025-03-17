@@ -146,10 +146,10 @@ public class SelectionClic implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
+        //System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
         if (panel.isDeplacementMode()) {
             // Mode déplacement activé : on définit la destination pour chaque unité sélectionnée
-            System.out.println("Mode déplacement actif, unitesSelectionnees.size() = " + unitesSelectionnees.size());
+            //System.out.println("Mode déplacement actif, unitesSelectionnees.size() = " + unitesSelectionnees.size());
             for (UniteControlable unite : unitesSelectionnees) {
                 if (unite.getMovementThread() != null) {
                     unite.getMovementThread().stopThread();

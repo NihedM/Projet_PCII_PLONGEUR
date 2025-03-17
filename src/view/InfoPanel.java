@@ -54,10 +54,5 @@ public class InfoPanel extends JPanel {
     }
 
 
-    public void updateInfo(UniteControlable unit) {
-        String infoText = "<html>ID: " + unit.getId() + "<br>" +
-                "Position: (" + unit.getPosition().getX() + ", " + unit.getPosition().getY() + ")<br>" +
-                "Vitesse: " + unit.getVitesse() + "</html>";
-        infoLabel.setText(infoText);
-    }
+
 }

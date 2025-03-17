@@ -208,6 +208,7 @@ public class GamePanel extends JPanel {
 
     public void showResourceInfoPanel(model.objets.Ressource ressource) {
         slideInInfoPanel("resource");
+        infoPanelUNC.updateInfo(ressource);
     }
 
 
