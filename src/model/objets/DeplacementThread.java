@@ -37,26 +37,45 @@ public class DeplacementThread extends Thread {
                 break;
             }
 
+
             int dx = destination.getX() - unite.getPosition().getX();
             int dy = destination.getY() - unite.getPosition().getY();
             double distance = Math.sqrt(dx * dx + dy * dy);
             if (distance > unite.getRayon()) {
-                double ratio = unite.getVitesse() / distance;
-                int deplacementX = (int) (dx * ratio);
-                int deplacementY = (int) (dy * ratio);
-                unite.getPosition().setX(unite.getPosition().getX() + deplacementX);
-                unite.getPosition().setY(unite.getPosition().getY() + deplacementY);
+                double angle = Math.atan2(dy, dx);
+                unite.setVx(unite.getVitesse() * Math.cos(angle));
+                unite.setVy(unite.getVitesse() * Math.sin(angle));
+
+                unite.getPosition().setX(unite.getPosition().getX() + (int) unite.getVx());
+                unite.getPosition().setY(unite.getPosition().getY() + (int) unite.getVy());
                 GamePanel.getInstance().repaint();
+
+                if (unite instanceof UniteControlable) {
+                    CopyOnWriteArrayList<model.objets.Objet> voisins = ProximityChecker.getInstance().getVoisins((UniteControlable) unite);
+                    for (Objet voisin : voisins) {
+                        if (GestionCollisions.collisionCC(unite, voisin) != -1) {
+                            if (voisin instanceof Unite) {
+                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
+                            }
+                            GestionCollisions.preventOverlap(unite, voisin);
+                        }
+
+                    }
+                }
             } else {
                 // Destination atteinte, arrêter le déplacement
                 unite.setDestination(null);
+
                 boolean collisionDetected = false;
                 if(unite instanceof UniteControlable) {
-                    CopyOnWriteArrayList<model.objets.Objet> voisins = ProximityChecker.getInstance().getObjetDansMemeTile(unite);
+                    CopyOnWriteArrayList<model.objets.Objet> voisins = ProximityChecker.getInstance().getVoisins((UniteControlable) unite);
                     for (Objet voisin : voisins) {
                         if (GestionCollisions.collisionCC(unite, voisin) != -1) {
                             collisionDetected = true;
-                            GestionCollisions.preventOverlap(unite, voisin, GestionCollisions.collisionCC(unite, voisin));
+                            if (voisin instanceof Unite) {
+                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
+                            }
+                            GestionCollisions.preventOverlap(unite, voisin);
                         }
                     }
                     if (!collisionDetected) {
@@ -68,6 +87,9 @@ public class DeplacementThread extends Thread {
                     GamePanel.getInstance().repaint();
                 }
             }
+
+
+
 
             try {
                 Thread.sleep(DELAY);

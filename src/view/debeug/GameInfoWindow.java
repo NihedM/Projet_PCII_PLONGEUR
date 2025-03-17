@@ -44,9 +44,14 @@ public class GameInfoWindow extends JFrame {
             super.paintComponent(g);
             int y = 20; // Starting Y position for drawing text
 
-            // Display the size of objetsMap
-            g.drawString("Size of objetsMap: " + objetsMap.size(), 20, y);
-            y += 20;
+
+            //display the number of objects in objetsMap
+            int totalObjets = 0;
+            for (CoordGrid coord : objetsMap.keySet()) {
+                totalObjets += objetsMap.get(coord).size();
+            }
+            g.drawString("Total number of objects in objetsMap: " + totalObjets, 20, y);
+            y+=20;
 
             // Display the size of unitesEnJeu
             g.drawString("Size of unitesEnJeu: " + unitesEnJeu.size(), 20, y);

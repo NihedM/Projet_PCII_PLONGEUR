@@ -44,10 +44,11 @@ public class MainTest {
         GamePanel gamePanel = new GamePanel();
 
 
-        gamePanel.addUniteControlable(new model.unite_controlables.Plongeur(1, new Position(100,100), 10));
+        //gamePanel.addUniteControlable(new model.unite_controlables.Plongeur(1, new Position(100,100), 10));
         //gamePanel.addUniteControlable(new Plongeur(2, new Position(50,500), 10));
-        gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
-        for(int i = 0; i < 20; i++)
+        for(int i = 0; i < 4; i++)
+            gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
+        for(int i = 0; i < 50; i++)
             gamePanel.addObjet(new Collier(new Position()));
         //System.out.println("Unités en jeu : " + gamePanel.getUnitesEnJeu().size());
 

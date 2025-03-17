@@ -4,6 +4,8 @@ public class Unite extends Objet {
 
     private model.objets.DeplacementThread deplacementThread;
     private Position destination;
+
+    private double vx, vy; // Vecteur vitesse
     private int VITESSE;
 
 
@@ -12,6 +14,8 @@ public class Unite extends Objet {
         this.VITESSE = vitesse;
         this.destination = null;
         this.deplacementThread =null;
+        this.vx = 0;
+        this.vy = 0;
     }
 
 
@@ -21,6 +25,12 @@ public class Unite extends Objet {
     public int getVitesse() {return VITESSE;}
 
     public void setVitesse(int vitesse) {this.VITESSE = vitesse;}
+
+    public double getVx() { return vx; }
+    public double getVy() { return vy; }
+    public void setVx(double vx) { this.vx = vx; }
+    public void setVy(double vy) { this.vy = vy; }
+
     public void setDestination(Position destination) {
         this.destination = destination;
         if (deplacementThread != null) {

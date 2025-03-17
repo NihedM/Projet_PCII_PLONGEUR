@@ -1,6 +1,7 @@
 package controler;
 
 import model.objets.Objet;
+import model.objets.Unite;
 
 public class GestionCollisions{
 
@@ -32,18 +33,57 @@ public class GestionCollisions{
 
 
 
+    public static void rebound(Unite a, Unite b) {
+        // Calcul de la normale
+        double normalX = b.getPosition().getX() - a.getPosition().getX();
+        double normalY = b.getPosition().getY() - a.getPosition().getY();
+        double magnitude = Math.sqrt(normalX * normalY + normalY * normalY);
+        normalX /= magnitude;
+        normalY /= magnitude;
 
-    //temporaire
-    public static void preventOverlap(Objet a, Objet b, int c){
-        if(collisionCC(a,b) == -1) return;
-        int aX = a.getPosition().getX(), aY = a.getPosition().getY(), bX = b.getPosition().getX(), bY = b.getPosition().getY();
-        int rayon = Math.max(a.getRayon(), b.getRayon());
+        // Produit scalaire pour projeter la vitesse sur la normale
+        double relativeVelocityX = a.getVx() - b.getVx();
+        double relativeVelocityY = a.getVy() - b.getVy();
+        double dotProduct = relativeVelocityX * normalX + relativeVelocityY * normalY;
 
-        if(aX < bX) a.getPosition().setX(bX - rayon);
-        else a.getPosition().setX(bX + rayon);
+        a.setVx(a.getVx() - 2 * dotProduct * normalX);
+        a.setVy(a.getVy() - 2 * dotProduct * normalY);
+        b.setVx(b.getVx() + 2 * dotProduct * normalX);
+        b.setVy(b.getVy() + 2 * dotProduct * normalY);
 
-        if(aY < bY) a.getPosition().setY(bY - rayon);
-        else a.getPosition().setY(bY + rayon);
+
+        /*// Échange des vitesses projetées (simplification sans conservation d'énergie)
+        double newVx = a.getVx() - dotProduct * nx + dotProductOther * nx;
+        double newVy = a.getVy() - dotProduct * ny + dotProductOther * ny;
+        double newVxOther = b.getVx() - dotProductOther * nx + dotProduct * nx;
+        double newVyOther = b.getVy() - dotProductOther * ny + dotProduct * ny;
+
+        a.setVx(newVx);
+        a.setVy(newVy);
+        b.setVx(newVxOther);
+        b.setVy(newVyOther);*/
+
+    }
+
+
+
+    public static void preventOverlap(Objet a, Objet b){
+        double dx = b.getPosition().getX() - a.getPosition().getX();
+        double dy = b.getPosition().getY() - a.getPosition().getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        double overlap = a.getRayon() + b.getRayon() - distance;
+
+        // Normalize the direction vector
+        dx /= distance;
+        dy /= distance;
+
+        // Move objects apart based on their velocities
+        a.getPosition().setX(a.getPosition().getX() - (int) (dx * overlap ));
+        a.getPosition().setY(a.getPosition().getY() - (int) (dy * overlap ));
+        b.getPosition().setX(b.getPosition().getX() + (int) (dx * overlap ));
+        b.getPosition().setY(b.getPosition().getY() + (int) (dy * overlap ));
+
+
 
     }
 

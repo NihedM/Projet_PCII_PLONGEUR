@@ -6,13 +6,14 @@ public class Objet {
     private Position position;
     private CoordGrid coordGrid;
 
-
     private final int rayon;                //TODO faire les constantes(rayons) de tout les objets
+
 
     public Objet(Position position, int rayon) {
         this.position = position;
         this.rayon = rayon;
         this.coordGrid = TileManager.transformePos_to_Coord(position);
+
     }
 
 
@@ -21,6 +22,7 @@ public class Objet {
     public CoordGrid getCoordGrid() {return coordGrid;}
 
     public int getRayon() {return rayon;}
+
 
     public double distance(model.objets.Objet other) {
         int dx = position.getX() - other.getPosition().getX();

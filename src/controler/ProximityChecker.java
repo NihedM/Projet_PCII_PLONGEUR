@@ -2,6 +2,7 @@ package controler;
 
 import model.objets.CoordGrid;
 import model.objets.Objet;
+import model.objets.Unite;
 import model.objets.UniteControlable;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,11 +83,12 @@ public class ProximityChecker extends Thread{
 
                     CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
 
-
                     for(Objet voisin: voisins){
-                        int c = controler.GestionCollisions.collisionCC(unite, voisin);
-                        if(c > -1){
-                            GestionCollisions.preventOverlap(unite, voisin, c);
+                        if(controler.GestionCollisions.collisionCC(unite, voisin) > -1){
+                            if(voisin instanceof Unite){
+                                GestionCollisions. rebound((Unite) unite, (Unite) voisin);
+                            }
+                            GestionCollisions.preventOverlap(unite, voisin);
                         }
 
                     }

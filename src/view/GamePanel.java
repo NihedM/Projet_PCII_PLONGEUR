@@ -6,6 +6,7 @@ import controler.TileManager;
 import controler.TileUpdater;
 import model.gains_joueur.Referee;
 import model.objets.CoordGrid;
+import model.objets.Objet;
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.debeug.GameInfoWindow;
@@ -412,6 +413,21 @@ public class GamePanel extends JPanel {
             int x = objet.getPosition().getX() - objet.getRayon();
             int y = objet.getPosition().getY() - objet.getRayon();
             g.fillOval(x, y, diametre, diametre);
+        }
+
+        // pour tester la gestion de proximité
+        for(UniteControlable unite: unitesEnJeu){
+            CopyOnWriteArrayList<Objet> voisins = proxy.getVoisins(unite);
+
+            for (Objet voisin : voisins) {
+                int x1 = unite.getPosition().getX();
+                int y1 = unite.getPosition().getY();
+                int x2 = voisin.getPosition().getX();
+                int y2 = voisin.getPosition().getY();
+
+                g.setColor(Color.RED);  // Choisir la couleur de la ligne
+                g.drawLine(x1, y1, x2, y2);
+            }
         }
 
         // Afficher les informations du joueur
