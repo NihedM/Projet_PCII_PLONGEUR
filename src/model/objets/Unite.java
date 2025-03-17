@@ -6,10 +6,10 @@ public class Unite extends Objet {
     private Position destination;
 
     private double vx, vy; // Vecteur vitesse
-    private int VITESSE;
+    private double VITESSE;
 
 
-    public Unite(Position position, int rayon, int vitesse) {
+    public Unite(Position position, int rayon, double vitesse) {
         super(position, rayon);
         this.VITESSE = vitesse;
         this.destination = null;
@@ -22,7 +22,7 @@ public class Unite extends Objet {
     public synchronized Position getDestination() {
         return destination;
     }
-    public int getVitesse() {return VITESSE;}
+    public double getVitesse() {return VITESSE;}
 
     public void setVitesse(int vitesse) {this.VITESSE = vitesse;}
 

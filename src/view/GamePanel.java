@@ -7,6 +7,7 @@ import controler.TileUpdater;
 import model.gains_joueur.Referee;
 import model.objets.CoordGrid;
 import model.objets.Objet;
+import model.objets.Ressource;
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.debeug.GameInfoWindow;
@@ -164,9 +165,9 @@ public class GamePanel extends JPanel {
         });
         timer.start();
     }
-    public CopyOnWriteArrayList<model.objets.Ressource> getRessources() {
+    /*public CopyOnWriteArrayList<model.objets.Ressource> getRessources() {
         return ressources;
-    }
+    }*/
 
     public boolean isDeplacementMode() {
         return deplacementMode;
@@ -198,27 +199,42 @@ public class GamePanel extends JPanel {
         infoPanelUNC.setVisible(false);
     }
 
-    public CopyOnWriteArrayList<model.objets.Ressource> getRessourcesMap() {
-        CopyOnWriteArrayList<model.objets.Ressource> ressourcesList = new CopyOnWriteArrayList<>();
+    public CopyOnWriteArrayList<Ressource> getRessourcesMap() {
+        CopyOnWriteArrayList<Ressource> ressourcesList = new CopyOnWriteArrayList<>();
         for (CopyOnWriteArrayList<model.objets.Objet> listeObjets : objetsMap.values()) {
             for (model.objets.Objet o : listeObjets) {
-                if (o instanceof model.objets.Ressource) {
-                    ressourcesList.add((model.objets.Ressource) o);
+                if (o instanceof Ressource) {
+                    ressourcesList.add((Ressource) o);
                 }
             }
         }
         System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
         return ressourcesList;
     }
+    public ArrayList<Ressource> getRessources() {
+        ArrayList<Ressource> ressources = new ArrayList<>();
+        for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
+            for (Objet objet : objets) {
+                if (objet instanceof Ressource) {
+                    ressources.add((Ressource) objet);
+                }
+            }
+        }
+        return ressources;
+    }
 
     public static view.GamePanel getInstance() {
         return instance;
     }
 
-    // ... (les autres méthodes addObjet, removeObjet, paintComponent, etc.)
 
-//-----------------Méthodes pour ajouter et supprimer des objets-----------------
+    public synchronized ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> getObjetsMap() {
+        return objetsMap;
+    }
 
+
+
+    //---------------------------------------------------------------------------------
 
     public synchronized void addObjet(model.objets.Objet objet) {
 
@@ -406,6 +422,9 @@ public class GamePanel extends JPanel {
                     g.drawLine(unite.getPosition().getX(), unite.getPosition().getY(),
                             unite.getDestination().getX(), unite.getDestination().getY());
                 }
+            }
+            else{
+                g.setColor(Color.PINK);
             }
 
 
