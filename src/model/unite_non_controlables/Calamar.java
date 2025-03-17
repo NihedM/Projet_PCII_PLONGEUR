@@ -1,8 +1,10 @@
 package model.unite_non_controlables;
 
 import controler.GestionCollisions;
+import model.objets.Objet;
 import model.objets.Position;
 import model.objets.Ressource;
+import view.GamePanel;
 
 import java.util.ArrayList;
 
@@ -13,9 +15,16 @@ public class Calamar extends Enemy {
     private ArrayList<Ressource> ressourcesDisponibles;
 
     public Calamar(Position position) {
-        super(position,5, 5, 10);
-        action();
+        super(position,5, 5, 0.05);
+        this.ressourcesDisponibles = new ArrayList<>();
     }
+
+    public void setupCalamar(ArrayList<Ressource> ressourcesDisponibles){
+        this.ressourcesDisponibles = ressourcesDisponibles;
+        selectionneRessourcePlusProche(ressourcesDisponibles);
+    }
+
+
 
     public void setRessourcesDisponibles(ArrayList<Ressource> ressourcesDisponibles){
         this.ressourcesDisponibles = ressourcesDisponibles;
@@ -63,22 +72,54 @@ public class Calamar extends Enemy {
 */
 
     @Override
+    public void fuit() {
+        fuire();
+        stopTimer();
+        //set position de destination le coin de l’écran le plus proche
+        /* 9 directions possibles, il faudra utiliser les dimentions du terrain(consantes) */
+
+        /*version initiale ce dirige vers (0,0)*/
+
+        this.setDestination(new Position(-1, -1));
+        this.objectifCourrant = null;
+    }
+
+    @Override
+    public void setup(ArrayList<Objet> interactionTargets) {
+        this.ressourcesDisponibles = new ArrayList<>();
+        for (Objet obj : interactionTargets) {
+            if (obj instanceof Ressource) {
+                this.ressourcesDisponibles.add((Ressource) obj);
+            }
+        }
+    }
+
+    @Override
     public void action() {
         //si l'objet est à portée, le ramasser
+        if(getEtat() == Etat.FUITE)return;
         if(GestionCollisions.collisionCC(this, objectifCourrant) > -1 ) {
-            if (    getEtat() == Etat.VADROUILLE
-                    && ressourcesDisponibles.contains(objectifCourrant)
-                    && objectifCourrant.estRecoltable()) {
+            if ( ressourcesDisponibles.contains(objectifCourrant)) {
 
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);
+                GamePanel.getInstance().removeObjet(objectifCourrant, objectifCourrant.getCoordGrid());
                 objectifCourrant = null;
+                //System.out.println(inventaire.size());
+
             }
-            if (!ressourcesDisponibles.isEmpty())
-                selectionneRessourcePlusProche(ressourcesDisponibles);
-            else fuit();
+
         }
+
+        if (!ressourcesDisponibles.isEmpty())
+            selectionneRessourcePlusProche(ressourcesDisponibles);
+        else fuit();
+
+        /*sur le terminale on affiche les ressources disponibles*/
+        //System.out.println("Ressources disponibles: " + ressourcesDisponibles.size());
+
     }
+
 
 }
 

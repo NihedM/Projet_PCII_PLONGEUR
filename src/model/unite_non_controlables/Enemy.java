@@ -1,11 +1,14 @@
 package model.unite_non_controlables;
 
+import model.objets.Objet;
 import model.objets.Position;
 import model.objets.Unite;
+import model.objets.UniteNonControlableInterface;
 
+import java.util.ArrayList;
 import java.util.Timer;
 
-public class Enemy extends Unite {
+public class Enemy extends Unite implements UniteNonControlableInterface {
     protected enum Etat {
         VADROUILLE, FUITE
     }
@@ -14,7 +17,7 @@ public class Enemy extends Unite {
     private int secondesRestant;
     private Timer timer = new Timer();
 
-    public Enemy(Position position, int rayon, int secondesRestant, int vitesse) {
+    public Enemy(Position position, int rayon, int secondesRestant, double vitesse) {
         super(position, rayon, vitesse);
         this.etat = Etat.VADROUILLE;
         this.secondesRestant = secondesRestant;
@@ -25,22 +28,23 @@ public class Enemy extends Unite {
     public Etat getEtat() {return etat;}
     public int getTempsRestant() {return secondesRestant;}
 
-    public void fuit() {
+    public void fuit() {        //version default:  pas oublier de faire override sinon!!!
         this.etat = Etat.FUITE;
-        timer.cancel();
-        //set position de destination le coin de l’écran le plus proche
-        /* 9 directions possibles, il faudra utiliser les dimentions du terrain(consantes) */
-
-        /*version initiale ce dirige vers (0,0)*/
-
         this.setDestination(new Position(-1, -1));
-
-
-
     }
     public void vadrouille() { this.etat = Etat.VADROUILLE;}
-    public void decrementerTemps(int t){secondesRestant -= t;}
+    public void fuire(){this.etat= Etat.FUITE;}
 
+
+    public void decrementerTemps(int t){secondesRestant -= t;}
+    public void stopTimer(){timer.cancel();}
+
+
+
+    @Override
+    public void setup(ArrayList<Objet> interactionTargets) {
+
+    }
     public void action(){}
 
 

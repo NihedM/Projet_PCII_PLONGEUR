@@ -4,13 +4,14 @@ import controler.GestionCollisions;
 import controler.ProximityChecker;
 import controler.ThreadManager;
 import view.GamePanel;
+import model.unite_non_controlables.Calamar;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class DeplacementThread extends Thread {
     private model.objets.Unite unite;
     private GamePanel panel;
-    private static final int DELAY = 10;
+    private static final int DELAY = 30;
     private volatile boolean running = true;
     public DeplacementThread(Unite unite) {
         this.unite = unite;
@@ -86,6 +87,14 @@ public class DeplacementThread extends Thread {
                     }
                     GamePanel.getInstance().repaint();
                 }
+            }
+
+
+                //temporaire faut gérer la mort des unités
+
+            if (unite instanceof Calamar && unite.getPosition().getX() <= 10 && unite.getPosition().getY() <= 10) {
+                GamePanel.getInstance().removeObjet(unite, unite.getCoordGrid());
+                break;
             }
 
 
