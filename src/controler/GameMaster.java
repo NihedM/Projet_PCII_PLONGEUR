@@ -7,14 +7,15 @@ import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class GameMaster extends Thread{
 
+    private static GameMaster instance;
     private ArrayList<Ressource> ressources;
     private ArrayList<Enemy> enemies;
-
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap ;
 
 
@@ -22,6 +23,7 @@ public class GameMaster extends Thread{
         this.objetsMap = objetsMap;
         ressources = new ArrayList<Ressource>();
         enemies = new ArrayList<Enemy>();
+        instance = this;
         updateLists();
     }
 
@@ -42,16 +44,18 @@ public class GameMaster extends Thread{
 
     //-------------------GETTERS-------------------//
 
-
+    public static GameMaster getInstance() {
+        return instance;
+    }
     public ArrayList<Ressource> getRessources() {
         return ressources;
     }
 
-
-
     public void setRessourcesVisibilesJoueur(ArrayList<Ressource> ressources) {
         this.ressources = ressources;
     }
+
+
 
 
     public void setEnemies(ArrayList<Enemy> enemies) {
@@ -66,15 +70,6 @@ public class GameMaster extends Thread{
         enemy.setup(targets);
     }
 
-    public void setUpRessources() {
-    }
-
-    public void AleaSpawnEnemies(int x, int y, int nb) {
-    }
-
-
-    public void SpawnEnemies(int x, int y, int nb) {
-    }
 
 
     public void AleaSpawnRessources(int x, int y, int nb) {
@@ -106,11 +101,11 @@ public class GameMaster extends Thread{
 
     @Override
     public void run() {
-        ThreadManager.incrementThreadCount("controler.GameMaster");
+        ThreadManager.incrementThreadCount("GameMaster");
         updateLists();
 
         while(true){
-
+            if(enemies == null)continue;
             for (Enemy enemy : enemies) {
                 enemy.action();
             }
@@ -123,7 +118,7 @@ public class GameMaster extends Thread{
             }
 
         }
-        ThreadManager.decrementThreadCount("controler.GameMaster");
+        ThreadManager.decrementThreadCount("GameMaster");
 
 
     }

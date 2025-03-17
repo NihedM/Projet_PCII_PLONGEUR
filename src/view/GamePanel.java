@@ -1,14 +1,8 @@
 package view;
 
-import controler.ProximityChecker;
-import controler.SelectionClic;
-import controler.TileManager;
-import controler.TileUpdater;
+import controler.*;
 import model.gains_joueur.Referee;
-import model.objets.CoordGrid;
-import model.objets.Objet;
-import model.objets.Ressource;
-import model.objets.UniteControlable;
+import model.objets.*;
 import model.unite_controlables.Plongeur;
 import view.debeug.GameInfoWindow;
 
@@ -24,7 +18,7 @@ import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
     public static final int PANELDIMENSION = 800;
-    private static view.GamePanel instance;
+    private static GamePanel instance;
 
     private int grid[][] = new int[TileManager.nbTiles][TileManager.nbTiles];
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> objetsMap = new ConcurrentHashMap<>();
@@ -307,7 +301,6 @@ public class GamePanel extends JPanel {
 
 
 
-
     //---------------------------------------------------------------------------------
 
 
@@ -432,6 +425,17 @@ public class GamePanel extends JPanel {
             int x = objet.getPosition().getX() - objet.getRayon();
             int y = objet.getPosition().getY() - objet.getRayon();
             g.fillOval(x, y, diametre, diametre);
+
+
+
+        }
+        g.setColor(Color.ORANGE); // Set the color for spawn points
+        for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getSpawnPoints()) {
+            Position pos = spawnPoint.getPosition();
+            int x2 = pos.getX() - spawnPoint.getRayon();
+            int y2 = pos.getY() - spawnPoint.getRayon();
+            int diameter = spawnPoint.getRayon() * 2;
+            g.fillOval(x2, y2, diameter, diameter);
         }
 
         // pour tester la gestion de proximité

@@ -14,6 +14,8 @@ public class GestionCollisions{
      */
 
     public static int collisionCC(Objet a, Objet b){
+        if (a == null || b == null)
+            return -1;
         int x1 = a.getPosition().getX();
         int y1 = a.getPosition().getY();
         int x2 = b.getPosition().getX();

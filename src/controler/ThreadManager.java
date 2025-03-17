@@ -19,6 +19,8 @@ public class ThreadManager {
         runningThreadCounts.put("TileUpdater", 0);
         runningThreadCounts.put("ProximityChecker", 0);
         runningThreadCounts.put("GameMaster", 0);
+        runningThreadCounts.put("SpawnManager", 0);
+        runningThreadCounts.put("EnemySpawnPoints",0);
         runningThreadCounts.put("VictoryCheckThread", 0);
         runningThreadCounts.put("ResourceGenerationThread", 0);
         runningThreadCounts.put("DeplacementThread", 0);
