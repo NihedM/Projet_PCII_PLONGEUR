@@ -94,6 +94,7 @@ public class SelectionClic implements MouseListener {
                 return;
             }
 
+
             // Si on n'est pas en mode récupération, on effectue la sélection d'une unité ou d'une ressource classique
             dropUnitesSelectionnees();
             boolean unitSelected = false;
@@ -141,32 +142,51 @@ public class SelectionClic implements MouseListener {
                 }
             }
         }
+
+
+        if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
+            if (!unitesSelectionnees.isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
+                for (UniteControlable unite : unitesSelectionnees) {
+                    unite.setDestination(new Position(e.getX(), e.getY()));
+                }
+            }
+        }
+
     }
 
 
     @Override
     public void mouseClicked(MouseEvent e) {
         //System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
-        if (panel.isDeplacementMode()) {
-            // Mode déplacement activé : on définit la destination pour chaque unité sélectionnée
-            //System.out.println("Mode déplacement actif, unitesSelectionnees.size() = " + unitesSelectionnees.size());
-            for (UniteControlable unite : unitesSelectionnees) {
-                if (unite.getMovementThread() != null) {
-                    unite.getMovementThread().stopThread();
+        if (e.getButton() == MouseEvent.BUTTON1) {
+
+            if (panel.isDeplacementMode()) {
+                // Mode déplacement activé : on définit la destination pour chaque unité sélectionnée
+                //System.out.println("Mode déplacement actif, unitesSelectionnees.size() = " + unitesSelectionnees.size());
+
+                //TODO Nihed : si tu veux tu peux déplacer ceci dans mousePressed, comme ça on peut cliquer pendant qu'on bouge le mouse
+
+                for (UniteControlable unite : unitesSelectionnees) {
+                    if (unite.getMovementThread() != null) {
+                        unite.getMovementThread().stopThread();
+                    }
+                    unite.setDestination(new Position(e.getX(), e.getY()));
+                    System.out.println("setDestination appelée avec : " + e.getX() + ", " + e.getY());
                 }
-                unite.setDestination(new Position(e.getX(), e.getY()));
-                System.out.println("setDestination appelée avec : " + e.getX() + ", " + e.getY());
+                panel.setDeplacementMode(false);
+                return;
+            } else {
+                // On peut ajouter ici d'autres traitements si nécessaire
+                if (currentSelectionType == SelectionType.NONE) {
+                    panel.slideOutInfoPanel();
+                }
+                panel.repaint();
             }
-            panel.setDeplacementMode(false);
-            return;
-        } else {
-            // On peut ajouter ici d'autres traitements si nécessaire
-            if (currentSelectionType == SelectionType.NONE) {
-                panel.slideOutInfoPanel();
-            }
-            panel.repaint();
         }
+
+
     }
+
 
     @Override
     public void mouseReleased (MouseEvent e){

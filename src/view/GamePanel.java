@@ -239,11 +239,6 @@ public class GamePanel extends JPanel {
 
             //System.out.println(objet.getClass().getSimpleName() + " ajouté à la coordonnée " + objet.getCoordGrid().getX() + " " + objet.getCoordGrid().getY());
         }
-        //FUUUUUUUUUUUUUUUUUuuuuuuuUuUuUuUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK
-
-
-
-
 
         //System.out.println("Map size after addition: " + objetsMap.size());
 
