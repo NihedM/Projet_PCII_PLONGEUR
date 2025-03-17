@@ -57,25 +57,6 @@ public class GamePanel extends JPanel {
         setLayout(new BorderLayout());
 
 
-
-        // Bouton "Marché"
-        JButton marketButton = new JButton("Marché");
-        marketButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                setPaused(true);  // Implémentez cette méthode ou flag si besoin
-                // Créer et afficher le pop-up modal
-                MarketPopup popup = new MarketPopup((JFrame) SwingUtilities.getWindowAncestor(view.GamePanel.this));
-                popup.setVisible(true);
-                // À la fermeture du pop-up, reprendre le jeu
-                setPaused(false);
-            }
-        });
-        marketButton.setLocation(2,3);
-        //add(marketButton);
-
-
-
         // Création du container des panneaux d'info avec CardLayout
         infoContainer = new JPanel(new CardLayout());
         infoPanel = new InfoPanel();
