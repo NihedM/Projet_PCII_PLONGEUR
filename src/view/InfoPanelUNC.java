@@ -1,11 +1,12 @@
 package view;
 
+import model.objets.GestionRessource;
 import model.objets.Ressource;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class InfoPanelUNC extends JPanel {
+public class InfoPanelUNC extends JPanel implements GestionRessource.RessourceListener {
 
     private JLabel infoLabel;
     private JProgressBar progressBar;
@@ -19,9 +20,8 @@ public class InfoPanelUNC extends JPanel {
         infoLabel.setFont(new Font("Arial", Font.BOLD, 14));
         add(infoLabel, BorderLayout.NORTH);
 
-        // Initialisation de la barre de progression
-        progressBar = new JProgressBar(0, 100);
-        progressBar.setStringPainted(true); // Afficher le pourcentage
+        progressBar = new JProgressBar(0, 100); // Initialisation de la barre de progression
+        progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(180, 20));
         progressBar.setBackground(Color.WHITE);
         progressBar.setForeground(Color.YELLOW);
@@ -34,8 +34,15 @@ public class InfoPanelUNC extends JPanel {
         setVisible(false);
     }
 
+    @Override
+    public void onRessourceUpdated(Ressource ressource) {
+        // Mettre à jour les informations de la ressource
+        updateInfo(ressource);
+    }
+
     public void updateInfo(Ressource ressource) {
         // Mettre à jour les informations de la ressource
+        System.out.println("updateInfo appelée pour la ressource : " + ressource);
         infoLabel.setText("<html><center>" +
                 "Type : " + ressource.getClass().getSimpleName() + "<br/>" +
                 "Valeur : " + ressource.getValeur() + "<br/>" +
@@ -48,7 +55,7 @@ public class InfoPanelUNC extends JPanel {
         int tempsRestant = ressource.getTempsRestant();
         int progression = (int) ((tempsInitial - tempsRestant) / (double) tempsInitial * 100);
 
-        progressBar.setValue(progression);
+        progressBar.setValue(progression); // Mettre à jour la barre de progression
 
         // Changer la couleur de la barre en fonction de l'état de la ressource
         if (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {

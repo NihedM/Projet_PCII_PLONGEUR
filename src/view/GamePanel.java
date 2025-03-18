@@ -183,9 +183,15 @@ public class GamePanel extends JPanel {
     }
 
 
-    public void showResourceInfoPanel(model.objets.Ressource ressource) {
+    public void showResourceInfoPanel(Ressource ressource) {
+        System.out.println("showResourceInfoPanel appelée pour la ressource : " + ressource);
         slideInInfoPanel("resource");
         infoPanelUNC.updateInfo(ressource);
+
+        // Ajouter InfoPanelUNC comme listener de GestionRessource
+        GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
+        gestionRessource.addListener(infoPanelUNC);
+        gestionRessource.start(); // Démarrer le thread de gestion de la ressource
     }
 
 
