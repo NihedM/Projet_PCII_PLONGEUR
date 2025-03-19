@@ -79,6 +79,7 @@ public class SelectionClic implements MouseListener {
 
                             // Augmenter l'argent du joueur (via Referee)
                             Referee.getInstance().ajouterPointsVictoire(30);
+                            GamePanel.getInstance().addCollectedResource(ressource);
 
                             panel.repaint();
                         }

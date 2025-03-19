@@ -26,24 +26,7 @@ public class MainTest {
         maFenetre.setSize(FENETREWIDTH, FENETREHEIGHT);
         maFenetre.setLocationRelativeTo(null);
 
-// Créer un panel overlay pour le glass pane
-        // JPanel overlayPanel = new JPanel(new BorderLayout());
-        // overlayPanel.setOpaque(false); // Transparent
-// Vous pouvez, si vous le souhaitez, ajouter un fond semi-transparent pour l'effet overlay
-// overlayPanel.setBackground(new Color(0, 0, 0, 50)); // noir transparent, par exemple
 
-        //   maFenetre.setGlassPane(overlayPanel);
-        // overlayPanel.setVisible(false);
-
-
-
-
-
-
-        //GamePanel gamePanel = new GamePanel(objets);        //Temporaire, tout nouvelle aparition sera  gérer en dehors du constructeur
-
-        /*TileManager tileManager = new TileManager(20, 20, gamePanel);
-        Referee referee = new Referee();*/
 
 
         GamePanel gamePanel = new GamePanel();
@@ -55,8 +38,6 @@ public class MainTest {
 
 
 
-        //gamePanel.addUniteControlable(new model.unite_controlables.Plongeur(1, new Position(100,100), 10));
-        //gamePanel.addUniteControlable(new Plongeur(2, new Position(50,500), 10));
         for(int i = 0; i < 4; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
 

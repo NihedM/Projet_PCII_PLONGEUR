@@ -36,6 +36,9 @@ public class GamePanel extends JPanel {
 
     private boolean paused = false;
 
+    private ArrayList<model.objets.Ressource> collectedResources = new ArrayList<>();
+
+
 
     private InfoPanel infoPanel;         // pour les unités
     private InfoPanelUNC infoPanelUNC;   // pour les ressources
@@ -134,6 +137,17 @@ public class GamePanel extends JPanel {
         // Vous pouvez  interrompre ou suspendre certains threads ici si nécessaire
     }
 
+    public ArrayList<model.objets.Ressource> getCollectedResources() {
+        return collectedResources;
+    }
+
+    public void addCollectedResource(model.objets.Ressource r) {
+        collectedResources.add(r);
+    }
+
+    public void removeCollectedResource(model.objets.Ressource r) {
+        collectedResources.remove(r);
+    }
     public boolean isPaused() {
         return paused;
     }
