@@ -41,29 +41,31 @@ public class InfoPanelUNC extends JPanel implements GestionRessource.RessourceLi
     }
 
     public void updateInfo(Ressource ressource) {
-        // Mettre à jour les informations de la ressource
-        System.out.println("updateInfo appelée pour la ressource : " + ressource);
-        infoLabel.setText("<html><center>" +
-                "Type : " + ressource.getClass().getSimpleName() + "<br/>" +
-                "Valeur : " + ressource.getValeur() + "<br/>" +
-                "Etat : " + ressource.getEtat() + "<br/>" +
-                "Temps restant : " + ressource.getTempsRestant() +
-                "</center></html>");
+        // Vérifier si la ressource est celle sélectionnée
+        if (ressource.equals(GamePanel.getInstance().getRessourceSelectionnee())) {
+            System.out.println("updateInfo appelée pour la ressource : " + ressource.getNom());
+            infoLabel.setText("<html><center>" +
+                    "Type : " + ressource.getNom() + "<br/>" +
+                    "Valeur : " + ressource.getValeur() + "<br/>" +
+                    "Etat : " + ressource.getEtat() + "<br/>" +
+                    "Temps restant : " + ressource.getTempsRestant() +
+                    "</center></html>");
 
-        // Mettre à jour la barre de progression
-        int tempsInitial = ressource.getTempsInitial();
-        int tempsRestant = ressource.getTempsRestant();
-        int progression = (int) ((tempsInitial - tempsRestant) / (double) tempsInitial * 100);
+            // Mettre à jour la barre de progression
+            int tempsInitial = ressource.getTempsInitial();
+            int tempsRestant = ressource.getTempsRestant();
+            int progression = (int) ((tempsInitial - tempsRestant) / (double) tempsInitial * 100);
 
-        progressBar.setValue(progression); // Mettre à jour la barre de progression
+            progressBar.setValue(progression); // Mettre à jour la barre de progression
 
-        // Changer la couleur de la barre en fonction de l'état de la ressource
-        if (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {
-            progressBar.setForeground(Color.YELLOW);
-        } else if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
-            progressBar.setForeground(Color.GREEN);
-        } else {
-            progressBar.setForeground(Color.RED);
+            // Changer la couleur de la barre en fonction de l'état de la ressource
+            if (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {
+                progressBar.setForeground(Color.YELLOW);
+            } else if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
+                progressBar.setForeground(Color.GREEN);
+            } else {
+                progressBar.setForeground(Color.RED);
+            }
         }
     }
 }

@@ -24,16 +24,17 @@ public class GestionRessource extends Thread {
 
     @Override
     public void run() {
-        while (running && ressource.getEtat() != Ressource.Etat.DETRUIRE) {
+        while (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {
+            ressource.evoluer();
+            notifyListeners(); // Notifier les listeners après chaque évolution
             try {
                 Thread.sleep(intervalle);
-                ressource.evoluer();
-                notifyListeners(); // Notifier les listeners après chaque évolution
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Thread interrupted");
+                System.out.println("GestionRessource interrompue pour la ressource : " + ressource);
+                break;
             }
         }
+        System.out.println("La ressource est prête à être récoltée : " + ressource);
     }
 
     private void notifyListeners() {

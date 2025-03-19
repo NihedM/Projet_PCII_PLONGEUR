@@ -5,6 +5,10 @@ public class Ressource extends Objet {
         EN_CROISSANCE, PRET_A_RECOLTER, DETRUIRE
     }
 
+    private static int compteur = 0; // Compteur statique pour générer des IDs uniques
+    private int id; // Identifiant unique de la ressource
+    private String nom; // Nom de la ressource avec l'ID
+
     private Etat etat;
     private int valeur;
     private int tempsRestant;
@@ -20,6 +24,12 @@ public class Ressource extends Objet {
         this.tempsPret = 3;
         this.etat = Etat.EN_CROISSANCE;
         this.position = new Position((int) (Math.random() * 800), (int) (Math.random() * 600));
+        this.id = ++compteur; // Incrémenter le compteur et attribuer l'ID
+        this.nom = "collier" + id; // Générer le nom unique
+    }
+
+    public String getNom() {
+        return nom;
     }
 
     public Etat getEtat() {
@@ -42,12 +52,7 @@ public class Ressource extends Objet {
         if (etat == Etat.EN_CROISSANCE) {
             tempsRestant--;
             if (tempsRestant <= 0) {
-                etat = Etat.PRET_A_RECOLTER;
-            }
-        } else if (etat == Etat.PRET_A_RECOLTER) {
-            tempsPret--;
-            if (tempsPret <= 0) {
-                etat = Etat.DETRUIRE;
+                etat = Etat.PRET_A_RECOLTER; // La ressource reste dans cet état indéfiniment
             }
         }
     }
@@ -64,7 +69,4 @@ public class Ressource extends Objet {
         }
         return 0;
     }
-
-
-
 }

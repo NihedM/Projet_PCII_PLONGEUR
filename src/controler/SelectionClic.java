@@ -95,7 +95,6 @@ public class SelectionClic implements MouseListener {
                 return;
             }
 
-
             // Si on n'est pas en mode récupération, on effectue la sélection d'une unité ou d'une ressource classique
             dropUnitesSelectionnees();
             boolean unitSelected = false;
@@ -131,19 +130,19 @@ public class SelectionClic implements MouseListener {
                     );
                     if (cercleRessource.contains(x, y)) {
                         currentSelectionType = SelectionType.RESOURCE;
-                        panel.showFixedInfoPanel("resource");
+                        panel.showResourceInfoPanel(ressource); // Appeler showResourceInfoPanel pour afficher les informations
                         resourceSelected = true;
                         break;
                     }
                 }
                 if (!resourceSelected) {
                     currentSelectionType = SelectionType.NONE;
+                    panel.setRessourceSelectionnee(null); // Aucune ressource sélectionnée
                     panel.showEmptyInfoPanel();
                     unitesSelectionnees.clear();
                 }
             }
         }
-
 
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
             if (!unitesSelectionnees.isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
@@ -152,7 +151,6 @@ public class SelectionClic implements MouseListener {
                 }
             }
         }
-
     }
 
 

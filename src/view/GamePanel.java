@@ -38,6 +38,8 @@ public class GamePanel extends JPanel {
 
     private ArrayList<model.objets.Ressource> collectedResources = new ArrayList<>();
 
+    private Ressource ressourceSelectionnee; // Ressource actuellement sélectionnée
+
 
 
 
@@ -131,6 +133,19 @@ public class GamePanel extends JPanel {
         executor.submit(updater);
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
+    }
+
+    // Getter et setter pour la ressource sélectionnée
+    public synchronized Ressource getRessourceSelectionnee() {
+        return ressourceSelectionnee;
+    }
+
+    public synchronized void setRessourceSelectionnee(Ressource ressource) {
+        this.ressourceSelectionnee = ressource;
+    }
+
+    public InfoPanelUNC getInfoPanelUNC() {
+        return infoPanelUNC; // Méthode pour accéder à InfoPanelUNC
     }
 
 
@@ -260,7 +275,8 @@ public class GamePanel extends JPanel {
 
 
     public void showResourceInfoPanel(Ressource ressource) {
-        System.out.println("showResourceInfoPanel appelée pour la ressource : " + ressource);
+        System.out.println("Affichage des informations pour la ressource : " + ressource.getNom());
+        setRessourceSelectionnee(ressource); // Mettre à jour la ressource sélectionnée
         slideInInfoPanel("resource");
         infoPanelUNC.updateInfo(ressource); // Mettre à jour les informations de la ressource
     }

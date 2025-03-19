@@ -4,6 +4,7 @@ import controler.ThreadManager;
 import controler.TileManager;
 import model.objets.CoordGrid;
 import model.objets.Position;
+import model.objets.ResourceSpawner;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
@@ -44,11 +45,15 @@ public class MainTest {
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
 
         ((Plongeur) (gamePanel.getUnitesEnJeu()).get(0)).setFaitFuire(true);
-        for(int i = 0; i < 50; i++)
-            gamePanel.addObjet(new Collier(new Position()));
-        //System.out.println("Unités en jeu : " + gamePanel.getUnitesEnJeu().size());
 
-
+        // Démarrer le ResourceSpawner
+        int maxResources = 50; // Nombre total de ressources à générer
+        int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
+        int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
+        int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
+        int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
+        ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
+        resourceSpawner.start();
 
         Redessine r = new Redessine();
         maFenetre.add(gamePanel);
