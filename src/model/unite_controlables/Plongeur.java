@@ -3,28 +3,39 @@ package model.unite_controlables;
 import model.gains_joueur.Referee;
 import model.objets.Position;
 import model.objets.UniteControlable;
+import model.unite_non_controlables.Calamar;
 
 import javax.swing.*;
 import java.util.HashMap;
 
 public class Plongeur extends UniteControlable {
-    //private int ressourceStockees; // Points de victoire
-    //private int argent; // Argent gagné en vendant des colliers
-
     private HashMap<model.objets.Ressource, Integer> sac; // Sac pour stocker les ressources et leurs quantités
-
     private static final int CAPACITE_SAC = 10; // Capacité maximale du sac
+    private int rayonFuite;
+    private boolean faitFuire;
 
     public Plongeur(int id, Position position, int rayon) {
         super(id, position, rayon, 10);
         sac = new HashMap<>();
+        this.rayonFuite = 50;
+        this.faitFuire = false;
     }
 
     public HashMap<model.objets.Ressource, Integer> getSac() {
         return sac;
     }
 
+    public int getRayonFuite() {
+        return rayonFuite;
+    }
 
+    public boolean isFaitFuire() {
+        return faitFuire;
+    }
+
+    public void setFaitFuire(boolean faitFuire) {
+        this.faitFuire = faitFuire;
+    }
     // Méthode pour ajouter un collier au sac
     public boolean ajouterAuxSac(model.objets.Ressource ressource) {
 
@@ -76,6 +87,10 @@ public class Plongeur extends UniteControlable {
         } else {
             System.out.println("Aucun collier à vendre.");
         }
+    }
+
+    public void faireFuirCalamar(Calamar calamar) {
+        calamar.fuit();
     }
 
 

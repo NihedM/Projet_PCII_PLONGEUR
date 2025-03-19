@@ -4,6 +4,8 @@ import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Unite;
 import model.objets.UniteControlable;
+import model.unite_controlables.Plongeur;
+import model.unite_non_controlables.Calamar;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -84,6 +86,18 @@ public class ProximityChecker extends Thread{
                     CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
 
                     for(Objet voisin: voisins){
+
+                        if(unite instanceof Plongeur){
+                            if(voisin instanceof Calamar){
+                                if(controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1){
+                                    ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                                }
+                            }
+
+
+
+                        }
+
                         if(controler.GestionCollisions.collisionCC(unite, voisin) > -1){
                             if(voisin instanceof Unite){
                                 GestionCollisions. rebound((Unite) unite, (Unite) voisin);

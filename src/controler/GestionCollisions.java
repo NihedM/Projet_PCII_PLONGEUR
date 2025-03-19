@@ -2,6 +2,8 @@ package controler;
 
 import model.objets.Objet;
 import model.objets.Unite;
+import model.unite_controlables.Plongeur;
+import model.unite_non_controlables.Enemy;
 
 public class GestionCollisions{
 
@@ -13,6 +15,15 @@ public class GestionCollisions{
         2: si b est incluse dans a
      */
 
+    private static int collision(int x1, int x2, int y1, int y2, int r1, int r2){
+
+        double d = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
+        if(d > Math.pow(r1 + r2, 2)) return -1;
+        if(r1 > r2 && d < Math.pow(r1 -r2, 2)) return 1;
+        if(r2 > r1 && d < Math.pow(r2 -r1, 2)) return 2;
+        return 0;
+
+    }
     public static int collisionCC(Objet a, Objet b){
         if (a == null || b == null)
             return -1;
@@ -23,12 +34,14 @@ public class GestionCollisions{
         int r1 = a.getRayon();
         int r2 = b.getRayon();
 
-        double d = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
-        if(d > Math.pow(r1 + r2, 2)) return -1;
-        if(r1 > r2 && d < Math.pow(r1 -r2, 2)) return 1;
-        if(r2 > r1 && d < Math.pow(r2 -r1, 2)) return 1;
-        return 0;
+        return  collision(x1,x2,y1, y2, r1, r2);
     }
+
+    public static int collisionPerimetreFuite(Plongeur p, Enemy e){
+        return collision(p.getPosition().getX(), e.getPosition().getX(), p.getPosition().getY(), e.getPosition().getY(), p.getRayonFuite(),e.getRayon());
+    }
+
+
 
     //todo collsion entre un objet circulaire et un objet rectangulaire
 

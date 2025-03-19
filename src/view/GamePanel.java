@@ -22,10 +22,10 @@ public class GamePanel extends JPanel {
     private static GamePanel instance;
 
     private int grid[][] = new int[TileManager.nbTiles][TileManager.nbTiles];
-    private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> objetsMap = new ConcurrentHashMap<>();
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesEnJeu = new CopyOnWriteArrayList<>();
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesSelected = new CopyOnWriteArrayList<>();
-    private CopyOnWriteArrayList<model.objets.Ressource> ressources = new CopyOnWriteArrayList<>();
+    private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
+    private CopyOnWriteArrayList<UniteControlable> unitesEnJeu = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<UniteControlable> unitesSelected = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<Ressource> ressources = new CopyOnWriteArrayList<>();
 
     private ProximityChecker proxy;
     private TileUpdater updater;
@@ -481,7 +481,18 @@ public class GamePanel extends JPanel {
             int y = objet.getPosition().getY() - objet.getRayon();
             g.fillOval(x, y, diametre, diametre);
 
-
+            // Dessiner le périmètre de fuite pour les Plongeurs
+            if (objet instanceof Plongeur) {
+                Plongeur plongeur = (Plongeur) objet;
+                if (plongeur.isFaitFuire()) {
+                    g.setColor(Color.ORANGE);
+                    int rayonFuite = plongeur.getRayonFuite();
+                    int xFuite = plongeur.getPosition().getX() - rayonFuite;
+                    int yFuite = plongeur.getPosition().getY() - rayonFuite;
+                    int diametreFuite = rayonFuite * 2;
+                    g.drawOval(xFuite, yFuite, diametreFuite, diametreFuite);
+                }
+            }
 
         }
         g.setColor(Color.ORANGE); // Set the color for spawn points

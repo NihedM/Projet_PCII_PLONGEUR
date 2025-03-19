@@ -59,6 +59,8 @@ public class MainTest {
         //gamePanel.addUniteControlable(new Plongeur(2, new Position(50,500), 10));
         for(int i = 0; i < 4; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
+
+        ((Plongeur) (gamePanel.getUnitesEnJeu()).get(0)).setFaitFuire(true);
         for(int i = 0; i < 50; i++)
             gamePanel.addObjet(new Collier(new Position()));
         //System.out.println("Unités en jeu : " + gamePanel.getUnitesEnJeu().size());
