@@ -51,34 +51,13 @@ public class DeplacementThread extends Thread {
                 unite.getPosition().setY(unite.getPosition().getY() + (int) unite.getVy());
                 GamePanel.getInstance().repaint();
 
-                if (unite instanceof UniteControlable) {
-                    CopyOnWriteArrayList<model.objets.Objet> voisins = ProximityChecker.getInstance().getVoisins((UniteControlable) unite);
-                    for (Objet voisin : voisins) {
-                        if (GestionCollisions.collisionCC(unite, voisin) != -1) {
-                            if (voisin instanceof Unite) {
-                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
-                            }
-                            GestionCollisions.preventOverlap(unite, voisin);
-                        }
-
-                    }
-                }
             } else {
                 // Destination atteinte, arrêter le déplacement
                 unite.setDestination(null);
 
                 boolean collisionDetected = false;
                 if(unite instanceof UniteControlable) {
-                    CopyOnWriteArrayList<model.objets.Objet> voisins = ProximityChecker.getInstance().getVoisins((UniteControlable) unite);
-                    for (Objet voisin : voisins) {
-                        if (GestionCollisions.collisionCC(unite, voisin) != -1) {
-                            collisionDetected = true;
-                            if (voisin instanceof Unite) {
-                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
-                            }
-                            GestionCollisions.preventOverlap(unite, voisin);
-                        }
-                    }
+
                     if (!collisionDetected) {
                         int newX = unite.getPosition().getX() + dx;
                         int newY = unite.getPosition().getY() + dy;
