@@ -37,7 +37,6 @@ public class MarketPopup extends JDialog {
                 // Au lieu d'afficher un simple message, on ouvre une nouvelle fenêtre d'embauche
                 EmbaucheDialog embaucheDialog = new EmbaucheDialog(MarketPopup.this);
                 embaucheDialog.setVisible(true);
-                dispose(); // on ferme la popup du Market
             }
         });
         add(vendreButton);

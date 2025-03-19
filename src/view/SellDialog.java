@@ -42,7 +42,7 @@ import java.awt.event.MouseEvent;
                         GamePanel.getInstance().removeCollectedResource(resource);
                         // Actualiser l'affichage
                         updateResourceList();
-                        JOptionPane.showMessageDialog(SellDialog.this, "Ressource vendue pour " + resource.getValeur() + " argent.");
+                        JOptionPane.showMessageDialog(SellDialog.this, "Ressource vendue pour " + resource.getValeur() + " €.");
                         selectedResourcePanel = null;
                     } else {
                         JOptionPane.showMessageDialog(SellDialog.this, "Veuillez sélectionner une ressource.");
