@@ -114,7 +114,7 @@ public class SelectionClic implements MouseListener {
             }
             if (unitSelected) {
                 currentSelectionType = SelectionType.UNIT;
-                panel.showMiniPanel((Plongeur) unitesSelectionnees.get(0));
+                panel.showFixedInfoPanel("unit");
                 panel.hideResourceInfoPanel();
             } else {
                 boolean resourceSelected = false;
@@ -130,14 +130,14 @@ public class SelectionClic implements MouseListener {
                     );
                     if (cercleRessource.contains(x, y)) {
                         currentSelectionType = SelectionType.RESOURCE;
-                        panel.showResourceInfoPanel(ressource);
+                        panel.showFixedInfoPanel("resource");
                         resourceSelected = true;
                         break;
                     }
                 }
                 if (!resourceSelected) {
                     currentSelectionType = SelectionType.NONE;
-                    panel.slideOutInfoPanel();
+                    panel.showEmptyInfoPanel();
                     unitesSelectionnees.clear();
                 }
             }
@@ -178,7 +178,7 @@ public class SelectionClic implements MouseListener {
             } else {
                 // On peut ajouter ici d'autres traitements si nécessaire
                 if (currentSelectionType == SelectionType.NONE) {
-                    panel.slideOutInfoPanel();
+                      panel.showEmptyInfoPanel();
                 }
                 panel.repaint();
             }

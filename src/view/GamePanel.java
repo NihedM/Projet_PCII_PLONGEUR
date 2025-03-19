@@ -51,27 +51,57 @@ public class GamePanel extends JPanel {
 
     public GamePanel() {
         instance = this;
-        setLayout(new BorderLayout());
+        setLayout(null);
 
+        setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
+        setBackground(new Color(173, 216, 230)); // Fond bleu clair
 
-        // Création du container des panneaux d'info avec CardLayout
+        // Initialisation et positionnement de l'infoContainer (anciennement ajouté en EAST)
         infoContainer = new JPanel(new CardLayout());
         infoPanel = new InfoPanel();
         infoPanelUNC = new InfoPanelUNC();
-        infoContainer.setPreferredSize(new Dimension(0, PANELDIMENSION));
-        JPanel emptyPanel = new JPanel();  // Panel vide
-        emptyPanel.setOpaque(false);       // Pour qu'il ne gêne pas le visuel
+        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
+        JPanel emptyPanel = new JPanel();
+        emptyPanel.setOpaque(false);
 
-// Ajout des cartes au container
+
         infoContainer.add(infoPanel, "unit");
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(emptyPanel, "empty");
 
-// Afficher par défaut la carte vide
+
+        // Par défaut, affiche la carte vide
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
 
-        add(infoContainer, BorderLayout.EAST);
+
+        // Positionnement manuel : on place l'infoContainer à droite
+        infoContainer.setBounds(PANELDIMENSION - 200, 0, 200, PANELDIMENSION);
+        add(infoContainer);
+
+
+        // Ajout direct du bouton "Market" dans le JPanel
+        JButton marketButton = new JButton("Market");
+        // Positionné en haut à droite (100px de largeur, 30px de hauteur, ajuster selon vos besoins)
+        marketButton.setBounds(500, 10, 100, 30);
+        marketButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Mettre le jeu en pause
+                GamePanel.this.setPaused(true);
+                // Récupérer la fenêtre parente du GamePanel
+                JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
+                // Créer et afficher la popup Market
+                MarketPopup popup = new MarketPopup(topFrame);
+                popup.setVisible(true);
+                // Une fois la popup fermée, reprendre le jeu
+                GamePanel.this.setPaused(false);
+            }
+        });
+        add(marketButton);
+
+
+
 
 
 
@@ -89,6 +119,7 @@ public class GamePanel extends JPanel {
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
     }
+
 
     public void setRecuperationMode(boolean mode) {
         this.recuperationMode = mode;
@@ -176,8 +207,22 @@ public class GamePanel extends JPanel {
         //  mettre à jour infoPanel avec les infos de l'unité ici (exemple : infoPanel.updateInfo(plongeur);)
         slideInInfoPanel("unit");
     }
-
-
+    public void showEmptyInfoPanel() {
+        CardLayout cl = (CardLayout) infoContainer.getLayout();
+        cl.show(infoContainer, "empty");
+        // Définir une largeur fixe pour le panneau d'info (par exemple 200 pixels)
+        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
+        infoContainer.revalidate();
+        repaint();
+    }
+    public void showFixedInfoPanel(String panelType) {
+        CardLayout cl = (CardLayout) infoContainer.getLayout();
+        cl.show(infoContainer, panelType);
+        // Définir la largeur fixe souhaitée (par exemple 200 pixels)
+        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
+        infoContainer.revalidate();
+        repaint();
+    }
     public void hideMiniPanel() {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
