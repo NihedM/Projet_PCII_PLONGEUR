@@ -40,6 +40,16 @@ public class GamePanel extends JPanel {
 
 
 
+
+
+    //ajouter classe terrain, dimentions temporaires
+    public static final int TERRAIN_MIN_X = 10,
+            TERRAIN_MAX_X = PANELDIMENSION - 10,
+            TERRAIN_MIN_Y = 10,
+            TERRAIN_MAX_Y = PANELDIMENSION - 10;
+
+
+
     private InfoPanel infoPanel;         // pour les unités
     private InfoPanelUNC infoPanelUNC;   // pour les ressources
     private final int INFO_PANEL_TARGET_WIDTH = 200;
@@ -208,6 +218,12 @@ public class GamePanel extends JPanel {
     /*public CopyOnWriteArrayList<model.objets.Ressource> getRessources() {
         return ressources;
     }*/
+
+    public boolean isWithinTerrainBounds(Position position) {
+        int x = position.getX();
+        int y = position.getY();
+        return x >= TERRAIN_MIN_X && x <= TERRAIN_MAX_X && y >= TERRAIN_MIN_Y && y <= TERRAIN_MAX_Y;
+    }
 
     public boolean isDeplacementMode() {
         return deplacementMode;

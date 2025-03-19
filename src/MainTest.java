@@ -16,7 +16,9 @@ import java.util.Random;
 public class MainTest {
 
     private static final int FENETREWIDTH = 800, FENETREHEIGHT = 600;
-    //ajouter classe terrain
+
+
+
 
     public static void main(String[] args) {
 

@@ -111,7 +111,7 @@ public class GameMaster extends Thread{
             }
             updateTargets();
             try {
-                Thread.sleep(100);
+                Thread.sleep(30);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;

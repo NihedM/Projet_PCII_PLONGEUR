@@ -75,12 +75,27 @@ public class Calamar extends Enemy {
     public void fuit() {
         fuire();
         stopTimer();
-        //set position de destination le coin de l’écran le plus proche
-        /* 9 directions possibles, il faudra utiliser les dimentions du terrain(consantes) */
+        Position currentPosition = this.getPosition();
+        int x = currentPosition.getX();
+        int y = currentPosition.getY();
 
-        /*version initiale ce dirige vers (0,0)*/
+        int distanceToLeftEdge = x - GamePanel.TERRAIN_MIN_X;
+        int distanceToRightEdge = GamePanel.TERRAIN_MAX_X - x;
+        int distanceToTopEdge = y - GamePanel.TERRAIN_MIN_Y;
+        int distanceToBottomEdge = GamePanel.TERRAIN_MAX_Y - y;
 
-        this.setDestination(new Position(-1, -1));
+        int minDistance = Math.min(Math.min(distanceToLeftEdge, distanceToRightEdge), Math.min(distanceToTopEdge, distanceToBottomEdge));
+
+        if (minDistance == distanceToLeftEdge) {
+            this.setDestination(new Position(0, y));
+        } else if (minDistance == distanceToRightEdge) {
+            this.setDestination(new Position(GamePanel.PANELDIMENSION, y));
+        } else if (minDistance == distanceToTopEdge) {
+            this.setDestination(new Position(x, 0));
+        } else {
+            this.setDestination(new Position(x, GamePanel.PANELDIMENSION));
+        }
+
         this.objectifCourrant = null;
     }
 
