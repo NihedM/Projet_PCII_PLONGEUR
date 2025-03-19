@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class GamePanel extends JPanel {
     public static final int PANELDIMENSION = 800;
@@ -186,12 +187,7 @@ public class GamePanel extends JPanel {
     public void showResourceInfoPanel(Ressource ressource) {
         System.out.println("showResourceInfoPanel appelée pour la ressource : " + ressource);
         slideInInfoPanel("resource");
-        infoPanelUNC.updateInfo(ressource);
-
-        // Ajouter InfoPanelUNC comme listener de GestionRessource
-        GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
-        gestionRessource.addListener(infoPanelUNC);
-        gestionRessource.start(); // Démarrer le thread de gestion de la ressource
+        infoPanelUNC.updateInfo(ressource); // Mettre à jour les informations de la ressource
     }
 
 
@@ -261,6 +257,14 @@ public class GamePanel extends JPanel {
 
 
         //System.out.println("Ajouté : " + objetsMap.get(coord).get(0).getClass().getName() + " à " + coord.getX() + " " + coord.getY());
+
+        if (objet instanceof Ressource){
+            Ressource ressource = (Ressource) objet;
+            GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
+            gestionRessource.addListener(infoPanelUNC); // ajouter InfoPanelUNC comme listener
+            gestionRessource.start(); // Démarrer le thread
+
+        }
     }
 
 
