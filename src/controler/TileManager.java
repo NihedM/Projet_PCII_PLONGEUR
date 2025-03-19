@@ -7,7 +7,6 @@ import view.GamePanel;
 public class TileManager {
 
     public static final int nbTiles = 20, TILESIZE = GamePanel.PANELDIMENSION / nbTiles;
-    private GamePanel gamePanel;
 
     private static CoordGrid[][] coordTiles = new CoordGrid[nbTiles][nbTiles];
 
@@ -18,16 +17,6 @@ public class TileManager {
             }
         }
     }
-
-    public TileManager(GamePanel gamePanel) {
-        this.gamePanel = gamePanel;
-
-    }
-
-
-
-
-
 
     public static int transformeP_to_grid(int x) {
         return x / TILESIZE;

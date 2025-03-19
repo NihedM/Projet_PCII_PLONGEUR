@@ -14,7 +14,7 @@ public class ProximityChecker extends Thread{
     private final ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap;
     private CopyOnWriteArrayList<UniteControlable> unitesEnJeu;
 
-    private static controler.ProximityChecker instance;
+    private static ProximityChecker instance;
 
 
     public ProximityChecker(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap, CopyOnWriteArrayList<UniteControlable> unitesEnJeu) {
@@ -89,7 +89,7 @@ public class ProximityChecker extends Thread{
 
                         if(unite instanceof Plongeur){
                             if(voisin instanceof Calamar){
-                                if(controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1){
+                                if( ((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1){
                                     ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
                                 }
                             }
