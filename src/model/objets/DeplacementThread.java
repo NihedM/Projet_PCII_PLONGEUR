@@ -22,19 +22,27 @@ public class DeplacementThread extends Thread {
     @Override
     public void run() {
         ThreadManager.incrementThreadCount("DeplacementThread");
-        System.out.println("Thread de déplacement démarré pour l'unité ");
         while (running) {
-            // Synchroniser l'accès à la destination
+            // Si le jeu est en pause, le thread attend
+            while (GamePanel.getInstance().isPaused()) {
+                try {
+                    Thread.sleep(50);  // Petite pause / ralentissement
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+
+            // Récupération sécurisée de la destination
             Position destination;
             synchronized(unite) {
                 destination = unite.getDestination();
             }
 
             if (destination == null) {
-                // Si la destination est null, sortir  du thread
+                // Si la destination est null, sortir du thread
                 break;
             }
-
 
             int dx = destination.getX() - unite.getPosition().getX();
             int dy = destination.getY() - unite.getPosition().getY();
@@ -47,14 +55,12 @@ public class DeplacementThread extends Thread {
                 unite.getPosition().setX(unite.getPosition().getX() + (int) unite.getVx());
                 unite.getPosition().setY(unite.getPosition().getY() + (int) unite.getVy());
                 GamePanel.getInstance().repaint();
-
             } else {
                 // Destination atteinte, arrêter le déplacement
                 unite.setDestination(null);
 
                 boolean collisionDetected = false;
-                if(unite instanceof UniteControlable) {
-
+                if (unite instanceof model.objets.UniteControlable) {
                     if (!collisionDetected) {
                         int newX = unite.getPosition().getX() + dx;
                         int newY = unite.getPosition().getY() + dy;
@@ -65,16 +71,12 @@ public class DeplacementThread extends Thread {
                 }
             }
 
-
-                //temporaire faut gérer la mort des unités
-
-            if (unite instanceof Calamar && !GamePanel.getInstance().isWithinTerrainBounds(unite.getPosition())) {
+            // Gestion de la mort du Calamar si hors terrain
+            if (unite instanceof model.unite_non_controlables.Calamar &&
+                    !GamePanel.getInstance().isWithinTerrainBounds(unite.getPosition())) {
                 GamePanel.getInstance().removeObjet(unite, unite.getCoordGrid());
                 break;
             }
-
-
-
 
             try {
                 Thread.sleep(DELAY);
@@ -85,6 +87,7 @@ public class DeplacementThread extends Thread {
         }
         ThreadManager.decrementThreadCount("DeplacementThread");
     }
+
 
 
 
