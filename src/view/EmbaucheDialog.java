@@ -1,5 +1,6 @@
 package view;
 
+import model.gains_joueur.Referee;
 import model.objets.Position;
 import model.unite_controlables.Plongeur;
 
@@ -40,18 +41,24 @@ public class EmbaucheDialog extends JDialog {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // Générer une position aléatoire dans la zone de jeu
-                    Random rand = new Random();
-                    int margin = 25; // pour éviter de placer trop près du bord
-                    int x = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
-                    int y = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
-                    Position pos = new Position(x, y);
+                    if (Referee.getInstance().getArgentJoueur() >= 100) {
+                        Random rand = new Random();
+                        int margin = 25; // pour éviter de placer trop près du bord
+                        int x = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
+                        int y = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
+                        Position pos = new Position(x, y);
 
-                    Plongeur newUnit = new Plongeur(4,pos,10);
-                    GamePanel.getInstance().addUniteControlable(newUnit);
-                    GamePanel.getInstance().repaint();
+                        Plongeur newUnit = new Plongeur(4, pos, 10);
+                        GamePanel.getInstance().addUniteControlable(newUnit);
+                        GamePanel.getInstance().repaint();
 
-                    JOptionPane.showMessageDialog(view.EmbaucheDialog.this, "Unité embauchée !");
-                    dispose();
+                        Referee.getInstance().retirerArgent(100);
+
+                        JOptionPane.showMessageDialog(view.EmbaucheDialog.this, "Unité embauchée !");
+                        dispose();
+                    } else {
+                        JOptionPane.showMessageDialog(view.EmbaucheDialog.this, "Vous n'avez pas assez d'agent");
+                    }
                 }
             });
         }
