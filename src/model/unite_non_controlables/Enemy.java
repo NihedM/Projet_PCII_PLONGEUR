@@ -7,6 +7,7 @@ import model.objets.UniteNonControlableInterface;
 
 import java.util.ArrayList;
 import java.util.Timer;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Enemy extends Unite implements UniteNonControlableInterface {
     protected enum Etat {
@@ -42,7 +43,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
 
     @Override
-    public void setup(ArrayList<Objet> interactionTargets) {
+    public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
 
     }
     public void action(){}

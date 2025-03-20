@@ -206,7 +206,7 @@ public class GamePanel extends JPanel {
                 }
             }
         }
-        System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
+        //System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
         return ressourcesList;
     }
     public ArrayList<Ressource> getRessources() {

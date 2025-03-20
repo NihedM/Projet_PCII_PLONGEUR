@@ -1,8 +1,8 @@
 package model.objets;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public interface UniteNonControlableInterface {
-    void setup(ArrayList<Objet> interactionTargets);
+    void setup(CopyOnWriteArrayList<Objet> interactionTargets);
     void action();
 }

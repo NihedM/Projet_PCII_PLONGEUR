@@ -7,26 +7,27 @@ import model.objets.Ressource;
 import view.GamePanel;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Calamar extends Enemy {
 
     ArrayList<Object> inventaire = new ArrayList<Object>();
     public Ressource objectifCourrant;
-    private ArrayList<Ressource> ressourcesDisponibles;
+    private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     public Calamar(Position position) {
         super(position,5, 5, 0.05);
-        this.ressourcesDisponibles = new ArrayList<>();
+        this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
     }
 
-    public void setupCalamar(ArrayList<Ressource> ressourcesDisponibles){
+    public void setupCalamar(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
         this.ressourcesDisponibles = ressourcesDisponibles;
         selectionneRessourcePlusProche(ressourcesDisponibles);
     }
 
     @Override
-    public void setup(ArrayList<Objet> interactionTargets) {
-        this.ressourcesDisponibles = new ArrayList<>();
+    public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
+        this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
         for (Objet obj : interactionTargets) {
             if (obj instanceof Ressource) {
                 this.ressourcesDisponibles.add((Ressource) obj);
@@ -37,11 +38,11 @@ public class Calamar extends Enemy {
 
 
 
-    public void setRessourcesDisponibles(ArrayList<Ressource> ressourcesDisponibles){
+    public void setRessourcesDisponibles(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
         this.ressourcesDisponibles = ressourcesDisponibles;
     }
 
-    public void selectionneRessourcePlusProche(ArrayList<Ressource> ressources) {
+    public void selectionneRessourcePlusProche(CopyOnWriteArrayList<Ressource> ressources) {
         //trouver la ressource la plus proche
         Ressource ressourcePlusProche = null;
         double distanceMin = Double.MAX_VALUE;

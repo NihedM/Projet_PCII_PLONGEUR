@@ -15,15 +15,15 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class GameMaster extends Thread{
 
     private static GameMaster instance;
-    private ArrayList<Ressource> ressources;
-    private ArrayList<Enemy> enemies;
+    private CopyOnWriteArrayList<Ressource> ressources;
+    private CopyOnWriteArrayList<Enemy> enemies;
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap ;
 
 
     public GameMaster() {
         this.objetsMap = GamePanel.getInstance().getObjetsMap();
-        ressources = new ArrayList<Ressource>();
-        enemies = new ArrayList<Enemy>();
+        ressources = new CopyOnWriteArrayList<Ressource>();
+        enemies = new CopyOnWriteArrayList<Enemy>();
         instance = this;
         updateLists();
     }
@@ -48,22 +48,22 @@ public class GameMaster extends Thread{
     public static GameMaster getInstance() {
         return instance;
     }
-    public ArrayList<Ressource> getRessources() {
+    public CopyOnWriteArrayList<Ressource> getRessources() {
         return ressources;
     }
 
-    public void setRessourcesVisibilesJoueur(ArrayList<Ressource> ressources) {
+    public void setRessourcesVisibilesJoueur(CopyOnWriteArrayList<Ressource> ressources) {
         this.ressources = ressources;
     }
 
 
 
 
-    public void setEnemies(ArrayList<Enemy> enemies) {
+    public void setEnemies(CopyOnWriteArrayList<Enemy> enemies) {
         this.enemies = enemies;
     }
 
-    public void addEnemy(Enemy enemy, ArrayList<Objet> targets) {
+    public void addEnemy(Enemy enemy, CopyOnWriteArrayList<Objet> targets) {
         this.enemies.add(enemy);
 
 

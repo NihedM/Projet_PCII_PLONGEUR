@@ -11,6 +11,7 @@ import model.unite_non_controlables.Calamar;
 import view.GamePanel;
 
 import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class EnemySpawnPoint extends Objet implements Runnable {
 
@@ -44,9 +45,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         //generate random position in tile
         Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
         Calamar calamar = new Calamar(position);
-        calamar.setupCalamar(gamePanel.getRessources() );
+        calamar.setupCalamar(gamePanel.getRessourcesMap() );
         gamePanel.addObjet(calamar);
-        GameMaster.getInstance().addEnemy(calamar, new ArrayList<>(gamePanel.getRessources()));
+        GameMaster.getInstance().addEnemy(calamar, new CopyOnWriteArrayList<>(gamePanel.getRessources()));
 
     }
 
