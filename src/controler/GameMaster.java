@@ -5,6 +5,7 @@ import model.objets.Objet;
 import model.objets.Ressource;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
+import view.GamePanel;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -19,15 +20,15 @@ public class GameMaster extends Thread{
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap ;
 
 
-    public GameMaster(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap) {
-        this.objetsMap = objetsMap;
+    public GameMaster() {
+        this.objetsMap = GamePanel.getInstance().getObjetsMap();
         ressources = new ArrayList<Ressource>();
         enemies = new ArrayList<Enemy>();
         instance = this;
         updateLists();
     }
 
-    private void updateLists() {
+    public void updateLists() {
         ressources.clear();
         enemies.clear();
         for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {

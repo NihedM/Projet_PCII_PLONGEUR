@@ -15,11 +15,12 @@ public class ThreadManager {
     static {
         runningThreadCounts.put("DisplayThread", 0);
         runningThreadCounts.put("Redessine", 0);
-        runningThreadCounts.put("GestionRessource", 0);
+        runningThreadCounts.put("GestionnairesDeRessources", 0);
         runningThreadCounts.put("TileUpdater", 0);
         runningThreadCounts.put("ProximityChecker", 0);
         runningThreadCounts.put("GameMaster", 0);
         runningThreadCounts.put("SpawnManager", 0);
+        runningThreadCounts.put("RessourceSpawner",0);
         runningThreadCounts.put("EnemySpawnPoints",0);
         runningThreadCounts.put("VictoryCheckThread", 0);
         runningThreadCounts.put("ResourceGenerationThread", 0);

@@ -1,5 +1,7 @@
 package model.objets;
 
+import controler.ThreadManager;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,17 +26,20 @@ public class GestionRessource extends Thread {
 
     @Override
     public void run() {
+        ThreadManager.incrementThreadCount("GestionnairesDeRessources");
+
         while (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {
             ressource.evoluer();
             notifyListeners(); // Notifier les listeners après chaque évolution
             try {
                 Thread.sleep(intervalle);
             } catch (InterruptedException e) {
-                System.out.println("GestionRessource interrompue pour la ressource : " + ressource);
+                //System.out.println("GestionRessource interrompue pour la ressource : " + ressource);
                 break;
             }
         }
-        System.out.println("La ressource est prête à être récoltée : " + ressource);
+        ThreadManager.decrementThreadCount("GestionnairesDeRessources");
+        //System.out.println("La ressource est prête à être récoltée : " + ressource);
     }
 
     private void notifyListeners() {

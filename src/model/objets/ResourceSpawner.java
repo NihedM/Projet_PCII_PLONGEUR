@@ -1,5 +1,6 @@
 package model.objets;
 
+import controler.GameMaster;
 import model.objets.Position;
 import model.objets.GestionRessource;
 import model.ressources.Collier;
@@ -33,6 +34,7 @@ public class ResourceSpawner extends Thread {
     public void run() {
         Random random = new Random();
         int resourcesSpawned = 0;
+        controler.ThreadManager.incrementThreadCount("RessourceSpawner");
 
         while (running && resourcesSpawned < maxResources) {
             // Déterminer combien de ressources générer à cet intervalle
@@ -55,6 +57,9 @@ public class ResourceSpawner extends Thread {
                 gestionRessource.start(); // Démarrer le thread
 
                 resourcesSpawned++;
+
+                GameMaster.getInstance().updateLists();
+
             }
 
             // Attendre un délai aléatoire avant de générer la prochaine vague de ressources
@@ -67,6 +72,7 @@ public class ResourceSpawner extends Thread {
                 break;
             }
         }
+        controler.ThreadManager.decrementThreadCount("ResourceSpawner");
 
         System.out.println("ResourceSpawner a terminé. Ressources générées : " + resourcesSpawned);
     }

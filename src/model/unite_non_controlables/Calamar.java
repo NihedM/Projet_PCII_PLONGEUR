@@ -24,6 +24,17 @@ public class Calamar extends Enemy {
         selectionneRessourcePlusProche(ressourcesDisponibles);
     }
 
+    @Override
+    public void setup(ArrayList<Objet> interactionTargets) {
+        this.ressourcesDisponibles = new ArrayList<>();
+        for (Objet obj : interactionTargets) {
+            if (obj instanceof Ressource) {
+                this.ressourcesDisponibles.add((Ressource) obj);
+            }
+        }
+    }
+
+
 
 
     public void setRessourcesDisponibles(ArrayList<Ressource> ressourcesDisponibles){
@@ -99,22 +110,14 @@ public class Calamar extends Enemy {
         this.objectifCourrant = null;
     }
 
-    @Override
-    public void setup(ArrayList<Objet> interactionTargets) {
-        this.ressourcesDisponibles = new ArrayList<>();
-        for (Objet obj : interactionTargets) {
-            if (obj instanceof Ressource) {
-                this.ressourcesDisponibles.add((Ressource) obj);
-            }
-        }
-    }
+
 
     @Override
     public void action() {
         //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
         if(GestionCollisions.collisionCC(this, objectifCourrant) > -1 ) {
-            if ( ressourcesDisponibles.contains(objectifCourrant)) {
+                if ( ressourcesDisponibles.contains(objectifCourrant)) {
 
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);

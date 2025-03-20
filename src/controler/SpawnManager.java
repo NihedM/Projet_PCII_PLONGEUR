@@ -58,9 +58,9 @@ public class SpawnManager extends Thread{
         ThreadManager.incrementThreadCount("SpawnManager");
 
         while (true) {
-            generateRandomSpawnPoint(10); // Example: each spawn point can spawn 10 enemies
+            generateRandomSpawnPoint(10);
             try {
-                Thread.sleep(getRandomInterval(10000, 20000)); // Interval for generating spawn points
+                Thread.sleep(getRandomInterval(10000, 20000));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

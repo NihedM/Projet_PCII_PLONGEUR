@@ -25,7 +25,6 @@ public class GamePanel extends JPanel {
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
     private CopyOnWriteArrayList<UniteControlable> unitesEnJeu = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<UniteControlable> unitesSelected = new CopyOnWriteArrayList<>();
-    private CopyOnWriteArrayList<Ressource> ressources = new CopyOnWriteArrayList<>();
 
     private ProximityChecker proxy;
     private TileUpdater updater;
@@ -135,47 +134,176 @@ public class GamePanel extends JPanel {
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
     }
 
-    // Getter et setter pour la ressource sélectionnée
-    public synchronized Ressource getRessourceSelectionnee() {
-        return ressourceSelectionnee;
+
+    //------------------GETTERS------------------------------------------------------------------------------------------------------
+    public static GamePanel getInstance() {
+        return instance;
     }
 
-    public synchronized void setRessourceSelectionnee(Ressource ressource) {
-        this.ressourceSelectionnee = ressource;
+
+    public synchronized ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> getObjetsMap() {
+        return objetsMap;
+    }
+    public synchronized Ressource getRessourceSelectionnee() {
+        return ressourceSelectionnee;
     }
 
     public InfoPanelUNC getInfoPanelUNC() {
         return infoPanelUNC; // Méthode pour accéder à InfoPanelUNC
     }
 
-
-    public void setRecuperationMode(boolean mode) {
-        this.recuperationMode = mode;
-    }
-
     public boolean isRecuperationMode() {
         return recuperationMode;
     }
+    public boolean isDeplacementMode() {
+        return deplacementMode;
+    }
+    public ArrayList<model.objets.Ressource> getCollectedResources() {
+        return collectedResources;
+    }
 
+    public boolean isPaused() {
+        return paused;
+    }
+
+    public boolean isWithinTerrainBounds(Position position) {
+        int x = position.getX();
+        int y = position.getY();
+        return x >= TERRAIN_MIN_X && x <= TERRAIN_MAX_X && y >= TERRAIN_MIN_Y && y <= TERRAIN_MAX_Y;
+    }
+
+    public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesEnJeu() {
+        return unitesEnJeu;
+    }
+    /*public ArrayList<Objet> getObjets() {
+        return objets;
+    }*/
+
+
+    public int[][] getGrid() {
+        return grid;
+    }
+
+    public int[][] getVoisins(int x, int y){
+        int[][] voisins = new int[8][2];
+        int i = 0;
+        for(int j = -1; j <= 1; j++){
+            for(int k = -1; k <= 1; k++){
+                if(j == 0 && k == 0) continue;
+                voisins[i][0] = x + j;
+                voisins[i][1] = y + k;
+                i++;
+            }
+        }
+        return voisins;
+    }
+    public CopyOnWriteArrayList<Ressource> getRessourcesMap() {
+        CopyOnWriteArrayList<Ressource> ressourcesList = new CopyOnWriteArrayList<>();
+        for (CopyOnWriteArrayList<model.objets.Objet> listeObjets : objetsMap.values()) {
+            for (model.objets.Objet o : listeObjets) {
+                if (o instanceof Ressource) {
+                    ressourcesList.add((Ressource) o);
+                }
+            }
+        }
+        System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
+        return ressourcesList;
+    }
+    public ArrayList<Ressource> getRessources() {
+        ArrayList<Ressource> ressources = new ArrayList<>();
+        for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
+            for (Objet objet : objets) {
+                if (objet instanceof Ressource) {
+                    ressources.add((Ressource) objet);
+                }
+            }
+        }
+        return ressources;
+    }
+
+
+    //-----------------SETTERS--------------------------------------------------------------------------------------------------------
+    public synchronized void setRessourceSelectionnee(Ressource ressource) {
+        this.ressourceSelectionnee = ressource;
+    }
+    public void setRecuperationMode(boolean mode) {
+        this.recuperationMode = mode;
+    }
     public void setPaused(boolean paused) {
         this.paused = paused;
         // Vous pouvez  interrompre ou suspendre certains threads ici si nécessaire
     }
+    public void setDeplacementMode(boolean deplacementMode) {
+        this.deplacementMode = deplacementMode;
+    }
 
-    public ArrayList<model.objets.Ressource> getCollectedResources() {
-        return collectedResources;
+
+
+
+    //-----------------AJOUTS------------------------------------------------------------------------------------------------------
+
+
+
+    //methode pour ajouter un objet sur le jeu
+    public synchronized void addObjet(Objet objet) {
+
+        /*is les coordonnées de l'objet existent deja dans la map, on ajoute l'objet à la liste d'objets à cette coordonnée
+         * sinon on crée une nouvelle entrée dans la map avec la coordonnée de l'objet comme clé et une liste contenant l'objet comme valeur
+         *
+         */
+        if(objetsMap.containsKey(objet.getCoordGrid())){
+            objetsMap.get(objet.getCoordGrid()).add(objet);
+
+        }else{
+            CopyOnWriteArrayList<Objet> objetsAtCoord = new CopyOnWriteArrayList<>();
+            objetsAtCoord.add(objet);
+            objetsMap.put(objet.getCoordGrid(), objetsAtCoord);
+        }
+
+        if (objet instanceof Ressource){
+            Ressource ressource = (Ressource) objet;
+            GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
+            gestionRessource.addListener(infoPanelUNC); // ajouter InfoPanelUNC comme listener
+            gestionRessource.start(); // Démarrer le thread
+
+        }
+    }
+
+    public void addUniteControlable(UniteControlable unite) {
+        this.addObjet(unite);
+        unitesEnJeu.add(unite);
     }
 
     public void addCollectedResource(model.objets.Ressource r) {
         collectedResources.add(r);
     }
 
+
+    //-----------------SUPPRESSIONS------------------------------------------------------------------------------------------------------
+
+    public synchronized void removeObjet(model.objets.Objet objet, CoordGrid coord) {
+        CopyOnWriteArrayList<model.objets.Objet> objetsAtCoord = objetsMap.get(coord);
+        if (objetsAtCoord != null) {
+            boolean removed = objetsAtCoord.remove(objet);
+            if (removed && objetsAtCoord.isEmpty()) {
+                objetsMap.remove(coord);
+            }
+
+        }
+    }
     public void removeCollectedResource(model.objets.Ressource r) {
         collectedResources.remove(r);
     }
-    public boolean isPaused() {
-        return paused;
-    }
+
+
+    /*public void removeUnite(UniteControlable unite) {
+        unitesEnJeu.remove(unite);
+        removeObjet(unite);
+    }*/
+
+
+
+
 
     // Méthode pour faire glisser le panneau d'infos vers l'intérieur (slide in)
     public void slideInInfoPanel(String panelType) {
@@ -230,24 +358,9 @@ public class GamePanel extends JPanel {
         });
         timer.start();
     }
-    /*public CopyOnWriteArrayList<model.objets.Ressource> getRessources() {
-        return ressources;
-    }*/
 
-    public boolean isWithinTerrainBounds(Position position) {
-        int x = position.getX();
-        int y = position.getY();
-        return x >= TERRAIN_MIN_X && x <= TERRAIN_MAX_X && y >= TERRAIN_MIN_Y && y <= TERRAIN_MAX_Y;
-    }
 
-    public boolean isDeplacementMode() {
-        return deplacementMode;
-    }
-
-    public void setDeplacementMode(boolean deplacementMode) {
-        this.deplacementMode = deplacementMode;
-    }
-
+    //-----------------AFFICHAGE------------------------------------------------------------------------------------------------------
     public void showMiniPanel(Plongeur plongeur) {
         //  mettre à jour infoPanel avec les infos de l'unité ici (exemple : infoPanel.updateInfo(plongeur);)
         slideInInfoPanel("unit");
@@ -286,152 +399,6 @@ public class GamePanel extends JPanel {
         infoPanelUNC.setVisible(false);
     }
 
-    public CopyOnWriteArrayList<Ressource> getRessourcesMap() {
-        CopyOnWriteArrayList<Ressource> ressourcesList = new CopyOnWriteArrayList<>();
-        for (CopyOnWriteArrayList<model.objets.Objet> listeObjets : objetsMap.values()) {
-            for (model.objets.Objet o : listeObjets) {
-                if (o instanceof Ressource) {
-                    ressourcesList.add((Ressource) o);
-                }
-            }
-        }
-        System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
-        return ressourcesList;
-    }
-    public ArrayList<Ressource> getRessources() {
-        ArrayList<Ressource> ressources = new ArrayList<>();
-        for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
-            for (Objet objet : objets) {
-                if (objet instanceof Ressource) {
-                    ressources.add((Ressource) objet);
-                }
-            }
-        }
-        return ressources;
-    }
-
-    public static view.GamePanel getInstance() {
-        return instance;
-    }
-
-
-    public synchronized ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> getObjetsMap() {
-        return objetsMap;
-    }
-
-
-
-    //---------------------------------------------------------------------------------
-
-    public synchronized void addObjet(model.objets.Objet objet) {
-
-        /*is les coordonnées de l'objet existent deja dans la map, on ajoute l'objet à la liste d'objets à cette coordonnée
-         * sinon on crée une nouvelle entrée dans la map avec la coordonnée de l'objet comme clé et une liste contenant l'objet comme valeur
-         *
-         */
-        if(objetsMap.containsKey(objet.getCoordGrid())){
-            objetsMap.get(objet.getCoordGrid()).add(objet);
-            //System.out.println(objet.getClass().getSimpleName() + " ajouté à la coordonnée " + objet.getCoordGrid().getX() + " " + objet.getCoordGrid().getY());
-
-        }else{
-            CopyOnWriteArrayList<model.objets.Objet> objetsAtCoord = new CopyOnWriteArrayList<>();
-
-            objetsAtCoord.add(objet);
-            //objetsAtCoord.addAll(objetsMap.get(objet.getCoordGrid()));
-            objetsMap.put(objet.getCoordGrid(), objetsAtCoord);
-
-
-            //System.out.println(objet.getClass().getSimpleName() + " ajouté à la coordonnée " + objet.getCoordGrid().getX() + " " + objet.getCoordGrid().getY());
-        }
-
-        //System.out.println("Map size after addition: " + objetsMap.size());
-
-
-        //System.out.println("Ajouté : " + objetsMap.get(coord).get(0).getClass().getName() + " à " + coord.getX() + " " + coord.getY());
-
-        if (objet instanceof Ressource){
-            Ressource ressource = (Ressource) objet;
-            GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
-            gestionRessource.addListener(infoPanelUNC); // ajouter InfoPanelUNC comme listener
-            gestionRessource.start(); // Démarrer le thread
-
-        }
-    }
-
-
-
-
-    public synchronized void removeObjet(model.objets.Objet objet, CoordGrid coord) {
-        CopyOnWriteArrayList<model.objets.Objet> objetsAtCoord = objetsMap.get(coord);
-        if (objetsAtCoord != null) {
-            boolean removed = objetsAtCoord.remove(objet);
-            if (removed && objetsAtCoord.isEmpty()) {
-                objetsMap.remove(coord);
-            }
-
-        }
-        //repaint();
-    }
-
-    public void addUniteControlable(model.objets.UniteControlable unite) {
-        this.addObjet(unite);
-        unitesEnJeu.add(unite);
-        //repaint();
-    }
-
-    /*public void removeUnite(UniteControlable unite) {
-        unitesEnJeu.remove(unite);
-        removeObjet(unite);
-    }*/
-
-
-    public synchronized void addObjets(ArrayList<model.objets.Objet> objets) {
-        for (model.objets.Objet objet : objets) {
-            addObjet(objet);
-        }
-    }
-
-    public void addUnitesControlles(CopyOnWriteArrayList<model.objets.UniteControlable> unites) {
-        for (model.objets.UniteControlable unite : unites) {
-            addUniteControlable(unite);
-        }
-    }
-
-
-
-
-
-
-    //---------------------------------------------------------------------------------
-
-
-    public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesEnJeu() {
-        return unitesEnJeu;
-    }
-    /*public ArrayList<Objet> getObjets() {
-        return objets;
-    }*/
-
-
-    public int[][] getGrid() {
-        return grid;
-    }
-
-    public int[][] getVoisins(int x, int y){
-        int[][] voisins = new int[8][2];
-        int i = 0;
-        for(int j = -1; j <= 1; j++){
-            for(int k = -1; k <= 1; k++){
-                if(j == 0 && k == 0) continue;
-                voisins[i][0] = x + j;
-                voisins[i][1] = y + k;
-                i++;
-            }
-        }
-        return voisins;
-    }
-
-
 
     public static void printGridContents(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> objetsMap) {
         for (ConcurrentHashMap.Entry<CoordGrid,CopyOnWriteArrayList<model.objets.Objet>> entry : objetsMap.entrySet()) {
@@ -444,10 +411,6 @@ public class GamePanel extends JPanel {
             }
         }
     }
-
-    //----------------------------------------------------------------------
-
-
 
 
 
@@ -572,14 +535,6 @@ public class GamePanel extends JPanel {
         g.drawString("Argent: " + Referee.getInstance().getArgentJoueur(), 10, 40);
         g.drawString("Unités: " + unitesEnJeu.size(), 10, 60);
 
-    }
-
-    public void addUnite(model.objets.UniteControlable unite) {
-        unitesEnJeu.add(unite);
-    }
-
-    public void removeUnite(UniteControlable unite) {
-        unitesEnJeu.remove(unite);
     }
 
 }

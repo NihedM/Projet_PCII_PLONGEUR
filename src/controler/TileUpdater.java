@@ -25,13 +25,7 @@ public class TileUpdater extends Thread{
 
         while (true) {
             synchronized (objetsMap) {
-                // Clear the terminal screen
-                //clearScreen();
-
-
-                //System.out.println("Nombre d'objets dans Map: " + objetsMap.size());
                 for (Objet objet : objetsMap.values().stream().flatMap(List::stream).toList()) {
-
 
                     CoordGrid oldCoord = objet.getCoordGrid();
 
@@ -42,29 +36,11 @@ public class TileUpdater extends Thread{
                     if (!oldCoord.equals(newCoord)) {
                         view.GamePanel.getInstance().removeObjet(objet, oldCoord);
                         GamePanel.getInstance().addObjet(objet);
-
-
                     }
-
-
-                    /*//System.out.println("Tile (" + coord.getX() + ", " + coord.getY() + "):");
-
-                    GamePanel.getInstance().removeObjet(objet);
-                    objet.updatePosition();
-
-
-                    // System.out.println("Tile (" + coord.getX() + ", " + coord.getY() + "):");
-
-                    GamePanel.getInstance().addObjet(objet);*/
-
 
                 }
             }
-
             //printCoordonnees();
-
-
-            // Pause avant la prochaine mise à jour
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {

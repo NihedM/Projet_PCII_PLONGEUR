@@ -33,15 +33,11 @@ public class MainTest {
 
 
         GamePanel gamePanel = new GamePanel();
-        GameMaster gameMaster = new GameMaster(gamePanel.getObjetsMap());
-
-        SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
-        spawnManager.start();
+        GameMaster gameMaster = new GameMaster();
 
 
 
-
-        for(int i = 0; i < 4; i++)
+        for(int i = 0; i < 1; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
 
         ((Plongeur) (gamePanel.getUnitesEnJeu()).get(0)).setFaitFuire(true);
@@ -54,6 +50,12 @@ public class MainTest {
         int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
         ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
         resourceSpawner.start();
+
+
+        SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
+        spawnManager.start();
+
+
 
         Redessine r = new Redessine();
         maFenetre.add(gamePanel);
