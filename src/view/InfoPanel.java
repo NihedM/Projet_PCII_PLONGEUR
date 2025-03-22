@@ -25,11 +25,16 @@ public class InfoPanel extends JPanel {
         infoLabel.setFont(new Font("Arial", Font.BOLD, 16));
         add(infoLabel, BorderLayout.NORTH);
 
-        // Création d'un panneau pour les boutons d'action
-        JPanel buttonPanel = new JPanel(new GridLayout(1, 2, 5, 5));
-        deplacerButton = new JButton("Se déplacer");
-        recupererButton = new JButton("Récupérer");
+        // Panneau central pour empiler les boutons verticalement et les centrer
+        JPanel centerPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
+        // Bouton "Se déplacer"
+        deplacerButton = new JButton("Se déplacer");
         deplacerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -40,19 +45,24 @@ public class InfoPanel extends JPanel {
                 }
             }
         });
+        centerPanel.add(deplacerButton, gbc);
+
+        // Incrémenter la ligne pour placer le second bouton en-dessous
+        gbc.gridy++;
+
+        // Bouton "Récupérer"
+        recupererButton = new JButton("Récupérer");
         recupererButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 GamePanel.getInstance().setRecuperationMode(true);
-                //JOptionPane.showMessageDialog(GamePanel.getInstance(), "Cliquez sur la ressource à récupérer");
             }
         });
+        centerPanel.add(recupererButton, gbc);
 
-        buttonPanel.add(deplacerButton);
-        buttonPanel.add(recupererButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        // Ajout du panneau centré dans l'InfoPanel
+        add(centerPanel, BorderLayout.CENTER);
     }
-
 
 
 }

@@ -160,21 +160,35 @@ public class SelectionClic implements MouseListener {
         if (e.getButton() == MouseEvent.BUTTON1) {
 
             if (panel.isDeplacementMode()) {
-                // Mode déplacement activé : on définit la destination pour chaque unité sélectionnée
-                //System.out.println("Mode déplacement actif, unitesSelectionnees.size() = " + unitesSelectionnees.size());
+                int destX = e.getX();
+                int destY = e.getY();
 
-                //TODO Nihed : si tu veux tu peux déplacer ceci dans mousePressed, comme ça on peut cliquer pendant qu'on bouge le mouse
+                //Check les coordonnées pour qu'elles restent dans l'aire de jeu.
+                if (destX > GamePanel.GAME_AREA_WIDTH) {
+                    destX = GamePanel.GAME_AREA_WIDTH;
+                }
+                if (destX < GamePanel.TERRAIN_MIN_X) {
+                    destX = GamePanel.TERRAIN_MIN_X;
+                }
+                if (destY > GamePanel.TERRAIN_MAX_Y) {
+                    destY = GamePanel.TERRAIN_MAX_Y;
+                }
+                if (destY < GamePanel.TERRAIN_MIN_Y) {
+                    destY = GamePanel.TERRAIN_MIN_Y;
+                }
 
                 for (UniteControlable unite : unitesSelectionnees) {
                     if (unite.getMovementThread() != null) {
                         unite.getMovementThread().stopThread();
                     }
-                    unite.setDestination(new Position(e.getX(), e.getY()));
-                    System.out.println("setDestination appelée avec : " + e.getX() + ", " + e.getY());
+                    unite.setDestination(new Position(destX, destY));
+                    System.out.println("Destination définie à : " + destX + ", " + destY);
                 }
                 panel.setDeplacementMode(false);
                 return;
-            } else {
+            }
+
+        } else {
                 // On peut ajouter ici d'autres traitements si nécessaire
                 if (currentSelectionType == SelectionType.NONE) {
                       panel.showEmptyInfoPanel();
@@ -183,8 +197,6 @@ public class SelectionClic implements MouseListener {
             }
         }
 
-
-    }
 
 
     @Override

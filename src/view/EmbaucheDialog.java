@@ -35,7 +35,7 @@ public class EmbaucheDialog extends JDialog {
                 // Afficher le coût sous le cercle
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 14));
-                String costStr = "Prix : 30";
+                String costStr = "Prix : 30 €";
                 int strWidth = g.getFontMetrics().stringWidth(costStr);
                 g.drawString(costStr, (getWidth() - strWidth) / 2, y + diameter + 20);
             }

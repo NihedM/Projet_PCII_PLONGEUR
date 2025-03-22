@@ -45,9 +45,10 @@ public class GamePanel extends JPanel {
 
     //ajouter classe terrain, dimentions temporaires
     public static final int TERRAIN_MIN_X = 10,
-            TERRAIN_MAX_X = PANELDIMENSION - 10,
+            TERRAIN_MAX_X = PANELDIMENSION - 200-10,
             TERRAIN_MIN_Y = 10,
-            TERRAIN_MAX_Y = PANELDIMENSION - 10;
+            TERRAIN_MAX_Y = PANELDIMENSION -10,
+            GAME_AREA_WIDTH = PANELDIMENSION - 205;
 
 
 
