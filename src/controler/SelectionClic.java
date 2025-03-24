@@ -7,36 +7,34 @@ import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class SelectionClic implements MouseListener {
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesVisibles;
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesSelectionnees;
+public class SelectionClic extends MouseAdapter implements MouseListener {
     private GamePanel panel;
     //private ButtonPanel buttonPanel; // Référence à ButtonPanel
 
     private enum SelectionType { NONE, UNIT, RESOURCE }
     private SelectionType currentSelectionType = SelectionType.NONE;
 
+    private int startX, startY, endX, endY;
+    private boolean isSelecting = false;
 
-    public SelectionClic(CopyOnWriteArrayList<UniteControlable> unites, CopyOnWriteArrayList<UniteControlable> unitesSelectionnees, GamePanel panel) {
-        this.unitesVisibles = unites;
-        this.unitesSelectionnees = unitesSelectionnees;
+    public SelectionClic(GamePanel panel){//ButtonPanel buttonPanel) {
+
         this.panel = panel;
-
-        // Initialisation du KeyboardController
-        new KeyboardController(panel, unitesSelectionnees);
+        //this.buttonPanel = buttonPanel; // Initialiser ButtonPanel
     }
 
-    public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesSelectionnees() {return unitesSelectionnees;}
     public void dropUnitesSelectionnees() {
-        for (model.objets.UniteControlable unite : unitesSelectionnees) {
+        for (model.objets.UniteControlable unite : panel.getUnitesSelected()) {
             unite.setSelected(false);
         }
-        unitesSelectionnees.clear();
+        panel.getUnitesSelected().clear();
     }
 
 
@@ -51,6 +49,10 @@ public class SelectionClic implements MouseListener {
         java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
         int x = point.x;
         int y = point.y;
+        startX = point.x;
+        startY = point.y;
+        endX = startX;
+        endY = startY;
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             // Si le mode récupération est activé, on recherche une ressource
@@ -70,8 +72,8 @@ public class SelectionClic implements MouseListener {
                         resourceFound = true;
 
                         // On suppose qu'une seule unité est sélectionnée
-                        if (!unitesSelectionnees.isEmpty()) {
-                            model.objets.UniteControlable selectedUnit = unitesSelectionnees.get(0);
+                        if (!panel.getUnitesSelected().isEmpty()) {
+                            model.objets.UniteControlable selectedUnit = panel.getUnitesSelected().get(0);
                             // Définir la destination de l'unité vers la ressource
                             selectedUnit.setDestination(new Position(resX, resY));
 
@@ -100,7 +102,8 @@ public class SelectionClic implements MouseListener {
             // Si on n'est pas en mode récupération, on effectue la sélection d'une unité ou d'une ressource classique
             dropUnitesSelectionnees();
             boolean unitSelected = false;
-            for (model.objets.UniteControlable unite : unitesVisibles) {
+            isSelecting = true;
+            for (model.objets.UniteControlable unite : panel.getUnitesEnJeu()) {
                 Ellipse2D.Double cercle = new Ellipse2D.Double(
                         unite.getPosition().getX() - unite.getRayon(),
                         unite.getPosition().getY() - unite.getRayon(),
@@ -108,9 +111,10 @@ public class SelectionClic implements MouseListener {
                         unite.getRayon() * 2
                 );
                 if (cercle.contains(x, y)) {
-                    unitesSelectionnees.add(unite);
+                    panel.getUnitesSelected().add(unite);
                     unite.setSelected(true);
                     unitSelected = true;
+                    GamePanel.getInstance().getInfoPanel().updateInfo(unite);
                     break;
                 }
             }
@@ -141,14 +145,14 @@ public class SelectionClic implements MouseListener {
                     currentSelectionType = SelectionType.NONE;
                     panel.setRessourceSelectionnee(null); // Aucune ressource sélectionnée
                     panel.showEmptyInfoPanel();
-                    unitesSelectionnees.clear();
+                    panel.getUnitesSelected().clear();
                 }
             }
         }
 
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
-            if (!unitesSelectionnees.isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
-                for (UniteControlable unite : unitesSelectionnees) {
+            if (!panel.getUnitesSelected().isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
+                for (UniteControlable unite : panel.getUnitesSelected()) {
                     unite.setDestination(new Position(e.getX(), e.getY()));
                 }
             }
@@ -179,12 +183,12 @@ public class SelectionClic implements MouseListener {
                     destY = GamePanel.TERRAIN_MIN_Y;
                 }
 
-                for (UniteControlable unite : unitesSelectionnees) {
+                for (UniteControlable unite : panel.getUnitesSelected()) {
                     if (unite.getMovementThread() != null) {
                         unite.getMovementThread().stopThread();
                     }
                     unite.setDestination(new Position(destX, destY));
-                    System.out.println("Destination définie à : " + destX + ", " + destY);
+                    //System.out.println("Destination définie à : " + destX + ", " + destY);
                 }
                 panel.setDeplacementMode(false);
                 return;
@@ -200,10 +204,54 @@ public class SelectionClic implements MouseListener {
         }
 
 
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        if (isSelecting) {
+            java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
+            endX = point.x;
+            endY = point.y;
+            panel.repaint();
+        }
+    }
+
 
     @Override
     public void mouseReleased (MouseEvent e){
+        if (isSelecting) {
+            isSelecting = false;
+            selectUnitsInRectangle();
+            panel.repaint();
+        }
     }
+
+
+    public void selectUnitsInRectangle() {
+        int x = Math.min(startX, endX);
+        int y = Math.min(startY, endY);
+        int width = Math.abs(startX - endX);
+        int height = Math.abs(startY - endY);
+        Rectangle selectionRect = new Rectangle(x, y, width, height);
+
+        for (UniteControlable unite : panel.getUnitesEnJeu()) {
+            if (selectionRect.contains(unite.getPosition().getX(), unite.getPosition().getY())) {
+                panel.getUnitesSelected().add(unite);
+                unite.setSelected(true);
+            }
+        }
+        currentSelectionType = panel.getUnitesSelected().isEmpty() ? SelectionType.NONE : SelectionType.UNIT;
+    }
+
+    public void paintSelection(Graphics g) {
+        if (isSelecting) {
+            Graphics2D g2d = (Graphics2D) g;
+            g2d.setColor(new Color(0, 0, 255, 100));
+            g2d.fillRect(Math.min(startX, endX), Math.min(startY, endY), Math.abs(startX - endX), Math.abs(startY - endY));
+            g2d.setColor(Color.BLUE);
+            g2d.drawRect(Math.min(startX, endX), Math.min(startY, endY), Math.abs(startX - endX), Math.abs(startY - endY));
+        }
+    }
+
+
     @Override
     public void mouseEntered (MouseEvent e){
     }

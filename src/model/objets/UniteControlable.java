@@ -9,8 +9,8 @@ public class UniteControlable extends Unite {
     private model.objets.DeplacementThread movementThread;
 
 
-    public UniteControlable(int id, Position position, int rayon, int vitesse) {
-        super(position, rayon, vitesse);
+    public UniteControlable(int id, Position position, int rayon, int vitesse, int hp) {
+        super(position, rayon, vitesse,hp);
         this.id = id;
     }
     public int getId() {return id;}

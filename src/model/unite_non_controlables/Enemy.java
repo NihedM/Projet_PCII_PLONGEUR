@@ -19,7 +19,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     private Timer timer = new Timer();
 
     public Enemy(Position position, int rayon, int secondesRestant, double vitesse) {
-        super(position, rayon, vitesse);
+        super(position, rayon, vitesse, 5);
         this.etat = Etat.VADROUILLE;
         this.secondesRestant = secondesRestant;
         timer.schedule(new model.objets.Fuite(this), secondesRestant * 1000); // tempsRestant en secondes

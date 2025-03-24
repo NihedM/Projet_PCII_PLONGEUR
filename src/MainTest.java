@@ -1,7 +1,4 @@
-import controler.GameMaster;
-import controler.SpawnManager;
-import controler.ThreadManager;
-import controler.TileManager;
+import controler.*;
 import model.objets.CoordGrid;
 import model.objets.Position;
 import model.objets.ResourceSpawner;
@@ -15,63 +12,74 @@ import javax.swing.*;
 import java.util.Random;
 
 public class MainTest {
+
     private static final int FENETREWIDTH = 800, FENETREHEIGHT = 600;
 
+
+
+
     public static void main(String[] args) {
+
         JFrame maFenetre = new JFrame("Collisions");
         maFenetre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         maFenetre.setResizable(false);
         maFenetre.setSize(FENETREWIDTH, FENETREHEIGHT);
         maFenetre.setLocationRelativeTo(null);
 
+
+
+
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
+        
 
-        // Initialisation des unités
-        for(int i = 0; i < 1; i++) {
-            gamePanel.addUniteControlable(new Plongeur(3, new Position(), 10));
-        }
-        ((Plongeur)(gamePanel.getUnitesEnJeu()).get(0)).setFaitFuire(true);
 
-        // Initialisation du ResourceSpawner
-        ResourceSpawner resourceSpawner = new ResourceSpawner(
-                gamePanel,
-                50,         // maxResources
-                2000,       // spawnIntervalMin
-                3000,       // spawnIntervalMax
-                1,          // spawnCountMin
-                5           // spawnCountMax
-        );
+
+
+        for(int i = 0; i < 2; i++)
+            gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
+
+        // Démarrer le ResourceSpawner
+        int maxResources = 50; // Nombre total de ressources à générer
+        int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
+        int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
+        int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
+        int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
+        ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
         resourceSpawner.start();
 
-        // Initialisation du SpawnManager
+
         SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
         spawnManager.start();
 
-        // Configuration de la fenêtre
+
+
+        Redessine r = new Redessine();
         maFenetre.add(gamePanel);
         maFenetre.pack();
         maFenetre.setVisible(true);
 
-        // Démarrer le GameMaster EN PREMIER
-        gameMaster.start();
-
-        // Puis démarrer le système de victoire
-        gamePanel.startGame();
-
-        // Initialisation de l'affichage
-        Redessine r = new Redessine();
-        r.start();
-
-        // Fenêtre de debug (ThreadManager)
+        // Create and show the thread manager window
         JFrame threadManagerFrame = new JFrame("Thread Manager");
         threadManagerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         threadManagerFrame.setSize(400, 300);
         ThreadManagerPanel threadManagerPanel = new ThreadManagerPanel();
-        ThreadManager.setThreadManagerPanel(threadManagerPanel);
+        controler.ThreadManager.setThreadManagerPanel(threadManagerPanel);
         threadManagerFrame.add(threadManagerPanel);
         threadManagerFrame.setVisible(true);
 
         ThreadManager.startDisplayThread();
+
+//        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
+//
+
+
+
+        gameMaster.start();
+
+
+        r.start();
+
+
     }
 }
