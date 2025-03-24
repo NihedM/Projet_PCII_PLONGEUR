@@ -133,6 +133,10 @@ public class GamePanel extends JPanel {
         executor.submit(updater);
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
+
+        // Initialisation du KeyboardController
+        setFocusable(true);
+        requestFocusInWindow();
     }
 
 

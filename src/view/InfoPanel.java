@@ -34,7 +34,7 @@ public class InfoPanel extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
 
         // Bouton "Se déplacer"
-        deplacerButton = new JButton("Se déplacer");
+        deplacerButton = new JButton("Se déplacer (D)");
         deplacerButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,7 +51,7 @@ public class InfoPanel extends JPanel {
         gbc.gridy++;
 
         // Bouton "Récupérer"
-        recupererButton = new JButton("Récupérer");
+        recupererButton = new JButton("Récupérer (R)");
         recupererButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {

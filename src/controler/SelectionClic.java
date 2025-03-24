@@ -22,11 +22,13 @@ public class SelectionClic implements MouseListener {
     private SelectionType currentSelectionType = SelectionType.NONE;
 
 
-    public SelectionClic(CopyOnWriteArrayList<model.objets.UniteControlable> unites, CopyOnWriteArrayList<model.objets.UniteControlable> unitesSelectionnees, GamePanel panel){//ButtonPanel buttonPanel) {
+    public SelectionClic(CopyOnWriteArrayList<UniteControlable> unites, CopyOnWriteArrayList<UniteControlable> unitesSelectionnees, GamePanel panel) {
         this.unitesVisibles = unites;
         this.unitesSelectionnees = unitesSelectionnees;
         this.panel = panel;
-        //this.buttonPanel = buttonPanel; // Initialiser ButtonPanel
+
+        // Initialisation du KeyboardController
+        new KeyboardController(panel, unitesSelectionnees);
     }
 
     public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesSelectionnees() {return unitesSelectionnees;}
