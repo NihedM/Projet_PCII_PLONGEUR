@@ -52,6 +52,8 @@ public class GamePanel extends JPanel {
             GAME_AREA_WIDTH = PANELDIMENSION - 205;
 
 
+    private SelectionClic selectionClic;
+
 
     private InfoPanel infoPanel;         // pour les unités
     private InfoPanelUNC infoPanelUNC;   // pour les ressources
@@ -124,8 +126,10 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
         setBackground(new Color(173, 216, 230)); // Fond bleu clair
 
-        SelectionClic selectionClic = new SelectionClic(unitesEnJeu, unitesSelected, this);
+        selectionClic = new SelectionClic(unitesEnJeu, unitesSelected, this);
         addMouseListener(selectionClic);
+        addMouseMotionListener(selectionClic);
+
 
         this.updater = new TileUpdater(objetsMap);
         this.proxy = new ProximityChecker(objetsMap, unitesEnJeu);
@@ -540,6 +544,11 @@ public class GamePanel extends JPanel {
                 g.drawLine(x1, y1, x2, y2);
             }
         }
+
+
+
+        selectionClic.paintSelection(g);
+
 
         // Afficher les informations du joueur
         g.setColor(Color.BLACK);
