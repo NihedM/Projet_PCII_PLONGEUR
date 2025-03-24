@@ -2,6 +2,9 @@ package model.objets;
 
 import controler.TileManager;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Objet {
     private Position position;
     private CoordGrid coordGrid;
@@ -32,6 +35,11 @@ public class Objet {
 
     public synchronized void updatePosition() {
         coordGrid = TileManager.transformePos_to_Coord(position);
+    }
+
+    public Map<String, String> getAttributes() {
+        Map<String, String> attributes = new HashMap<>();
+        return attributes;
     }
 }
 

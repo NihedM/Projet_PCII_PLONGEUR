@@ -118,6 +118,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     unitesSelectionnees.add(unite);
                     unite.setSelected(true);
                     unitSelected = true;
+                    GamePanel.getInstance().getInfoPanel().updateInfo(unite);
                     break;
                 }
             }

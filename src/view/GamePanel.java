@@ -169,6 +169,10 @@ public class GamePanel extends JPanel {
         return infoPanelUNC; // Méthode pour accéder à InfoPanelUNC
     }
 
+    public InfoPanel getInfoPanel() {
+        return infoPanel; // Méthode pour accéder à InfoPanel
+    }
+
     public boolean isRecuperationMode() {
         return recuperationMode;
     }

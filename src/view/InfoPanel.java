@@ -11,22 +11,34 @@ public class InfoPanel extends JPanel {
 
 
     private JLabel infoLabel;
+    private AtributInfo atributInfo;
+
     private JButton deplacerButton;
     private JButton recupererButton;
+    private JButton faireFuirButton;
 
 
+
+    //Panel pour les plongeurs
     public InfoPanel() {
-        setLayout(new BorderLayout());
+        setLayout(new GridLayout(3, 1));
         setBackground(new Color(220, 220, 220));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
 
         // Label pour afficher les informations de l'unité
-        infoLabel = new JLabel("Informations :", SwingConstants.CENTER);
-        infoLabel.setFont(new Font("Arial", Font.BOLD, 16));
-        add(infoLabel, BorderLayout.NORTH);
+        /*infoLabel = new JLabel("Informations :", SwingConstants.CENTER);
+        infoLabel.setFont(new Font("Arial", Font.BOLD, 16));*/
+        //add(infoLabel, BorderLayout.NORTH);
+
+        //
+        atributInfo = new AtributInfo();
+        add(atributInfo);
+
 
         // Panneau central pour empiler les boutons verticalement et les centrer
-        JPanel centerPanel = new JPanel(new GridBagLayout());
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        buttonPanel.setBackground(Color.CYAN);
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -45,7 +57,10 @@ public class InfoPanel extends JPanel {
                 }
             }
         });
-        centerPanel.add(deplacerButton, gbc);
+        buttonPanel.add(deplacerButton, gbc);
+
+        // Ajout du panneau centré dans l'InfoPanel
+        add(buttonPanel, BorderLayout.CENTER);
 
         // Incrémenter la ligne pour placer le second bouton en-dessous
         gbc.gridy++;
@@ -58,10 +73,37 @@ public class InfoPanel extends JPanel {
                 GamePanel.getInstance().setRecuperationMode(true);
             }
         });
-        centerPanel.add(recupererButton, gbc);
+        buttonPanel.add(recupererButton, gbc);
 
         // Ajout du panneau centré dans l'InfoPanel
-        add(centerPanel, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.CENTER);
+
+
+        gbc.gridy++;
+        faireFuirButton = new JButton("Faire fuire (F)");
+        faireFuirButton.addActionListener(e -> {
+            GamePanel gamePanel = (GamePanel) SwingUtilities.getAncestorOfClass(GamePanel.class, InfoPanel.this);
+            if (gamePanel != null) {
+                System.out.println("Faire fuire");
+
+            }
+        });
+        buttonPanel.add(faireFuirButton, gbc);
+
+
+        add(buttonPanel);
+
+        //Temporaire
+
+        JPanel emptyPanel = new JPanel();
+        //emptyPanel.setOpaque(false);
+        emptyPanel.setBackground(Color.LIGHT_GRAY);
+        add(emptyPanel);
+    }
+
+
+    public void updateInfo(UniteControlable unite) {
+        atributInfo.updateInfo(unite.getAttributes());
     }
 
 
