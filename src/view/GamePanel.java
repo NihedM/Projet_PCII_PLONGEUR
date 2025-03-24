@@ -20,6 +20,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class GamePanel extends JPanel {
     public static final int PANELDIMENSION = 800;
     private static GamePanel instance;
+    private final VictoryManager victoryManager;
 
     private int grid[][] = new int[TileManager.nbTiles][TileManager.nbTiles];
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
@@ -137,6 +138,13 @@ public class GamePanel extends JPanel {
         // Initialisation du KeyboardController
         setFocusable(true);
         requestFocusInWindow();
+
+        // Initialisation de la gestion des victoires
+        this.victoryManager = new VictoryManager(this);
+    }
+
+    public void startGame() {
+        victoryManager.startGame();
     }
 
 
@@ -539,6 +547,11 @@ public class GamePanel extends JPanel {
         g.drawString("Points de victoire: " + Referee.getInstance().getPointsVictoire(), 10, 20);
         g.drawString("Argent: " + Referee.getInstance().getArgentJoueur(), 10, 40);
         g.drawString("Unités: " + unitesEnJeu.size(), 10, 60);
+
+        // Ajout du temps restant
+        if (victoryManager != null) {
+            g.drawString("Temps restant: " + victoryManager.getRemainingTime(), 10, 80);
+        }
 
     }
 
