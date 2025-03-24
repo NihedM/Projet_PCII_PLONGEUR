@@ -77,6 +77,8 @@ public class MainTest {
 
         gameMaster.start();
 
+        // Puis démarrer le système de victoire
+        gamePanel.startGame();
 
         r.start();
 

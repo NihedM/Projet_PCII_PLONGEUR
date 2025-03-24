@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SelectionClic extends MouseAdapter implements MouseListener {
     private GamePanel panel;
+    private KeyboardController keyboardController;
     //private ButtonPanel buttonPanel; // Référence à ButtonPanel
 
     private enum SelectionType { NONE, UNIT, RESOURCE }
@@ -24,10 +25,13 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private int startX, startY, endX, endY;
     private boolean isSelecting = false;
 
-    public SelectionClic(GamePanel panel){//ButtonPanel buttonPanel) {
-
+    public SelectionClic(GamePanel panel) {
         this.panel = panel;
-        //this.buttonPanel = buttonPanel; // Initialiser ButtonPanel
+        this.keyboardController = new KeyboardController(panel, panel.getUnitesSelected());
+
+        // Configuration du focus
+        panel.setFocusable(true);
+        panel.requestFocusInWindow();
     }
 
     public void dropUnitesSelectionnees() {

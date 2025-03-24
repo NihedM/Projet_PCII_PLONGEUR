@@ -23,20 +23,15 @@ public class KeyboardController extends KeyAdapter {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        // Ne rien faire si aucune unité n'est sélectionnée
-        if (unitesSelectionnees.isEmpty()) {
-            return;
-        }
+        if (unitesSelectionnees.isEmpty()) return;
 
         switch (e.getKeyCode()) {
             case KeyEvent.VK_D:
                 panel.setDeplacementMode(true);
-                System.out.println("Mode déplacement activé (D)");
                 break;
 
             case KeyEvent.VK_R:
                 panel.setRecuperationMode(true);
-                System.out.println("Mode récupération activé (R)");
                 break;
         }
     }

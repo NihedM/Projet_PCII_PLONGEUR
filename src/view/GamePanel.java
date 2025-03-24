@@ -139,9 +139,14 @@ public class GamePanel extends JPanel {
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
 
-        // Initialisation du KeyboardController
+        // Configuration pour recevoir les entrées clavier
         setFocusable(true);
         requestFocusInWindow();
+
+        // Initialisation des listeners
+        selectionClic = new SelectionClic(this);
+        addMouseListener(selectionClic);
+        addMouseMotionListener(selectionClic);
 
         // Initialisation de la gestion des victoires
         this.victoryManager = new VictoryManager(this);
