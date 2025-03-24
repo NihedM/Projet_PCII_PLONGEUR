@@ -126,7 +126,7 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
         setBackground(new Color(173, 216, 230)); // Fond bleu clair
 
-        selectionClic = new SelectionClic(unitesEnJeu, unitesSelected, this);
+        selectionClic = new SelectionClic(this);
         addMouseListener(selectionClic);
         addMouseMotionListener(selectionClic);
 
@@ -199,6 +199,10 @@ public class GamePanel extends JPanel {
     /*public ArrayList<Objet> getObjets() {
         return objets;
     }*/
+
+    public CopyOnWriteArrayList<UniteControlable> getUnitesSelected() {
+        return unitesSelected;
+    }
 
 
     public int[][] getGrid() {

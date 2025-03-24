@@ -25,6 +25,7 @@ public class ThreadManager {
         runningThreadCounts.put("VictoryCheckThread", 0);
         runningThreadCounts.put("ResourceGenerationThread", 0);
         runningThreadCounts.put("DeplacementThread", 0);
+        runningThreadCounts.put("FuiteHandler", 0);
     }
 
 

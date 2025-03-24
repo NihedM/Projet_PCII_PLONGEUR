@@ -15,8 +15,6 @@ import java.awt.geom.Ellipse2D;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SelectionClic extends MouseAdapter implements MouseListener {
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesVisibles;
-    private CopyOnWriteArrayList<model.objets.UniteControlable> unitesSelectionnees;
     private GamePanel panel;
     //private ButtonPanel buttonPanel; // Référence à ButtonPanel
 
@@ -26,19 +24,17 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private int startX, startY, endX, endY;
     private boolean isSelecting = false;
 
-    public SelectionClic(CopyOnWriteArrayList<model.objets.UniteControlable> unites, CopyOnWriteArrayList<model.objets.UniteControlable> unitesSelectionnees, GamePanel panel){//ButtonPanel buttonPanel) {
-        this.unitesVisibles = unites;
-        this.unitesSelectionnees = unitesSelectionnees;
+    public SelectionClic(GamePanel panel){//ButtonPanel buttonPanel) {
+
         this.panel = panel;
         //this.buttonPanel = buttonPanel; // Initialiser ButtonPanel
     }
 
-    public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesSelectionnees() {return unitesSelectionnees;}
     public void dropUnitesSelectionnees() {
-        for (model.objets.UniteControlable unite : unitesSelectionnees) {
+        for (model.objets.UniteControlable unite : panel.getUnitesSelected()) {
             unite.setSelected(false);
         }
-        unitesSelectionnees.clear();
+        panel.getUnitesSelected().clear();
     }
 
 
@@ -76,8 +72,8 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                         resourceFound = true;
 
                         // On suppose qu'une seule unité est sélectionnée
-                        if (!unitesSelectionnees.isEmpty()) {
-                            model.objets.UniteControlable selectedUnit = unitesSelectionnees.get(0);
+                        if (!panel.getUnitesSelected().isEmpty()) {
+                            model.objets.UniteControlable selectedUnit = panel.getUnitesSelected().get(0);
                             // Définir la destination de l'unité vers la ressource
                             selectedUnit.setDestination(new Position(resX, resY));
 
@@ -107,7 +103,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             dropUnitesSelectionnees();
             boolean unitSelected = false;
             isSelecting = true;
-            for (model.objets.UniteControlable unite : unitesVisibles) {
+            for (model.objets.UniteControlable unite : panel.getUnitesEnJeu()) {
                 Ellipse2D.Double cercle = new Ellipse2D.Double(
                         unite.getPosition().getX() - unite.getRayon(),
                         unite.getPosition().getY() - unite.getRayon(),
@@ -115,7 +111,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                         unite.getRayon() * 2
                 );
                 if (cercle.contains(x, y)) {
-                    unitesSelectionnees.add(unite);
+                    panel.getUnitesSelected().add(unite);
                     unite.setSelected(true);
                     unitSelected = true;
                     GamePanel.getInstance().getInfoPanel().updateInfo(unite);
@@ -149,14 +145,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     currentSelectionType = SelectionType.NONE;
                     panel.setRessourceSelectionnee(null); // Aucune ressource sélectionnée
                     panel.showEmptyInfoPanel();
-                    unitesSelectionnees.clear();
+                    panel.getUnitesSelected().clear();
                 }
             }
         }
 
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
-            if (!unitesSelectionnees.isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
-                for (UniteControlable unite : unitesSelectionnees) {
+            if (!panel.getUnitesSelected().isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
+                for (UniteControlable unite : panel.getUnitesSelected()) {
                     unite.setDestination(new Position(e.getX(), e.getY()));
                 }
             }
@@ -187,7 +183,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     destY = GamePanel.TERRAIN_MIN_Y;
                 }
 
-                for (UniteControlable unite : unitesSelectionnees) {
+                for (UniteControlable unite : panel.getUnitesSelected()) {
                     if (unite.getMovementThread() != null) {
                         unite.getMovementThread().stopThread();
                     }
@@ -236,13 +232,13 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         int height = Math.abs(startY - endY);
         Rectangle selectionRect = new Rectangle(x, y, width, height);
 
-        for (UniteControlable unite : unitesVisibles) {
+        for (UniteControlable unite : panel.getUnitesEnJeu()) {
             if (selectionRect.contains(unite.getPosition().getX(), unite.getPosition().getY())) {
-                unitesSelectionnees.add(unite);
+                panel.getUnitesSelected().add(unite);
                 unite.setSelected(true);
             }
         }
-        currentSelectionType = unitesSelectionnees.isEmpty() ? SelectionType.NONE : SelectionType.UNIT;
+        currentSelectionType = panel.getUnitesSelected().isEmpty() ? SelectionType.NONE : SelectionType.UNIT;
     }
 
     public void paintSelection(Graphics g) {

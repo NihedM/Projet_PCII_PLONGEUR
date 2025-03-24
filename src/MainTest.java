@@ -1,7 +1,4 @@
-import controler.GameMaster;
-import controler.SpawnManager;
-import controler.ThreadManager;
-import controler.TileManager;
+import controler.*;
 import model.objets.CoordGrid;
 import model.objets.Position;
 import model.objets.ResourceSpawner;
@@ -34,13 +31,13 @@ public class MainTest {
 
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
+        
 
 
 
-        for(int i = 0; i < 200; i++)
+
+        for(int i = 0; i < 2; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
-
-        ((Plongeur) (gamePanel.getUnitesEnJeu()).get(0)).setFaitFuire(true);
 
         // Démarrer le ResourceSpawner
         int maxResources = 50; // Nombre total de ressources à générer
@@ -79,6 +76,7 @@ public class MainTest {
 
 
         gameMaster.start();
+
 
         r.start();
 

@@ -1,6 +1,7 @@
 package view;
 
 import model.objets.UniteControlable;
+import model.unite_controlables.Plongeur;
 
 import javax.swing.*;
 import java.awt.*;
@@ -84,8 +85,11 @@ public class InfoPanel extends JPanel {
         faireFuirButton.addActionListener(e -> {
             GamePanel gamePanel = (GamePanel) SwingUtilities.getAncestorOfClass(GamePanel.class, InfoPanel.this);
             if (gamePanel != null) {
-                System.out.println("Faire fuire");
-
+                for (UniteControlable unite : gamePanel.getUnitesSelected()) {
+                    if (unite instanceof Plongeur plongeur) {
+                        plongeur.setFaitFuire(true);
+                    }
+                }
             }
         });
         buttonPanel.add(faireFuirButton, gbc);
@@ -103,7 +107,10 @@ public class InfoPanel extends JPanel {
 
 
     public void updateInfo(UniteControlable unite) {
+        atributInfo.removeAll();
         atributInfo.updateInfo(unite.getAttributes());
+        atributInfo.revalidate();
+        atributInfo.repaint();
     }
 
 

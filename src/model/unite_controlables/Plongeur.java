@@ -1,5 +1,6 @@
 package model.unite_controlables;
 
+import controler.FuiteHandler;
 import model.gains_joueur.Referee;
 import model.objets.Position;
 import model.objets.UniteControlable;
@@ -64,9 +65,20 @@ public class Plongeur extends UniteControlable {
         this.oxygen = oxygen;
     }
 
+    public void setCurrentStamina(int stamina) {
+        this.stamina = stamina;
+    }
+
     public void setFaitFuire(boolean faitFuire) {
         this.faitFuire = faitFuire;
+        if (faitFuire) {
+            FuiteHandler.getInstance().addPlongeur(this);
+        } else {
+            FuiteHandler.getInstance().removePlongeur(this);
+        }
     }
+
+
     // Méthode pour ajouter un collier au sac
     public boolean ajouterAuxSac(model.objets.Ressource ressource) {
 
