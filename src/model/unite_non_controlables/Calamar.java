@@ -118,14 +118,12 @@ public class Calamar extends Enemy {
         //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
         if(GestionCollisions.collisionCC(this, objectifCourrant) > -1 ) {
-                if ( ressourcesDisponibles.contains(objectifCourrant)) {
+            if (ressourcesDisponibles.contains(objectifCourrant)) {
 
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);
                 GamePanel.getInstance().removeObjet(objectifCourrant, objectifCourrant.getCoordGrid());
                 objectifCourrant = null;
-                //System.out.println(inventaire.size());
-
             }
 
         }

@@ -159,6 +159,8 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 for (UniteControlable unite : panel.getUnitesSelected()) {
                     unite.setDestination(new Position(e.getX(), e.getY()));
                 }
+                panel.showFixedInfoPanel("unit");
+
             }
         }
     }
@@ -195,15 +197,13 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     //System.out.println("Destination définie à : " + destX + ", " + destY);
                 }
                 panel.setDeplacementMode(false);
+                panel.showFixedInfoPanel("unit");
+
                 return;
             }
 
         } else {
-                // On peut ajouter ici d'autres traitements si nécessaire
-                if (currentSelectionType == SelectionType.NONE) {
-                      panel.showEmptyInfoPanel();
-                }
-                panel.repaint();
+                //TOUCHER PAS ICI SANS CONSULTER
             }
         }
 
@@ -236,13 +236,18 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         int height = Math.abs(startY - endY);
         Rectangle selectionRect = new Rectangle(x, y, width, height);
 
+
         for (UniteControlable unite : panel.getUnitesEnJeu()) {
             if (selectionRect.contains(unite.getPosition().getX(), unite.getPosition().getY())) {
                 panel.getUnitesSelected().add(unite);
                 unite.setSelected(true);
             }
+            //else unite.setSelected(false);
         }
-        currentSelectionType = panel.getUnitesSelected().isEmpty() ? SelectionType.NONE : SelectionType.UNIT;
+        if (!panel.getUnitesSelected().isEmpty()) {
+            panel.showFixedInfoPanel("unit");
+            GamePanel.getInstance().getInfoPanel().updateInfo(panel.getUnitesSelected().get(0));
+        }
     }
 
     public void paintSelection(Graphics g) {
