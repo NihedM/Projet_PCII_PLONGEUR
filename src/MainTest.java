@@ -31,6 +31,9 @@ public class MainTest {
 
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
+        StaminaRegenHandler.getInstance();
+        OxygenHandler.getInstance();
+
 
 
 

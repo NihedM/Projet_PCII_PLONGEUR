@@ -9,7 +9,7 @@ public class Unite extends Objet {
     private Position destination;
 
     private double vx, vy; // Vecteur vitesse
-    private double VITESSE;
+    private double VITESSE; //vitesse courrante
     private int heat_points;    //vie de l'unité
 
 
@@ -31,7 +31,7 @@ public class Unite extends Objet {
     public void set_Hp(int hp) {this.heat_points = hp;}
     public double getVitesse() {return VITESSE;}
 
-    public void setVitesse(int vitesse) {this.VITESSE = vitesse;}
+    public void setVitesse(double vitesse) {this.VITESSE = vitesse;}
 
     public double getVx() { return vx; }
     public double getVy() { return vy; }

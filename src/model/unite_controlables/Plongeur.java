@@ -65,8 +65,23 @@ public class Plongeur extends UniteControlable {
         this.oxygen = oxygen;
     }
 
+
+    public double getVitesseXStamina(){
+        double maxSpeed = Math.log(101);
+        return 10 * Math.log((stamina + 1)) / maxSpeed*0.8 + 2;
+    }
     public void setCurrentStamina(int stamina) {
+        if(stamina > MAX_STAMINA) return;
+        if (stamina < 0) stamina = 0; // Ensure stamina does not go negative
+
         this.stamina = stamina;
+        // Adjust speed based on current stamina using a quadratic function
+        setVitesse(getVitesseXStamina());
+
+
+        if(stamina <= 0) {
+            setDestination(null);
+        }
     }
 
     public void setFaitFuire(boolean faitFuire) {
