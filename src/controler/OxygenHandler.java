@@ -4,10 +4,9 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
-public class OxygenHandler extends Thread {
-    private static final int DECREMENT_INTERVAL = 3000; // 1 second
-    public static final int OXYGEN_DECREMENT = 1; // Amount of oxygen to decrease per interval
-
+public class OxygenHandler extends GameHandler {
+    private static final int DELAY = 3000;
+    public static final int OXYGEN_DECREMENT = 1;
     private static OxygenHandler instance;
 
     public static synchronized OxygenHandler getInstance() {
@@ -19,30 +18,22 @@ public class OxygenHandler extends Thread {
     }
 
     @Override
-    public void run() {
-        ThreadManager.incrementThreadCount("OxygenHandler");
+    protected void executeHandlerLogic() {
+        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+            if (!(unite instanceof Plongeur)) continue;
 
-        while (true) {
-            for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
-                if (!(unite instanceof Plongeur)) {
-                    continue;
-                }
-                Plongeur plongeur = (Plongeur) unite;
+            Plongeur plongeur = (Plongeur) unite;
+            plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OXYGEN_DECREMENT);
 
-                plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OXYGEN_DECREMENT);
-
-                if (plongeur.getCurrentOxygen() <= 0) {
-                    GamePanel.getInstance().removeObjet(plongeur, plongeur.getCoordGrid());
-                    GamePanel.getInstance().showEmptyInfoPanel();
-                }
-            }
-            try {
-                Thread.sleep(DECREMENT_INTERVAL);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            if (plongeur.getCurrentOxygen() <= 0) {
+                GamePanel.getInstance().removeObjet(plongeur, plongeur.getCoordGrid());
+                GamePanel.getInstance().showEmptyInfoPanel();
             }
         }
-        ThreadManager.decrementThreadCount("OxygenHandler");
+    }
+
+    @Override
+    protected int getDelay() {
+        return DELAY;
     }
 }

@@ -1,22 +1,25 @@
 package model.unite_non_controlables;
 
-import model.objets.Objet;
-import model.objets.Position;
-import model.objets.Unite;
-import model.objets.UniteNonControlableInterface;
+import controler.TileManager;
+import model.objets.*;
 
-import java.util.ArrayList;
+import java.util.Random;
 import java.util.Timer;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Enemy extends Unite implements UniteNonControlableInterface {
     protected enum Etat {
-        VADROUILLE, FUITE
+        VADROUILLE, FUITE, ATTENTE
     }
+    public static final int VITESSE_ATTENTE = 2;
+    private static final int ATTENTE_RANGE = TileManager.TILESIZE*2;
+
 
     private Etat etat;
     private int secondesRestant;
     private Timer timer = new Timer();
+    private Random random = new Random();
+
 
     public Enemy(Position position, int rayon, int secondesRestant, double vitesse) {
         super(position, rayon, vitesse, 5);
@@ -27,6 +30,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     }
 
     public Etat getEtat() {return etat;}
+    public void setEtat(Etat etat) {this.etat = etat;}
     public int getTempsRestant() {return secondesRestant;}
 
     public void fuit() {        //version default:  pas oublier de faire override sinon!!!
@@ -41,9 +45,37 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     public void stopTimer(){timer.cancel();}
 
 
+    public Objet selectClosest(CopyOnWriteArrayList<Objet> objets){
+        //trouver l'objet le plus proche
+        Objet objetPlusProche = null;
+        double distanceMin = Double.MAX_VALUE;
+        for (Objet objet : objets) {
+            double distance = this.distance(objet);
+            if (distance < distanceMin) {
+                distanceMin = distance;
+                objetPlusProche = objet;
+            }
+        }
+
+        return objetPlusProche;
+    }
+
+
+
+    public void attente(){
+        setVitesse(VITESSE_ATTENTE);
+
+        if(getDestination() != null)return;
+        int dx = random.nextInt(2*ATTENTE_RANGE)* (random.nextBoolean() ? 1 : -1);
+        int dY = random.nextInt(2*ATTENTE_RANGE)* (random.nextBoolean() ? 1 : -1);
+        setDestination(new Position(getPosition().getX() + dx, getPosition().getY() + dY));
+    }
+
 
     @Override
     public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
+        //lancer une erreur de sort que si on a pas override la methode
+        throw new UnsupportedOperationException("Override this method");
 
     }
     public void action(){}

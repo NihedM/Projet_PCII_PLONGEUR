@@ -2,14 +2,11 @@ package controler;
 
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
-
 import java.util.concurrent.CopyOnWriteArrayList;
-public class FuiteHandler extends Thread {
 
+public class FuiteHandler extends GameHandler {
     private final CopyOnWriteArrayList<Plongeur> plongeurs = new CopyOnWriteArrayList<>();
-    private static final int DELAY = 1000;  // pour une seconde passé un de stamina en moins
-
-
+    private static final int DELAY = 1000;
     private static FuiteHandler instance;
 
     public static synchronized FuiteHandler getInstance() {
@@ -19,6 +16,7 @@ public class FuiteHandler extends Thread {
         }
         return instance;
     }
+
     public void addPlongeur(Plongeur plongeur) {
         if (!plongeurs.contains(plongeur)) {
             plongeurs.add(plongeur);
@@ -30,29 +28,23 @@ public class FuiteHandler extends Thread {
     }
 
     @Override
-    public void run() {
-        ThreadManager.incrementThreadCount("FuiteHandler");
-
-        while (true) {
-            for (Plongeur plongeur : plongeurs) {
-                if (plongeur.getCurrentStamina() > 0) {
-                    plongeur.setCurrentStamina(plongeur.getCurrentStamina() - 1);
-                } else {
-                    plongeur.setFaitFuire(false);
-                    removePlongeur(plongeur);
-                }
-                if(GamePanel.getInstance().getUnitesSelected().contains(plongeur))
-                    GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+    protected void executeHandlerLogic() {
+        for (Plongeur plongeur : plongeurs) {
+            if (plongeur.getCurrentStamina() > 0) {
+                plongeur.setCurrentStamina(plongeur.getCurrentStamina() - 1);
+            } else {
+                plongeur.setFaitFuire(false);
+                removePlongeur(plongeur);
             }
-            try {
-                Thread.sleep(DELAY);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+
+            if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
+                GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
             }
         }
-        ThreadManager.decrementThreadCount("FuiteHandler");
     }
 
-
+    @Override
+    protected int getDelay() {
+        return DELAY;
+    }
 }

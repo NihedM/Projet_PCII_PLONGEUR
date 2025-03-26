@@ -8,6 +8,8 @@ import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Position;
 import model.unite_non_controlables.Calamar;
+import model.unite_non_controlables.Enemy;
+import model.unite_non_controlables.Pieuvre;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -18,12 +20,15 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     private int maxEnemies;
     private int spawnedEnemies;
     private GamePanel gamePanel;
+    private Class<? extends Enemy> enemyType;
+
 
     public EnemySpawnPoint(CoordGrid tile, int maxEnemies, GamePanel gamePanel) {
         super(generateRandomPositionInTile(tile), 20);
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
         this.gamePanel = gamePanel;
+        this.enemyType = Calamar.class; // Default
     }
     public static Position generateRandomPositionInTile(CoordGrid tile) {
         int tileSize = TileManager.TILESIZE;
@@ -40,15 +45,38 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     public void incrementSpawnedEnemies() {
         spawnedEnemies++;
     }
+
+    public void setEnemyType(Class<? extends Enemy> enemyType) {
+        this.enemyType = enemyType;
+    }
+
     private void spawnEnemy() {
         incrementSpawnedEnemies();
         //generate random position in tile
         Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
-        Calamar calamar = new Calamar(position);
-        calamar.setupCalamar(gamePanel.getRessourcesMap() );
-        gamePanel.addObjet(calamar);
-        GameMaster.getInstance().addEnemy(calamar, new CopyOnWriteArrayList<>(gamePanel.getRessources()));
 
+
+        try {
+            Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);
+            if (enemy instanceof Calamar) {
+                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getRessources()));
+
+            } else if (enemy instanceof Pieuvre) {
+                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getUnitesEnJeu()));
+
+            }
+
+
+
+
+            else{
+                //throw genereic error
+                throw new UnsupportedOperationException("Enemy type not supported");
+            }
+            gamePanel.addObjet(enemy);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

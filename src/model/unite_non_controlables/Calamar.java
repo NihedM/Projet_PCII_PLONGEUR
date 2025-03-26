@@ -12,7 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Calamar extends Enemy {
 
     ArrayList<Object> inventaire = new ArrayList<Object>();
-    public Ressource objectifCourrant;
+    private Ressource objectifCourrant;
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     public Calamar(Position position) {
@@ -20,45 +20,19 @@ public class Calamar extends Enemy {
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
     }
 
-    public void setupCalamar(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
-        this.ressourcesDisponibles = ressourcesDisponibles;
-        selectionneRessourcePlusProche(ressourcesDisponibles);
-    }
-
-    @Override
-    public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
-        this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
-        for (Objet obj : interactionTargets) {
-            if (obj instanceof Ressource) {
-                this.ressourcesDisponibles.add((Ressource) obj);
-            }
-        }
-    }
-
-
-
-
     public void setRessourcesDisponibles(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
         this.ressourcesDisponibles = ressourcesDisponibles;
     }
 
     public void selectionneRessourcePlusProche(CopyOnWriteArrayList<Ressource> ressources) {
-        //trouver la ressource la plus proche
-        Ressource ressourcePlusProche = null;
-        double distanceMin = Double.MAX_VALUE;
-        for (Ressource ressource : ressources) {
-            double distance = this.distance(ressource);
-            if (distance < distanceMin) {
-                distanceMin = distance;
-                ressourcePlusProche = ressource;
-            }
-        }
+        Ressource ressourcePlusProche = (Ressource)(super.selectClosest(new CopyOnWriteArrayList<Objet>(ressources)));
         //definir la ressource la plus proche comme objectif
         if (ressourcePlusProche != null) {
             this.setDestination(ressourcePlusProche.getPosition());
             //System.out.println("Ressource " + ressourcePlusProche.getPosition().getX() + " " + ressourcePlusProche.getPosition().getY());
             this.objectifCourrant = ressourcePlusProche;
         }
+
     }
 
     public void verifierObjectif() {
@@ -112,6 +86,17 @@ public class Calamar extends Enemy {
     }
 
 
+    @Override
+    public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
+        this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
+        for (Objet obj : interactionTargets) {
+            if (obj instanceof Ressource) {
+                this.ressourcesDisponibles.add((Ressource) obj);
+            }
+        }
+    }
+
+
 
     @Override
     public void action() {
@@ -123,6 +108,9 @@ public class Calamar extends Enemy {
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);
                 GamePanel.getInstance().removeObjet(objectifCourrant, objectifCourrant.getCoordGrid());
+
+                GamePanel.getInstance().checkAndClearResourcePanel(objectifCourrant);
+
                 objectifCourrant = null;
             }
 
