@@ -3,11 +3,15 @@ package model.unite_controlables;
 import controler.FuiteHandler;
 import model.gains_joueur.Referee;
 import model.objets.Position;
+import model.objets.Ressource;
 import model.objets.UniteControlable;
 import model.unite_non_controlables.Calamar;
+import view.GamePanel;
 
 import javax.swing.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Plongeur extends UniteControlable {
@@ -16,6 +20,11 @@ public class Plongeur extends UniteControlable {
     private int rayonFuite, oxygen, stamina; // Rayon de fuite du plongeur, niveau d'oxygène
     private boolean faitFuire;
 
+    private List<Ressource> backpack;
+    private static final int BACKPACK_CAPACITY = 4;
+    private Ressource targetResource;
+
+
     public Plongeur(int id, Position position, int rayon) {
         super(id, position, rayon, 10, MAX_HP);
         sac = new HashMap<>();
@@ -23,6 +32,8 @@ public class Plongeur extends UniteControlable {
         this.faitFuire = false;
         this.oxygen = MAX_OXYGEN;
         this.stamina = MAX_STAMINA;
+        backpack = new ArrayList<>();
+
     }
 
     public HashMap<model.objets.Ressource, Integer> getSac() {
@@ -120,14 +131,6 @@ public class Plongeur extends UniteControlable {
 
 
 
-    // Méthode recolter, renvoie vrai si la ressource est récoltée, faux sinons
-    public boolean recolter(model.objets.Ressource ressource) {
-        /*if (Collision.collisionCC(this, ressource) > -1 && ressource.estRecoltable()) { // Vérifier si la ressource est prête
-                return ajouterAuxSac(ressource); // Ajouter le collier au sac du plongeur
-        }*/
-        return false; // La ressource n'a pas été récoltée
-    }
-
 
 
     // Méthode pour vendre les colliers
@@ -150,6 +153,50 @@ public class Plongeur extends UniteControlable {
     public void faireFuirCalamar(Calamar calamar) {
         calamar.fuit();
     }
+
+
+    public Ressource getTargetResource() {
+        return targetResource;
+    }
+    public void setTargetResource(Ressource resource) {
+        this.targetResource = resource;
+    }
+
+    // Méthode pour collecter une ressource lorsqu'on est à proximité
+    public boolean recolter(Ressource ressource) {
+        // Vérifier que l’on est bien à portée (on se base sur le rayon de l’unité et celui de la ressource)
+        int dx = this.getPosition().getX() - ressource.getPosition().getX();
+        int dy = this.getPosition().getY() - ressource.getPosition().getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        if(distance <= this.getRayon() + ressource.getRayon()) {
+            if(backpack.size() < BACKPACK_CAPACITY) {
+                backpack.add(ressource);
+                // Retirer la ressource du jeu
+                GamePanel.getInstance().removeObjet(ressource, ressource.getCoordGrid());
+                System.out.println("Ressource " + ressource.getNom() + " collectée. Taille du backpack : " + backpack.size());
+                return true;
+            } else {
+                System.out.println("Sac à dos plein !");
+                JOptionPane.showMessageDialog(null, "Sac à dos plein !");
+                return false;
+            }
+        }
+        return false;
+    }
+
+    // Méthode pour livrer le contenu du backpack à la base (transfert vers le market)
+    public void deliverBackpack() {
+        if(!backpack.isEmpty()) {
+            for(Ressource res : backpack) {
+                GamePanel.getInstance().addCollectedResource(res);
+                // On pourrait ajouter ici un système de points ou d'argent
+            }
+            backpack.clear();
+            System.out.println("Backpack livré au market.");
+            JOptionPane.showMessageDialog(null, "Backpack livré !");
+        }
+    }
+
 
 
 

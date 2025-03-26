@@ -1,9 +1,6 @@
 package controler;
 
-import model.objets.CoordGrid;
-import model.objets.Objet;
-import model.objets.Unite;
-import model.objets.UniteControlable;
+import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Calamar;
 
@@ -86,6 +83,15 @@ public class ProximityChecker extends Thread{
                     CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
 
                     for(Objet voisin: voisins){
+                        if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
+                            continue;
+                        }
+                        if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                            if (voisin instanceof Unite) {
+                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
+                            }
+                            GestionCollisions.preventOverlap(unite, voisin);
+                        }
 
                         if(unite instanceof Plongeur){
                             if(voisin instanceof Calamar){

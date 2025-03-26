@@ -74,30 +74,22 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     );
                     if (cercleRessource.contains(x, y)) {
                         resourceFound = true;
-
-                        // On suppose qu'une seule unité est sélectionnée
                         if (!panel.getUnitesSelected().isEmpty()) {
                             model.objets.UniteControlable selectedUnit = panel.getUnitesSelected().get(0);
-                            // Définir la destination de l'unité vers la ressource
-                            selectedUnit.setDestination(new Position(resX, resY));
-
-                            // Retirer la ressource du jeu :
-                            panel.removeObjet(ressource, ressource.getCoordGrid());
-                            panel.getRessources().remove(ressource);
-
-                            // Augmenter l'argent du joueur (via Referee)
-                            Referee.getInstance().ajouterPointsVictoire(30);
-                            GamePanel.getInstance().addCollectedResource(ressource);
-
-                            panel.repaint();
+                            if (selectedUnit instanceof model.unite_controlables.Plongeur) {
+                                model.unite_controlables.Plongeur plongeur = (model.unite_controlables.Plongeur) selectedUnit;
+                                // Affecter la ressource et activer son flag fixed (via setTargeted)
+                                plongeur.setTargetResource(ressource);
+                                ressource.setTargeted(true);  // ou setFixed(true)
+                                plongeur.setDestination(new Position(resX, resY));
+                            }
                         }
+                        panel.repaint();
                         break;
                     }
                 }
-                // Après traitement, désactiver le mode récupération
                 panel.setRecuperationMode(false);
                 if (!resourceFound) {
-                    // Optionnel : afficher un message si aucune ressource n'a été cliquée
                     JOptionPane.showMessageDialog(panel, "Aucune ressource détectée.");
                 }
                 return;

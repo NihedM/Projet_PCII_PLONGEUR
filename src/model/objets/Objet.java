@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Objet {
     private Position position;
-    private CoordGrid coordGrid;
+    public CoordGrid coordGrid;
 
     private final int rayon;                //TODO faire les constantes(rayons) de tout les objets
 

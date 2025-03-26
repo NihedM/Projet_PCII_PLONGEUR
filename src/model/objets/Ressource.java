@@ -1,5 +1,7 @@
 package model.objets;
 
+import controler.TileManager;
+
 public class Ressource extends Objet {
     public enum Etat {
         EN_CROISSANCE, PRET_A_RECOLTER, DETRUIRE
@@ -15,6 +17,10 @@ public class Ressource extends Objet {
     private int tempsPret;
     private int tempsInitial;
     private Position position;
+
+    private boolean targeted = false;
+    private boolean fixed = false;
+
 
     public Ressource(Position position, int rayon, int valeur, int tempsRestant) {
         super(position, rayon);
@@ -69,4 +75,28 @@ public class Ressource extends Objet {
         }
         return 0;
     }
+
+    public boolean isTargeted() {
+        return targeted;
+    }
+
+    public void setTargeted(boolean targeted) {
+        this.targeted = targeted;
+        setFixed(targeted);
+    }
+
+    public boolean isFixed() {
+        return fixed;
+    }
+
+    public void setFixed(boolean fixed) {
+        this.fixed = fixed;
+    }
+    @Override
+    public synchronized void updatePosition() {
+        if (!fixed) {
+            this.coordGrid = TileManager.transformePos_to_Coord(this.getPosition());
+        }
+    }
+
 }

@@ -41,6 +41,7 @@ public class GamePanel extends JPanel {
     private Ressource ressourceSelectionnee; // Ressource actuellement sélectionnée
 
 
+    public static final Position BASE_POSITION = new Position(40,100 );
 
 
 
@@ -479,6 +480,13 @@ public class GamePanel extends JPanel {
                         TileManager.TILESIZE, TileManager.TILESIZE);
             }
         }
+
+        //LA BASE
+        g.setColor(Color.GREEN);
+        int baseSize = 20; // Taille du carré
+        // On centre le carré sur la position de la base
+        g.fillRect(BASE_POSITION.getX() - baseSize / 2, BASE_POSITION.getY() - baseSize / 2, baseSize, baseSize);
+
 
         // Dessiner les objets (unités et ressources)
         for (model.objets.Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {

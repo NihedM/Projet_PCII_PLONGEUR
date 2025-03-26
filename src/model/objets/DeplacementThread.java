@@ -59,16 +59,33 @@ public class DeplacementThread extends Thread {
                 // Destination atteinte, arrêter le déplacement
                 unite.setDestination(null);
 
-                boolean collisionDetected = false;
-                if (unite instanceof model.objets.UniteControlable) {
-                    if (!collisionDetected) {
-                        int newX = unite.getPosition().getX() + dx;
-                        int newY = unite.getPosition().getY() + dy;
-                        unite.getPosition().setX(newX);
-                        unite.getPosition().setY(newY);
+                unite.setDestination(null);
+
+                if (unite instanceof model.unite_controlables.Plongeur) {
+                    model.unite_controlables.Plongeur p = (model.unite_controlables.Plongeur) unite;
+                    if (p.getTargetResource() != null) {
+                        int dxRes = p.getPosition().getX() - p.getTargetResource().getPosition().getX();
+                        int dyRes = p.getPosition().getY() - p.getTargetResource().getPosition().getY();
+                        double distRes = Math.sqrt(dxRes * dxRes + dyRes * dyRes);
+                        if (distRes <= p.getRayon() + p.getTargetResource().getRayon()) {
+                            boolean collected = p.recolter(p.getTargetResource());
+                            if (collected) {
+                                // Une fois collectée, on réinitialise la cible et désactive le flag targeted
+                                p.getTargetResource().setTargeted(false);
+                                p.setTargetResource(null);
+                            }
+                        }
                     }
-                    GamePanel.getInstance().repaint();
+                    //Vérifie si le plongeur est arrivé à la base pour livrer son backpack
+                    Position base = GamePanel.BASE_POSITION;
+                    int dxBase = p.getPosition().getX() - base.getX();
+                    int dyBase = p.getPosition().getY() - base.getY();
+                    double distBase = Math.sqrt(dxBase * dxBase + dyBase * dyBase);
+                    if (distBase <= 20) { // seuil de proximité à ajuster si nécessaire
+                        p.deliverBackpack();
+                    }
                 }
+                GamePanel.getInstance().repaint();
             }
 
             // Gestion de la mort du Calamar si hors terrain
