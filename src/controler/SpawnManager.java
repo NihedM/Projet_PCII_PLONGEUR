@@ -4,6 +4,7 @@ import model.objets.CoordGrid;
 import model.objets.EnemySpawnPoint;
 import model.objets.Position;
 import model.unite_non_controlables.Calamar;
+import model.unite_non_controlables.Pieuvre;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class SpawnManager extends Thread{
 
     public void addSpawnPoint(CoordGrid tile, int maxEnemies) {
         EnemySpawnPoint spawnPoint = new EnemySpawnPoint(tile, maxEnemies, gamePanel);
+        spawnPoint.setEnemyType(Pieuvre.class);
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
     }
