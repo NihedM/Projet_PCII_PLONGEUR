@@ -52,7 +52,7 @@ public class GestionCollisions{
         // Calcul de la normale
         double normalX = b.getPosition().getX() - a.getPosition().getX();
         double normalY = b.getPosition().getY() - a.getPosition().getY();
-        double magnitude = Math.sqrt(normalX * normalY + normalY * normalY);
+        double magnitude = Math.sqrt(normalX * normalX + normalY * normalY);
         normalX /= magnitude;
         normalY /= magnitude;
 

@@ -110,12 +110,13 @@ public class GameMaster extends Thread{
         ThreadManager.incrementThreadCount("GameMaster");
         updateLists();
 
-        while(true){
-            if(enemies == null)continue;
-            for (Enemy enemy : enemies) {
-                enemy.action();
+        while(true) {
+            if(enemies != null) {  // Inverser la condition
+                for (Enemy enemy : enemies) {
+                    enemy.action();
+                }
+                updateTargets();
             }
-            updateTargets();
             try {
                 Thread.sleep(30);
             } catch (InterruptedException e) {

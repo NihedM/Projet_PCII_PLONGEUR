@@ -4,12 +4,10 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
-
-public class StaminaRegenHandler extends Thread {
-    private static final int REGEN_INTERVAL = 1000; // 1 second
-    private static final int STAMINA_INCREMENT = 1; // Amount of stamina to increase per interval
-    private static final int STAMINA_DECREMENT = 2; // Amount of stamina to decrease per interval
-
+public class StaminaRegenHandler extends GameHandler {
+    private static final int DELAY = 1000;
+    private static final int STAMINA_INCREMENT = 1;
+    private static final int STAMINA_DECREMENT = 2;
     private static StaminaRegenHandler instance;
 
     public static synchronized StaminaRegenHandler getInstance() {
@@ -21,43 +19,32 @@ public class StaminaRegenHandler extends Thread {
     }
 
     @Override
-    public void run() {
-        ThreadManager.incrementThreadCount("StaminaRegenHandler");
+    protected void executeHandlerLogic() {
+        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+            if (!(unite instanceof Plongeur)) continue;
 
-        while (true) {
-            for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
-                if(!(unite instanceof Plongeur)) {
-                    continue;
-                }
-                Plongeur plongeur = (Plongeur) unite;
+            Plongeur plongeur = (Plongeur) unite;
+            updateStamina(plongeur);
 
-
-
-                if(plongeur.isFaitFuire()){
-                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OxygenHandler.OXYGEN_DECREMENT*3);
-                    plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
-                }else  if (plongeur.getDestination() == null)
-                    plongeur.setCurrentStamina(plongeur.getCurrentStamina() + STAMINA_INCREMENT);
-                else if (plongeur.getDestination() != null)
-                    plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
-                else
-                    plongeur.setCurrentStamina(plongeur.getCurrentStamina() + STAMINA_DECREMENT);
-
-
-
-
-                if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
-                    GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
-                }
-
-            }
-            try {
-                Thread.sleep(REGEN_INTERVAL);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                break;
+            if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
+                GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
             }
         }
-        ThreadManager.decrementThreadCount("StaminaRegenHandler");
+    }
+
+    private void updateStamina(Plongeur plongeur) {
+        if (plongeur.isFaitFuire()) {
+            plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OxygenHandler.OXYGEN_DECREMENT * 3);
+            plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
+        } else if (plongeur.getDestination() == null) {
+            plongeur.setCurrentStamina(plongeur.getCurrentStamina() + STAMINA_INCREMENT);
+        } else {
+            plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
+        }
+    }
+
+    @Override
+    protected int getDelay() {
+        return DELAY;
     }
 }
