@@ -108,6 +108,9 @@ public class Calamar extends Enemy {
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);
                 GamePanel.getInstance().removeObjet(objectifCourrant, objectifCourrant.getCoordGrid());
+
+                GamePanel.getInstance().checkAndClearResourcePanel(objectifCourrant);
+
                 objectifCourrant = null;
             }
 

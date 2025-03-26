@@ -576,6 +576,12 @@ public class GamePanel extends JPanel {
         }
 
     }
+    public void checkAndClearResourcePanel(Ressource ressource) {
+        if (ressourceSelectionnee != null && ressourceSelectionnee.equals(ressource)) {
+            setRessourceSelectionnee(null);
+            showEmptyInfoPanel();
+        }
+    }
 
 }
 
