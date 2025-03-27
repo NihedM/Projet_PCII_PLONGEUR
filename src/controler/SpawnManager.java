@@ -48,8 +48,8 @@ public class SpawnManager extends Thread{
 
 
     public void generateRandomSpawnPoint(int maxEnemies) {
-        int randomX = random.nextInt(TileManager.nbTiles);
-        int randomY = random.nextInt(TileManager.nbTiles);
+        int randomX = random.nextInt(TileManager.nbTilesWidth);
+        int randomY = random.nextInt(TileManager.nbTilesHeight);
         CoordGrid randomTile = new CoordGrid(randomX, randomY);
         addSpawnPoint(randomTile, maxEnemies);
     }

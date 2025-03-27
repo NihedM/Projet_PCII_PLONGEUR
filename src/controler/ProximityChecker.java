@@ -38,29 +38,31 @@ public class ProximityChecker extends Thread{
         return voisinsCopy;
     }
 
-    public synchronized CopyOnWriteArrayList<Objet> getObjetTilesVoisines(Objet objet){
+    public synchronized CopyOnWriteArrayList<Objet> getObjetTilesVoisines(Objet objet) {
         CopyOnWriteArrayList<Objet> voisins = new CopyOnWriteArrayList<>();
-        int i = 0, x = objet.getCoordGrid().getX(), y = objet.getCoordGrid().getY();
+        int x = objet.getCoordGrid().getX();
+        int y = objet.getCoordGrid().getY();
 
-        /*on vas verifier si les cases voisines de celle ou ce trouve objet sont deja dans le conteneur*/
-        for(int j = -1; j <= 1; j++){
-            for(int k = -1; k <= 1; k++){
+        for(int j = -1; j <= 1; j++) {
+            for(int k = -1; k <= 1; k++) {
                 if(j == 0 && k == 0) continue;
-                /*faire gafe auxx bors de la map*/
-                if(x + j < 0 || x + j >= controler.TileManager.nbTiles || y + k < 0 || y + k >= controler.TileManager.nbTiles) continue;
+
+                // Vérification des bords de la map avec les nouvelles variables
+                if(x + j < 0 || x + j >= TileManager.nbTilesWidth ||
+                        y + k < 0 || y + k >= TileManager.nbTilesHeight) {
+                    continue;
+                }
+
                 int xVoisin = x + j;
                 int yVoisin = y + k;
                 CoordGrid coordVoisin = TileManager.getCoordTile(xVoisin, yVoisin);
                 CopyOnWriteArrayList<Objet> objetsDansTile = objetsMap.get(coordVoisin);
-                if(objetsDansTile != null){
+                if(objetsDansTile != null) {
                     voisins.addAll(objetsDansTile);
                 }
-
             }
         }
-
         return voisins;
-
     }
 
     public synchronized CopyOnWriteArrayList<Objet> getVoisins(UniteControlable unite) {

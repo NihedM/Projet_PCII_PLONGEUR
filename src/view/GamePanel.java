@@ -8,21 +8,37 @@ import view.debeug.GameInfoWindow;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.locks.ReentrantLock;
 
 public class GamePanel extends JPanel {
     public static final int PANELDIMENSION = 800;
     private static GamePanel instance;
     private final VictoryManager victoryManager;
 
-    private int grid[][] = new int[TileManager.nbTiles][TileManager.nbTiles];
+    // Variables pour la caméra
+    private int cameraX = 0;
+    private int cameraY = 0;
+    private boolean isDragging = false;
+    private Point dragStart = new Point();
+
+    // Dimensions du terrain
+    public static final int TERRAIN_WIDTH = 1600;  // Largeur totale du terrain
+    public static final int TERRAIN_HEIGHT = 2400; // Hauteur totale du terrain
+    public static final int VIEWPORT_WIDTH = PANELDIMENSION - 200; // Largeur visible
+    public static final int VIEWPORT_HEIGHT = PANELDIMENSION;     // Hauteur visible
+
+    // Minimap
+    private static final int MINIMAP_WIDTH = 150;
+    private static final int MINIMAP_HEIGHT = 150;
+    private static final int MINIMAP_MARGIN = 10;
+    private static final float MINIMAP_SCALE = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
+
+    private int grid[][] = new int[TileManager.nbTilesWidth][TileManager.nbTilesHeight];
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
     private CopyOnWriteArrayList<UniteControlable> unitesEnJeu = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<UniteControlable> unitesSelected = new CopyOnWriteArrayList<>();
@@ -35,47 +51,94 @@ public class GamePanel extends JPanel {
     private CardLayout infoCardLayout;
 
     private boolean paused = false;
-
     private ArrayList<model.objets.Ressource> collectedResources = new ArrayList<>();
+    private Ressource ressourceSelectionnee;
 
-    private Ressource ressourceSelectionnee; // Ressource actuellement sélectionnée
+    public static final Position BASE_POSITION = new Position(40, 100);
 
-
-    public static final Position BASE_POSITION = new Position(40,100 );
-
-
-
-    //ajouter classe terrain, dimentions temporaires
-    public static final int TERRAIN_MIN_X = 10,
-            TERRAIN_MAX_X = PANELDIMENSION - 200-10,
-            TERRAIN_MIN_Y = 10,
-            TERRAIN_MAX_Y = PANELDIMENSION -10,
-            GAME_AREA_WIDTH = PANELDIMENSION - 205;
-
+    // Dimensions du terrain
+    public static final int TERRAIN_MIN_X = 0,
+            TERRAIN_MAX_X = TERRAIN_WIDTH,
+            TERRAIN_MIN_Y = 0,
+            TERRAIN_MAX_Y = TERRAIN_HEIGHT,
+            GAME_AREA_WIDTH = VIEWPORT_WIDTH;
 
     private SelectionClic selectionClic;
-
-
-    private InfoPanel infoPanel;         // pour les unités
-    private InfoPanelUNC infoPanelUNC;   // pour les ressources
+    private InfoPanel infoPanel;
+    private InfoPanelUNC infoPanelUNC;
     private final int INFO_PANEL_TARGET_WIDTH = 200;
-    // Largeur actuelle du panneau d'infos (pour l'animation)
     private int currentInfoPanelWidth = 0;
     private Timer slideTimer;
     private boolean isSliding = false;
     private boolean deplacementMode = false;
-
     private boolean recuperationMode = false;
-
 
     public GamePanel() {
         instance = this;
         setLayout(null);
-
         setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
-        setBackground(new Color(173, 216, 230)); // Fond bleu clair
+        setBackground(new Color(173, 216, 230));
 
-        // Initialisation et positionnement de l'infoContainer (anciennement ajouté en EAST)
+        // Initialisation des composants UI
+        initUIComponents();
+
+        // Configuration des listeners
+        setupListeners();
+
+        // Initialisation des systèmes
+        initSystems();
+
+        // Initialisation de la gestion des victoires
+        this.victoryManager = new VictoryManager(this);
+    }
+
+    private void drawMinimap(Graphics g) {
+        // Fond de la minimap
+        g.setColor(new Color(30, 30, 30, 200));
+        g.fillRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN,
+                MINIMAP_MARGIN,
+                MINIMAP_WIDTH,
+                MINIMAP_HEIGHT);
+
+        // Dessiner le terrain sur la minimap
+        g.setColor(new Color(100, 100, 100));
+        g.fillRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN,
+                MINIMAP_MARGIN,
+                (int)(TERRAIN_WIDTH * MINIMAP_SCALE),
+                (int)(TERRAIN_HEIGHT * MINIMAP_SCALE));
+
+        // Dessiner les objets sur la minimap
+        for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
+            int x = (int)(objet.getPosition().getX() * MINIMAP_SCALE);
+            int y = (int)(objet.getPosition().getY() * MINIMAP_SCALE);
+            x = PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN + x;
+            y = MINIMAP_MARGIN + y;
+
+            if (objet instanceof UniteControlable) {
+                g.setColor(objet instanceof Plongeur ? Color.BLUE : Color.GREEN);
+            } else if (objet instanceof Ressource) {
+                g.setColor(Color.YELLOW);
+            } else {
+                g.setColor(Color.RED);
+            }
+
+            g.fillRect(x, y, 2, 2);
+        }
+
+        // Dessiner le rectangle de la vue actuelle
+        g.setColor(Color.WHITE);
+        int viewX = (int)(cameraX * MINIMAP_SCALE);
+        int viewY = (int)(cameraY * MINIMAP_SCALE);
+        int viewWidth = (int)(VIEWPORT_WIDTH * MINIMAP_SCALE);
+        int viewHeight = (int)(VIEWPORT_HEIGHT * MINIMAP_SCALE);
+
+        g.drawRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN + viewX,
+                MINIMAP_MARGIN + viewY,
+                viewWidth,
+                viewHeight);
+    }
+
+    private void initUIComponents() {
         infoContainer = new JPanel(new CardLayout());
         infoPanel = new InfoPanel();
         infoPanelUNC = new InfoPanelUNC();
@@ -83,55 +146,69 @@ public class GamePanel extends JPanel {
         JPanel emptyPanel = new JPanel();
         emptyPanel.setOpaque(false);
 
-
         infoContainer.add(infoPanel, "unit");
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(emptyPanel, "empty");
 
-
-        // Par défaut, affiche la carte vide
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
 
-
-        // Positionnement manuel : on place l'infoContainer à droite
         infoContainer.setBounds(PANELDIMENSION - 200, 0, 200, PANELDIMENSION);
         add(infoContainer);
 
-
-        // Ajout direct du bouton "Market" dans le JPanel
         JButton marketButton = new JButton("Market");
-        // Positionné en haut à droite (100px de largeur, 30px de hauteur, ajuster selon vos besoins)
         marketButton.setBounds(500, 10, 100, 30);
-        marketButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Mettre le jeu en pause
-                GamePanel.this.setPaused(true);
-                // Récupérer la fenêtre parente du GamePanel
-                JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
-                // Créer et afficher la popup Market
-                MarketPopup popup = new MarketPopup(topFrame);
-                popup.setVisible(true);
-                // Une fois la popup fermée, reprendre le jeu
-                GamePanel.this.setPaused(false);
-            }
+        marketButton.addActionListener(e -> {
+            setPaused(true);
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
+            MarketPopup popup = new MarketPopup(topFrame);
+            popup.setVisible(true);
+            setPaused(false);
         });
         add(marketButton);
+    }
 
-
-
-
-
-
-        setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
-        setBackground(new Color(173, 216, 230)); // Fond bleu clair
-
+    private void setupListeners() {
         selectionClic = new SelectionClic(this);
         addMouseListener(selectionClic);
         addMouseMotionListener(selectionClic);
 
+        // Ajouter les listeners pour le déplacement de la caméra
+        addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    isDragging = true;
+                    dragStart = e.getPoint();
+                }
+            }
 
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON3) {
+                    isDragging = false;
+                }
+            }
+        });
+
+        addMouseMotionListener(new MouseAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                if (isDragging) {
+                    int dx = e.getX() - dragStart.x;
+                    int dy = e.getY() - dragStart.y;
+
+                    moveCamera(-dx, -dy);
+                    dragStart = e.getPoint();
+                }
+            }
+        });
+
+        setFocusable(true);
+        requestFocusInWindow();
+    }
+
+    private void initSystems() {
         this.updater = new TileUpdater(objetsMap);
         this.proxy = new ProximityChecker(objetsMap, unitesEnJeu);
 
@@ -139,18 +216,25 @@ public class GamePanel extends JPanel {
         executor.submit(updater);
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
+    }
 
-        // Configuration pour recevoir les entrées clavier
-        setFocusable(true);
-        requestFocusInWindow();
+    // Méthodes pour la caméra
+    public void moveCamera(int dx, int dy) {
+        cameraX = Math.max(0, Math.min(TERRAIN_WIDTH - VIEWPORT_WIDTH, cameraX + dx));
+        cameraY = Math.max(0, Math.min(TERRAIN_HEIGHT - VIEWPORT_HEIGHT, cameraY + dy));
+        repaint();
+    }
 
-        // Initialisation des listeners
-        selectionClic = new SelectionClic(this);
-        addMouseListener(selectionClic);
-        addMouseMotionListener(selectionClic);
+    private Point worldToScreen(int worldX, int worldY) {
+        return new Point(worldX - cameraX, worldY - cameraY);
+    }
 
-        // Initialisation de la gestion des victoires
-        this.victoryManager = new VictoryManager(this);
+    public int getCameraX() {
+        return cameraX;
+    }
+
+    public int getCameraY() {
+        return cameraY;
     }
 
     public void startGame() {
@@ -449,22 +533,23 @@ public class GamePanel extends JPanel {
     /*peindre le tile ou ce trouve l'objet*/
     public void paintTile(int tileX, int tileY, Color color, Graphics g) {
         g.setColor(color);
-        g.fillRect(tileX * PANELDIMENSION / TileManager.nbTiles, tileY * PANELDIMENSION / TileManager.nbTiles, TileManager.TILESIZE, TileManager.TILESIZE);
+        g.fillRect(tileX * TileManager.TILESIZE - cameraX,
+                tileY * TileManager.TILESIZE - cameraY,
+                TileManager.TILESIZE, TileManager.TILESIZE);
     }
 
 
     public void paintPerimetre(model.objets.Objet objet, Color color, Graphics g) {
-
-        int tileX = TileManager.transformeP_to_grid(objet.getPosition().getX()) ;
-        int tileY = TileManager.transformeP_to_grid(objet.getPosition().getY()) ;
+        int tileX = TileManager.transformeP_to_grid(objet.getPosition().getX());
+        int tileY = TileManager.transformeP_to_grid(objet.getPosition().getY());
         paintTile(tileX, tileY, color, g);
 
         int[][] voisins = getVoisins(tileX, tileY);
         for(int i = 0; i < 8; i++){
-            if(voisins[i][0] < 0 || voisins[i][0] >= TileManager.nbTiles || voisins[i][1] < 0 || voisins[i][1] >= TileManager.nbTiles) continue;
-            paintTile(voisins[i][0], voisins[i][1] , color, g);
+            if(voisins[i][0] < 0 || voisins[i][0] >= TileManager.nbTilesWidth ||
+                    voisins[i][1] < 0 || voisins[i][1] >= TileManager.nbTilesHeight) continue;
+            paintTile(voisins[i][0], voisins[i][1], color, g);
         }
-
     }
 
 
@@ -472,118 +557,116 @@ public class GamePanel extends JPanel {
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Dessiner la grille
-        for (int i = 0; i < TileManager.nbTiles; i++) {
-            for (int j = 0; j < TileManager.nbTiles; j++) {
-                g.setColor(Color.BLACK);
-                g.drawRect(i * PANELDIMENSION / TileManager.nbTiles, j * PANELDIMENSION / TileManager.nbTiles,
-                        TileManager.TILESIZE, TileManager.TILESIZE);
-            }
-        }
-
-        //LA BASE
-        g.setColor(Color.GREEN);
-        int baseSize = 20; // Taille du carré
-        // On centre le carré sur la position de la base
-        g.fillRect(BASE_POSITION.getX() - baseSize / 2, BASE_POSITION.getY() - baseSize / 2, baseSize, baseSize);
-
-
-        // Dessiner les objets (unités et ressources)
-        for (model.objets.Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
-            int diametre = objet.getRayon() * 2;
-
-            if (objet instanceof model.objets.Ressource) {
-                model.objets.Ressource ressource = (model.objets.Ressource) objet;
-                if (ressource.getEtat() == model.objets.Ressource.Etat.EN_CROISSANCE) {
-                    g.setColor(Color.YELLOW);
-                } else if (ressource.getEtat() == model.objets.Ressource.Etat.PRET_A_RECOLTER) {
-                    g.setColor(Color.GREEN);
-                } else {
-                    continue;
-                }
-            } else if (objet instanceof model.objets.UniteControlable) {
-                model.objets.UniteControlable unite = (model.objets.UniteControlable) objet;
-                // Afficher le cercle en rouge si l'unité est sélectionnée, sinon en noir
-                if (unite.isSelected()) {
-                    g.setColor(Color.RED);
-                    // showMiniPanel((Plongeur) unite);
-                } else {
+        // Dessiner la partie visible du terrain
+        for (int i = cameraX/TileManager.TILESIZE; i < (cameraX+VIEWPORT_WIDTH)/TileManager.TILESIZE + 1; i++) {
+            for (int j = cameraY/TileManager.TILESIZE; j < (cameraY+VIEWPORT_HEIGHT)/TileManager.TILESIZE + 1; j++) {
+                if (i >= 0 && i < TileManager.nbTilesWidth && j >= 0 && j < TileManager.nbTilesHeight) {
                     g.setColor(Color.BLACK);
-                    //hideMiniPanel();
-                }
-                // Tracer la ligne de déplacement si une destination est définie
-                if (unite.getDestination() != null) {
-                    g.setColor(Color.BLUE);
-                    g.drawLine(unite.getPosition().getX(), unite.getPosition().getY(),
-                            unite.getDestination().getX(), unite.getDestination().getY());
+                    Point screenPos = worldToScreen(i * TileManager.TILESIZE, j * TileManager.TILESIZE);
+                    g.drawRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
                 }
             }
-            else{
-                g.setColor(Color.PINK);
-            }
-
-
-            // Dessiner l'objet (cercle)
-            int x = objet.getPosition().getX() - objet.getRayon();
-            int y = objet.getPosition().getY() - objet.getRayon();
-            g.fillOval(x, y, diametre, diametre);
-
-            // Dessiner le périmètre de fuite pour les Plongeurs
-            if (objet instanceof Plongeur) {
-                Plongeur plongeur = (Plongeur) objet;
-                if (plongeur.isFaitFuire()) {
-                    g.setColor(Color.ORANGE);
-                    int rayonFuite = plongeur.getRayonFuite();
-                    int xFuite = plongeur.getPosition().getX() - rayonFuite;
-                    int yFuite = plongeur.getPosition().getY() - rayonFuite;
-                    int diametreFuite = rayonFuite * 2;
-                    g.drawOval(xFuite, yFuite, diametreFuite, diametreFuite);
-                }
-            }
-
         }
-        g.setColor(Color.ORANGE); // Set the color for spawn points
+
+        // Dessiner les bordures de la carte
+        g.setColor(Color.RED);
+        g.drawRect(-cameraX, -cameraY, TERRAIN_WIDTH, TERRAIN_HEIGHT);
+
+        // Dessiner les objets visibles
+        for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
+            Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
+
+            // Ne dessiner que si visible dans la vue
+            if (screenPos.x + objet.getRayon()*2 >= 0 && screenPos.x - objet.getRayon() <= VIEWPORT_WIDTH &&
+                    screenPos.y + objet.getRayon()*2 >= 0 && screenPos.y - objet.getRayon() <= VIEWPORT_HEIGHT) {
+
+                int diametre = objet.getRayon() * 2;
+
+                if (objet instanceof model.objets.Ressource) {
+                    model.objets.Ressource ressource = (model.objets.Ressource) objet;
+                    if (ressource.getEtat() == model.objets.Ressource.Etat.EN_CROISSANCE) {
+                        g.setColor(Color.YELLOW);
+                    } else if (ressource.getEtat() == model.objets.Ressource.Etat.PRET_A_RECOLTER) {
+                        g.setColor(Color.GREEN);
+                    } else {
+                        continue;
+                    }
+                } else if (objet instanceof model.objets.UniteControlable) {
+                    model.objets.UniteControlable unite = (model.objets.UniteControlable) objet;
+                    g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+
+                    if (unite.getDestination() != null) {
+                        Point destScreenPos = worldToScreen(unite.getDestination().getX(), unite.getDestination().getY());
+                        g.setColor(Color.BLUE);
+                        g.drawLine(screenPos.x, screenPos.y, destScreenPos.x, destScreenPos.y);
+                    }
+                } else {
+                    g.setColor(Color.PINK);
+                }
+
+                // Dessiner l'objet
+                g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
+
+                // Dessiner le périmètre de fuite pour les Plongeurs
+                if (objet instanceof Plongeur) {
+                    Plongeur plongeur = (Plongeur) objet;
+                    if (plongeur.isFaitFuire()) {
+                        g.setColor(Color.ORANGE);
+                        int rayonFuite = plongeur.getRayonFuite();
+                        g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+                    }
+                }
+            }
+        }
+
+        // Dessiner les spawn points
+        g.setColor(Color.ORANGE);
         for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getSpawnPoints()) {
-            Position pos = spawnPoint.getPosition();
-            int x2 = pos.getX() - spawnPoint.getRayon();
-            int y2 = pos.getY() - spawnPoint.getRayon();
+            Point screenPos = worldToScreen(spawnPoint.getPosition().getX(), spawnPoint.getPosition().getY());
             int diameter = spawnPoint.getRayon() * 2;
-            g.fillOval(x2, y2, diameter, diameter);
+            g.fillOval(screenPos.x - spawnPoint.getRayon(), screenPos.y - spawnPoint.getRayon(), diameter, diameter);
         }
 
-        // pour tester la gestion de proximité
-        for(UniteControlable unite: unitesEnJeu){
-            CopyOnWriteArrayList<Objet> voisins = proxy.getVoisins(unite);
-
-            for (Objet voisin : voisins) {
-                int x1 = unite.getPosition().getX();
-                int y1 = unite.getPosition().getY();
-                int x2 = voisin.getPosition().getX();
-                int y2 = voisin.getPosition().getY();
-
-                g.setColor(Color.RED);  // Choisir la couleur de la ligne
-                g.drawLine(x1, y1, x2, y2);
-            }
-        }
-
-
-
-        selectionClic.paintSelection(g);
-
+        // Dessiner la base
+        Point baseScreenPos = worldToScreen(BASE_POSITION.getX(), BASE_POSITION.getY());
+        g.setColor(Color.GREEN);
+        int baseSize = 20;
+        g.fillRect(baseScreenPos.x - baseSize/2, baseScreenPos.y - baseSize/2, baseSize, baseSize);
 
         // Afficher les informations du joueur
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
-        g.drawString("Points de victoire: " + Referee.getInstance().getPointsVictoire(), 10, 20);
+        g.drawString("Points: " + Referee.getInstance().getPointsVictoire(), 10, 20);
         g.drawString("Argent: " + Referee.getInstance().getArgentJoueur(), 10, 40);
         g.drawString("Unités: " + unitesEnJeu.size(), 10, 60);
 
-        // Ajout du temps restant
         if (victoryManager != null) {
-            g.drawString("Temps restant: " + victoryManager.getRemainingTime(), 10, 80);
+            g.drawString("Temps: " + victoryManager.getRemainingTime(), 10, 80);
         }
 
+        // Dessiner la sélection
+        selectionClic.paintSelection(g);
+
+        // Dessiner la minimap
+        drawMinimap(g);
     }
+
+    public static int getMinimapWidth() {
+        return MINIMAP_WIDTH;
+    }
+
+    public static int getMinimapHeight() {
+        return MINIMAP_HEIGHT;
+    }
+
+    public static int getMinimapMargin() {
+        return MINIMAP_MARGIN;
+    }
+
+    public static float getMinimapScale() {
+        return MINIMAP_SCALE;
+    }
+
     public void checkAndClearResourcePanel(Ressource ressource) {
         if (ressourceSelectionnee != null && ressourceSelectionnee.equals(ressource)) {
             setRessourceSelectionnee(null);

@@ -32,7 +32,18 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         // Configuration du focus
         panel.setFocusable(true);
         panel.requestFocusInWindow();
+
+
     }
+
+    private Point screenToWorld(Point screenPoint) {
+        return new Point(
+                screenPoint.x + GamePanel.getInstance().getCameraX(),
+                screenPoint.y + GamePanel.getInstance().getCameraY()
+        );
+    }
+
+
 
     public void dropUnitesSelectionnees() {
         for (model.objets.UniteControlable unite : panel.getUnitesSelected()) {
@@ -44,6 +55,23 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
+        // Vérifier si le clic est sur la minimap
+        if (e.getX() >= panel.getWidth() - GamePanel.getMinimapWidth() - GamePanel.getMinimapMargin() &&
+                e.getX() <= panel.getWidth() - GamePanel.getMinimapMargin() &&
+                e.getY() >= GamePanel.getMinimapMargin() &&
+                e.getY() <= GamePanel.getMinimapMargin() + GamePanel.getMinimapHeight()) {
+
+            // Calculer les coordonnées dans le monde
+            int worldX = (int)((e.getX() - (panel.getWidth() - GamePanel.getMinimapWidth() - GamePanel.getMinimapMargin())) / GamePanel.getMinimapScale());
+            int worldY = (int)((e.getY() - GamePanel.getMinimapMargin()) / GamePanel.getMinimapScale());
+
+            // Centrer la caméra sur ce point
+            panel.moveCamera(worldX - GamePanel.VIEWPORT_WIDTH/2, worldY - GamePanel.VIEWPORT_HEIGHT/2);
+            return;
+        }
+        Point worldPos = screenToWorld(e.getPoint());
+        int x = worldPos.x;
+        int y = worldPos.y;
         // Si le mode déplacement est actif, on ne fait rien ici
         if (panel.isDeplacementMode()) {
             return;
@@ -51,8 +79,6 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
         // Convertir les coordonnées du clic
         java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
-        int x = point.x;
-        int y = point.y;
         startX = point.x;
         startY = point.y;
         endX = startX;
@@ -160,6 +186,9 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        Point worldPos = screenToWorld(e.getPoint());
+        int x = worldPos.x;
+        int y = worldPos.y;
         //System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
         if (e.getButton() == MouseEvent.BUTTON1) {
 
