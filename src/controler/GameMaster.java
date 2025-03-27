@@ -5,7 +5,6 @@ import model.objets.Objet;
 import model.objets.Ressource;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
-import model.unite_non_controlables.Pieuvre;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -91,9 +90,9 @@ public class GameMaster extends Thread{
         for (Enemy enemy : enemies) {
             if (enemy instanceof Calamar) {
                 ((Calamar) enemy).setRessourcesDisponibles(ressources);
-            }else if(enemy instanceof Pieuvre){
+            }/*else if(enemy instanceof Pieuvre){
                 ((Pieuvre) enemy).setTargetsDisponibles(GamePanel.getInstance().getUnitesEnJeu());
-            }
+            }*/
 
 
 

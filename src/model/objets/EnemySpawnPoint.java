@@ -9,7 +9,6 @@ import model.objets.Objet;
 import model.objets.Position;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
-import model.unite_non_controlables.Pieuvre;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -61,10 +60,10 @@ public class EnemySpawnPoint extends Objet implements Runnable {
             if (enemy instanceof Calamar) {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getRessources()));
 
-            } else if (enemy instanceof Pieuvre) {
+            } /*else if (enemy instanceof Pieuvre) {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getUnitesEnJeu()));
 
-            }
+            }*/
 
 
 

@@ -78,8 +78,9 @@ public class Plongeur extends UniteControlable {
 
 
     public double getVitesseXStamina(){
-        double maxSpeed = Math.log(101);
-        return 10 * Math.log((stamina + 1)) / maxSpeed*0.8 + 2;
+        double curve = 10;
+        double exponent = -curve * (stamina - 20) / 100;
+        return getVitesseMax() / (1 + Math.exp(exponent));
     }
     public void setCurrentStamina(int stamina) {
         if(stamina > MAX_STAMINA) return;
@@ -87,8 +88,9 @@ public class Plongeur extends UniteControlable {
 
         this.stamina = stamina;
         // Adjust speed based on current stamina using a quadratic function
-        setVitesse(getVitesseXStamina());
-
+        setVitesseCourante(
+                Math.min(getVitesseCourante(), getVitesseXStamina() )
+        );
 
         if(stamina <= 0) {
             setDestination(null);

@@ -26,7 +26,6 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
         this.etat = Etat.VADROUILLE;
         this.secondesRestant = secondesRestant;
         timer.schedule(new model.objets.Fuite(this), secondesRestant * 1000); // tempsRestant en secondes
-        setVitesse(5);
     }
 
     public Etat getEtat() {return etat;}
@@ -63,7 +62,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
 
     public void attente(){
-        setVitesse(VITESSE_ATTENTE);
+        setVitesseCourante(VITESSE_ATTENTE);
 
         if(getDestination() != null)return;
         int dx = random.nextInt(2*ATTENTE_RANGE)* (random.nextBoolean() ? 1 : -1);

@@ -16,7 +16,7 @@ public class Calamar extends Enemy {
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     public Calamar(Position position) {
-        super(position,5, 5, 0.05);
+        super(position,5, 5, 5);
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
     }
 

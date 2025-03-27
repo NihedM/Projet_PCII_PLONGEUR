@@ -36,8 +36,14 @@ protected void paintComponent(Graphics g) {
     for (int stamina = 0; stamina <= MAX_STAMINA; stamina++) {
 
 
-        double maxSpeed = Math.log(101);
-        double speed = 10 * Math.log((stamina + 1)) / maxSpeed*0.8 + 2;
+
+        double maxSpeed = 5.0;
+        double base = 100.0;
+        double curve = 10;
+        double offset = 20.0;
+
+        double exponent = -curve * (stamina - offset) / base;
+        double speed = maxSpeed / (1 + Math.exp(exponent));
 
 
         int x = 50 + stamina * (WIDTH - 100) / MAX_STAMINA;

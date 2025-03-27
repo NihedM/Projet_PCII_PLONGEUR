@@ -9,13 +9,15 @@ public class Unite extends Objet {
     private Position destination;
 
     private double vx, vy; // Vecteur vitesse
-    private double VITESSE; //vitesse courrante
+    private double vitesseCourante = 0.0; //vitesse courrante
+    private double vitesseMax; //vitesse de l'unité
+    private double acceleration = 0.1; //acceleration de l'unité
     private int heat_points;    //vie de l'unité
 
 
     public Unite(Position position, int rayon, double vitesse, int heat_points) {
         super(position, rayon);
-        this.VITESSE = vitesse;
+        this.vitesseMax= vitesse;
         this.destination = null;
         this.deplacementThread =null;
         this.vx = 0;
@@ -29,9 +31,14 @@ public class Unite extends Objet {
     }
     public int get_Hp() {return heat_points;}
     public void set_Hp(int hp) {this.heat_points = hp;}
-    public double getVitesse() {return VITESSE;}
+    public double getVitesseCourante() {return vitesseCourante;}
 
-    public void setVitesse(double vitesse) {this.VITESSE = vitesse;}
+    public void setVitesseCourante(double vitesse) {this.vitesseCourante = vitesse;}
+
+    public double getVitesseMax() {return vitesseMax;}
+    public void setVitesseMax(double vitesseMax) {this.vitesseMax = vitesseMax;}
+    public double getAcceleration() {return acceleration;}
+    public void setAcceleration(double acceleration) {this.acceleration = acceleration;}
 
     public double getVx() { return vx; }
     public double getVy() { return vy; }
@@ -58,7 +65,7 @@ public class Unite extends Objet {
     }*/
 
     public String getInfo() {
-        return "HP: " + get_Hp() + ", Vitesse: " + getVitesse();
+        return "HP: " + get_Hp() + ", Vitesse: " + getVitesseCourante();
     }
 
 
