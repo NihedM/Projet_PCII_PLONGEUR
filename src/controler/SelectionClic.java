@@ -23,7 +23,9 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private enum SelectionType { NONE, UNIT, RESOURCE }
     private SelectionType currentSelectionType = SelectionType.NONE;
 
-    private int startX, startY, endX, endY;
+    private int startXView, startYView, endXView, endYView;
+    private int startXWorld, startYWorld, endXWorld, endYWorld;
+
     private boolean isSelecting = false;
 
     public SelectionClic(GamePanel panel) {
@@ -35,13 +37,6 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         panel.requestFocusInWindow();
 
 
-    }
-
-    private Point screenToWorld(Point screenPoint) {
-        return new Point(
-                screenPoint.x + GamePanel.getInstance().getCameraX(),
-                screenPoint.y + GamePanel.getInstance().getCameraY()
-        );
     }
 
 
@@ -56,6 +51,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
     @Override
     public synchronized void mousePressed(MouseEvent e) {
+
+        // Convertir les coordonnées du clic
+        java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
+        startXView = point.x;
+        startYView = point.y;
+        endXView = startXView;
+        endYView = startYView;
+
         // Vérifier si le clic est sur la minimap
         MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
         if (minimap != null &&
@@ -75,20 +78,18 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             );
             return;
         }
-        Point worldPos = screenToWorld(e.getPoint());
+        Point worldPos = panel.screenToWorld(e.getPoint());
         int x = worldPos.x;
         int y = worldPos.y;
+
+        startXWorld = x;
+        startYWorld = y;
+
+
         // Si le mode déplacement est actif, on ne fait rien ici
         if (panel.isDeplacementMode()) {
             return;
         }
-
-        // Convertir les coordonnées du clic
-        java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
-        startX = point.x;
-        startY = point.y;
-        endX = startX;
-        endY = startY;
 
         if (e.getButton() == MouseEvent.BUTTON1) {
             // Si le mode récupération est activé, on recherche une ressource
@@ -181,7 +182,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
             if (!panel.getUnitesSelected().isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
                 for (UniteControlable unite : panel.getUnitesSelected()) {
-                    unite.setDestination(new Position(e.getX(), e.getY()));
+                    unite.setDestination(new Position(worldPos.x, worldPos.y));
                 }
                 panel.showFixedInfoPanel("unit");
 
@@ -192,15 +193,15 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
     @Override
     public synchronized void mouseClicked(MouseEvent e) {
-        Point worldPos = screenToWorld(e.getPoint());
+        Point worldPos = panel.screenToWorld(e.getPoint());
         int x = worldPos.x;
         int y = worldPos.y;
         //System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
         if (e.getButton() == MouseEvent.BUTTON1) {
 
             if (panel.isDeplacementMode()) {
-                int destX = e.getX();
-                int destY = e.getY();
+                int destX = worldPos.x;
+                int destY = worldPos.y;
 
                 //Check les coordonnées pour qu'elles restent dans l'aire de jeu.
                 if (destX > GamePanel.GAME_AREA_WIDTH) {
@@ -239,8 +240,13 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     public synchronized void mouseDragged(MouseEvent e) {
         if (isSelecting) {
             java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
-            endX = point.x;
-            endY = point.y;
+            endXView = point.x;
+            endYView = point.y;
+
+            Point worldPos = panel.screenToWorld(e.getPoint());
+            endXWorld = worldPos.x;
+            endYWorld= worldPos.y;
+
             panel.repaint();
         }
     }
@@ -257,10 +263,11 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     public synchronized void selectUnitsInRectangle() {
-        int x = Math.min(startX, endX);
-        int y = Math.min(startY, endY);
-        int width = Math.abs(startX - endX);
-        int height = Math.abs(startY - endY);
+
+        int x = Math.min(startXWorld, endXWorld);
+        int y = Math.min(startYWorld, endYWorld);
+        int width = Math.abs(startXWorld - endXWorld);
+        int height = Math.abs(startYWorld - endYWorld);
         Rectangle selectionRect = new Rectangle(x, y, width, height);
 
 
@@ -281,9 +288,9 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         if (isSelecting) {
             Graphics2D g2d = (Graphics2D) g;
             g2d.setColor(new Color(0, 0, 255, 100));
-            g2d.fillRect(Math.min(startX, endX), Math.min(startY, endY), Math.abs(startX - endX), Math.abs(startY - endY));
+            g2d.fillRect(Math.min(startXView, endXView), Math.min(startYView, endYView), Math.abs(startXView - endXView), Math.abs(startYView - endYView));
             g2d.setColor(Color.BLUE);
-            g2d.drawRect(Math.min(startX, endX), Math.min(startY, endY), Math.abs(startX - endX), Math.abs(startY - endY));
+            g2d.drawRect(Math.min(startXView, endXView), Math.min(startYView, endYView), Math.abs(startXView - endXView), Math.abs(startYView - endYView));
         }
     }
 

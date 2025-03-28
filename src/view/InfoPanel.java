@@ -22,6 +22,7 @@ public class InfoPanel extends JPanel {
 
     //Panel pour les plongeurs
     public InfoPanel() {
+
         setLayout(new GridLayout(3, 1));
         setBackground(new Color(220, 220, 220));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));

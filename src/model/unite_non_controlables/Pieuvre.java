@@ -71,7 +71,7 @@ public class Pieuvre extends Enemy {
             if(targetsDisponibles.isEmpty()){
                 setEtat(Etat.ATTENTE);
             }else{
-/*
+
                 //si la cible ce trouve à plus de 5 tiles de distance alors on la retire des targets disponibles
                 double distance = this.distance(target);
 
@@ -85,6 +85,8 @@ public class Pieuvre extends Enemy {
                     Plongeur plongeur = (Plongeur) target;
                     if(plongeur.getSacSize() == 0) {
                         //stalk
+
+                        if(getDestination() != null)return;
 
                         int dx = target.getPosition().getX() - this.getPosition().getX();
                         int dy = target.getPosition().getY() - this.getPosition().getY();
@@ -121,7 +123,7 @@ public class Pieuvre extends Enemy {
 
                 }
 
-*/
+
             }
 
         }

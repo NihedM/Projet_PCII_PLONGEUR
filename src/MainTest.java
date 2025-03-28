@@ -53,7 +53,7 @@ public class MainTest {
 
 
         SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
-        spawnManager.start();
+        //spawnManager.start();
 
 
 

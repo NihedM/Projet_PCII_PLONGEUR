@@ -13,7 +13,7 @@ public class InfoPanelUNC extends JPanel implements GestionRessource.RessourceLi
 
     public InfoPanelUNC(){
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(200, 150)); // Augmenter la hauteur pour accommoder la barre de progression
+        //setPreferredSize(new Dimension(200, 150)); // Augmenter la hauteur pour accommoder la barre de progression
         setBackground(new Color(220, 220, 220));
 
         infoLabel = new JLabel("Informations :", SwingConstants.CENTER);

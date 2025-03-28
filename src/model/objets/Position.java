@@ -30,6 +30,14 @@ public class Position {
         this.y = y;
     }
 
+    public Position toTerrainPosition(Terrain terrain, int cameraX, int cameraY) {
+        return terrain.panelToTerrain(this, cameraX, cameraY);
+    }
+
+    public Position toPanelPosition(Terrain terrain, int cameraX, int cameraY) {
+        return terrain.terrainToPanel(this, cameraX, cameraY);
+    }
+
 
 
 }

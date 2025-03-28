@@ -16,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
-    public static final int PANELDIMENSION = 800;
+    public static final int PANELDIMENSION = 600;
     private static GamePanel instance;
     private final VictoryManager victoryManager;
 
@@ -27,10 +27,15 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 1600;
-    public static final int TERRAIN_HEIGHT = 2400;
-    public static final int VIEWPORT_WIDTH = PANELDIMENSION - 200;
+    public static final int TERRAIN_WIDTH = 2000;
+    public static final int TERRAIN_HEIGHT = 2000;
+
+    public static final int PANEL_INFO_WIDTH = PANELDIMENSION/4;
+    public static final int VIEWPORT_WIDTH = PANELDIMENSION - PANEL_INFO_WIDTH;
     public static final int VIEWPORT_HEIGHT = PANELDIMENSION;
+
+    private Terrain terrain;
+
 
     // Dimensions minimap (même ratio que la carte principale)
     private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
@@ -82,6 +87,9 @@ public class GamePanel extends JPanel {
         setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
         setBackground(new Color(173, 216, 230));
 
+        this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
+
+
         initUIComponents();
         setupListeners();
         initSystems();
@@ -98,7 +106,7 @@ public class GamePanel extends JPanel {
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(new JPanel(), "empty");
 
-        infoContainer.setBounds(PANELDIMENSION - 200, 0, 200, PANELDIMENSION);
+        infoContainer.setBounds(VIEWPORT_WIDTH, 0, PANEL_INFO_WIDTH, PANELDIMENSION);
         add(infoContainer);
 
         // Bouton Market
@@ -135,7 +143,7 @@ public class GamePanel extends JPanel {
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON2) {
                     isDragging = true;
                     dragStart = e.getPoint();
                 }
@@ -143,7 +151,7 @@ public class GamePanel extends JPanel {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON3) {
+                if (e.getButton() == MouseEvent.BUTTON2) {
                     isDragging = false;
                 }
             }
@@ -183,8 +191,19 @@ public class GamePanel extends JPanel {
     }
 
     private Point worldToScreen(int worldX, int worldY) {
-        return new Point(worldX - cameraX, worldY - cameraY);
+        //return new Point(worldX - cameraX, worldY - cameraY);
+        Position terrainPosition = new Position(worldX, worldY);
+        Position panelPosition = terrainPosition.toPanelPosition(terrain, cameraX, cameraY);
+        return new Point(panelPosition.getX(), panelPosition.getY());
+
     }
+
+    public Point screenToWorld(Point screenPoint) {
+        Position panelPosition = new Position(screenPoint.x, screenPoint.y);
+        Position terrainPosition = panelPosition.toTerrainPosition(terrain, cameraX, cameraY);
+        return new Point(terrainPosition.getX(), terrainPosition.getY());
+    }
+
 
     public int getCameraX() {
         return cameraX;
