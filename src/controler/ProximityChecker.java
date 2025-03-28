@@ -3,6 +3,7 @@ package controler;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Calamar;
+import model.unite_non_controlables.Pieuvre;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -20,6 +21,9 @@ public class ProximityChecker extends Thread{
         instance = this;
     }
     public static controler.ProximityChecker getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("ProximityChecker n'a pas encore été instancié");
+        }
         return instance;
     }
 
@@ -77,57 +81,50 @@ public class ProximityChecker extends Thread{
     @Override
     public void run() {
         controler.ThreadManager.incrementThreadCount("ProximityChecker");
-        while (true){
-            //GamePanel.printGridContents(objetsMap);
-            synchronized (objetsMap) {
-                for (UniteControlable unite : unitesEnJeu) {
+        try{
+            while (true){
+                //GamePanel.printGridContents(objetsMap);
+                synchronized (objetsMap) {
+                    for (UniteControlable unite : unitesEnJeu) {
 
-                    CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
+                        CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
 
-                    for(Objet voisin: voisins){
-                        if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
-                            continue;
-                        }
-                        if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
-                            if (voisin instanceof Unite) {
-                                GestionCollisions.rebound((Unite) unite, (Unite) voisin);
+                        for (Objet voisin : voisins) {
+                            if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
+                                continue;
                             }
-                            GestionCollisions.preventOverlap(unite, voisin);
-                        }
 
-                        if(unite instanceof Plongeur){
-                            if(voisin instanceof Calamar){
-                                if( ((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1){
-                                    ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                            if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                                if (voisin instanceof Unite) {
+                                    GestionCollisions.rebound((Unite) unite, (Unite) voisin);
                                 }
+                                GestionCollisions.preventOverlap(unite, voisin);
                             }
 
 
+                            if (unite instanceof Plongeur) {
+                                if (voisin instanceof Calamar) {
+                                    if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
+                                        ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                                    }
+                                }else if (voisin instanceof Pieuvre){
+                                    ((Pieuvre) voisin).repaireTarget(unite);
+                                }
 
-                        }
 
-                        if(controler.GestionCollisions.collisionCC(unite, voisin) > -1){
-                            if(voisin instanceof Unite){
-                                GestionCollisions. rebound((Unite) unite, (Unite) voisin);
                             }
-                            GestionCollisions.preventOverlap(unite, voisin);
-                        }
 
+                        }
                     }
+
+                    Thread.sleep(10);
                 }
+
             }
-
-
-
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                break;
-            }
-
+        } catch (InterruptedException ignored) {
         }
-        ThreadManager.decrementThreadCount("ProximityChecker");
+            ThreadManager.decrementThreadCount("ProximityChecker");
+            System.exit(1);//se controlleur doit marcher en permanence si ou si, donc si il est interrompu, on arrete le programme
 
     }
 }

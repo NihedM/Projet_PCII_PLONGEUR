@@ -45,15 +45,34 @@ public class Unite extends Objet {
     public void setVx(double vx) { this.vx = vx; }
     public void setVy(double vy) { this.vy = vy; }
 
-    public void setDestination(Position destination) {
-        this.destination = destination;
-        if (deplacementThread != null) {
-            deplacementThread.stopThread();
+    public synchronized void setDestination(Position destination) {
+
+        synchronized (this) {
+
+            if (this.destination != null && this.destination.equals(destination)) {
+                return;
+            }
+
+
+
+            if (deplacementThread != null) {
+                deplacementThread.stopThread();
+            }
+
+            this.destination = destination;
+
+
+            if (destination != null) {
+                if (deplacementThread != null)
+                    deplacementThread.stopThread();
+
+
+                deplacementThread = new DeplacementThread(this);
+                deplacementThread.start();
+            }
         }
-        if (destination != null) {
-            deplacementThread = new DeplacementThread(this);
-            deplacementThread.start();
-        }
+
+
     }
 
     // methode estProcheDe //TODO : ajouter un perimetre de detection (peut etre)

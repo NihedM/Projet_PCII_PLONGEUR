@@ -63,19 +63,23 @@ public class Plongeur extends UniteControlable {
     @Override
     public Map<String, String> getAttributes() {
         Map<String, String> attributes = super.getAttributes();
-        attributes.put("Oxygen", String.valueOf(getCurrentOxygen()));
+        attributes.put("Oxygen ", String.valueOf(getCurrentOxygen()));
         attributes.put("Stamina ", String.valueOf(getCurrentStamina()));
+        attributes.put("Backpack ", String.valueOf(backpack.size()));
         return attributes;
     }
 
 
     //-------------------Méthodes-------------------
 
+    public int getSacSize() {
+        return sac.size();
+    }
+
 
     public void setCurrentOxygen(int oxygen) {
         this.oxygen = oxygen;
     }
-
 
     public double getVitesseXStamina(){
         double curve = 10;
@@ -185,6 +189,17 @@ public class Plongeur extends UniteControlable {
         }
         return false;
     }
+
+
+    public Ressource seFaitVoler(){
+        if(backpack.isEmpty()) return null;
+
+        Ressource ressource = backpack.get(0);
+        backpack.remove(0);
+        return ressource;
+    }
+
+
 
     // Méthode pour livrer le contenu du backpack à la base (transfert vers le market)
     public void deliverBackpack() {

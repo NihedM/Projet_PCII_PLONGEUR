@@ -11,7 +11,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     protected enum Etat {
         VADROUILLE, FUITE, ATTENTE
     }
-    public static final int VITESSE_ATTENTE = 2;
+    public static final double VITESSE_ATTENTE = 2.0;
     private static final int ATTENTE_RANGE = TileManager.TILESIZE*2;
 
 
@@ -27,6 +27,8 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
         this.secondesRestant = secondesRestant;
         timer.schedule(new model.objets.Fuite(this), secondesRestant * 1000); // tempsRestant en secondes
     }
+
+    public double getVitesseAttente() {return VITESSE_ATTENTE;}
 
     public Etat getEtat() {return etat;}
     public void setEtat(Etat etat) {this.etat = etat;}
@@ -67,7 +69,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
         if(getDestination() != null)return;
         int dx = random.nextInt(2*ATTENTE_RANGE)* (random.nextBoolean() ? 1 : -1);
         int dY = random.nextInt(2*ATTENTE_RANGE)* (random.nextBoolean() ? 1 : -1);
-        setDestination(new Position(getPosition().getX() + dx, getPosition().getY() + dY));
+        this.setDestination(new Position(getPosition().getX() + dx, getPosition().getY() + dY));
     }
 
 

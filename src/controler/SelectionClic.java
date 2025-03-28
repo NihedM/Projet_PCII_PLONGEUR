@@ -55,7 +55,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     @Override
-    public void mousePressed(MouseEvent e) {
+    public synchronized void mousePressed(MouseEvent e) {
         // Vérifier si le clic est sur la minimap
         MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
         if (minimap != null &&
@@ -191,7 +191,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public synchronized void mouseClicked(MouseEvent e) {
         Point worldPos = screenToWorld(e.getPoint());
         int x = worldPos.x;
         int y = worldPos.y;
@@ -236,7 +236,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     @Override
-    public void mouseDragged(MouseEvent e) {
+    public synchronized void mouseDragged(MouseEvent e) {
         if (isSelecting) {
             java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
             endX = point.x;
@@ -247,7 +247,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     @Override
-    public void mouseReleased (MouseEvent e){
+    public synchronized void mouseReleased (MouseEvent e){
         if (isSelecting) {
             isSelecting = false;
             selectUnitsInRectangle();
@@ -256,7 +256,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     }
 
 
-    public void selectUnitsInRectangle() {
+    public synchronized void selectUnitsInRectangle() {
         int x = Math.min(startX, endX);
         int y = Math.min(startY, endY);
         int width = Math.abs(startX - endX);

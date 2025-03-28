@@ -1,6 +1,7 @@
 package model.unite_non_controlables;
 
 import controler.GestionCollisions;
+import controler.TileManager;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
@@ -12,6 +13,8 @@ public class Pieuvre extends Enemy {
     private CopyOnWriteArrayList<UniteControlable> targetsDisponibles = new CopyOnWriteArrayList<>();
 
     private UniteControlable target;
+    private double stalkingDistance = TileManager.TILESIZE * 2;
+
 
 
 
@@ -27,11 +30,18 @@ public class Pieuvre extends Enemy {
 
     public void selectTargetPlusProche(CopyOnWriteArrayList<UniteControlable> targets){
         UniteControlable unitePlusProche = (UniteControlable)(super.selectClosest(new CopyOnWriteArrayList<Objet>(targets)));
-        //definir la ressource la plus proche comme objectif
+
         if (unitePlusProche != null) {
-            this.setDestination(unitePlusProche.getPosition());
-            //System.out.println("Ressource " + ressourcePlusProche.getPosition().getX() + " " + ressourcePlusProche.getPosition().getY());
-            this.target = unitePlusProche;
+               this.target = unitePlusProche;
+        }
+    }
+
+
+    public void repaireTarget(UniteControlable target){
+        setEtat(Etat.VADROUILLE);
+        if(!targetsDisponibles.contains(target)) {
+            targetsDisponibles.add(target);
+            selectTargetPlusProche(targetsDisponibles);
         }
     }
 
@@ -57,19 +67,64 @@ public class Pieuvre extends Enemy {
             attente();
         }
 
-        /*
+        if (getEtat().equals(Etat.VADROUILLE)) {
+            if(targetsDisponibles.isEmpty()){
+                setEtat(Etat.ATTENTE);
+            }else{
+/*
+                //si la cible ce trouve à plus de 5 tiles de distance alors on la retire des targets disponibles
+                double distance = this.distance(target);
 
-        if(GestionCollisions.collisionCC(this, target) > -1 ) {
-            if (targetsDisponibles.contains(target)) {
+                if(distance >= TileManager.TILESIZE* 5){
+                    targetsDisponibles.remove(target);
+                }
+                selectTargetPlusProche(targetsDisponibles);
 
-                voleTarget();
-                target = null;
+
+                if(target instanceof Plongeur){
+                    Plongeur plongeur = (Plongeur) target;
+                    if(plongeur.getSacSize() == 0) {
+                        //stalk
+
+                        int dx = target.getPosition().getX() - this.getPosition().getX();
+                        int dy = target.getPosition().getY() - this.getPosition().getY();
+
+                        double norm = Math.sqrt(dx * dx + dy * dy);
+                        double unitDx = dx / norm;
+                        double unitDy = dy / norm;
+
+                        setVx((int) (unitDx * getVitesseCourante()));
+                        setVy((int) (unitDy * getVitesseCourante()));
+
+                        boolean targetNotMoving = plongeur.getVitesseCourante() == 0;
+                        double randomAngle = Math.random() * 2 * Math.PI;
+
+                        if (targetNotMoving) {
+                            randomAngle *= 2; // Increase the random angle
+                            setVitesseCourante(getVitesseAttente()); // Reduce the speed
+                        }
+
+                        double randomDistance = Math.random() * stalkingDistance + stalkingDistance - target.getRayon();
+
+                        int stalkX = target.getPosition().getX() - (int) (unitDx * randomDistance );
+                        int stalkY = target.getPosition().getY() - (int) (unitDy * randomDistance );
+
+                        setDestination(new Position(stalkX, stalkY));
+
+
+
+
+                    }else {
+
+                        //still
+                    }
+
+                }
+
+*/
             }
 
         }
-
-        if (!targetsDisponibles.isEmpty())
-            selectTargetPlusProche(targetsDisponibles);*/
 
     }
 }

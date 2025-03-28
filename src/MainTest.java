@@ -39,7 +39,7 @@ public class MainTest {
 
 
 
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < 10; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
 
         // Démarrer le ResourceSpawner
@@ -54,6 +54,9 @@ public class MainTest {
 
         SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
         spawnManager.start();
+
+
+
 
 
 

@@ -9,6 +9,7 @@ import model.objets.Objet;
 import model.objets.Position;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
+import model.unite_non_controlables.Pieuvre;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -18,15 +19,14 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
     private int maxEnemies;
     private int spawnedEnemies;
-    private GamePanel gamePanel;
+
     private Class<? extends Enemy> enemyType;
 
 
-    public EnemySpawnPoint(CoordGrid tile, int maxEnemies, GamePanel gamePanel) {
+    public EnemySpawnPoint(CoordGrid tile, int maxEnemies) {
         super(generateRandomPositionInTile(tile), 20);
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
-        this.gamePanel = gamePanel;
         this.enemyType = Calamar.class; // Default
     }
     public static Position generateRandomPositionInTile(CoordGrid tile) {
@@ -58,12 +58,13 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);
             if (enemy instanceof Calamar) {
-                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getRessources()));
+                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources()));
 
-            } /*else if (enemy instanceof Pieuvre) {
-                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(gamePanel.getUnitesEnJeu()));
+            } else if (enemy instanceof Pieuvre) {
+                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
 
-            }*/
+            }
+
 
 
 
@@ -72,7 +73,6 @@ public class EnemySpawnPoint extends Objet implements Runnable {
                 //throw genereic error
                 throw new UnsupportedOperationException("Enemy type not supported");
             }
-            gamePanel.addObjet(enemy);
         } catch (Exception e) {
             e.printStackTrace();
         }

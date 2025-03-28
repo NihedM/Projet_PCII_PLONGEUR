@@ -45,6 +45,7 @@ public class GamePanel extends JPanel {
     private CopyOnWriteArrayList<UniteControlable> unitesEnJeu = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<UniteControlable> unitesSelected = new CopyOnWriteArrayList<>();
 
+
     private ProximityChecker proxy;
     private TileUpdater updater;
 
@@ -74,7 +75,6 @@ public class GamePanel extends JPanel {
     private boolean isSliding = false;
     private boolean deplacementMode = false;
     private boolean recuperationMode = false;
-
 
     public GamePanel() {
         instance = this;
