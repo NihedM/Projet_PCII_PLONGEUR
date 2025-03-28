@@ -27,16 +27,18 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 1600;  // Largeur totale du terrain
-    public static final int TERRAIN_HEIGHT = 2400; // Hauteur totale du terrain
-    public static final int VIEWPORT_WIDTH = PANELDIMENSION - 200; // Largeur visible
-    public static final int VIEWPORT_HEIGHT = PANELDIMENSION;     // Hauteur visible
+    public static final int TERRAIN_WIDTH = 1600;
+    public static final int TERRAIN_HEIGHT = 2400;
+    public static final int VIEWPORT_WIDTH = PANELDIMENSION - 200;
+    public static final int VIEWPORT_HEIGHT = PANELDIMENSION;
 
-    // Minimap
-    private static final int MINIMAP_WIDTH = 150;
-    private static final int MINIMAP_HEIGHT = 150;
+    // Dimensions minimap (même ratio que la carte principale)
+    private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
+    private static final int MINIMAP_HEIGHT = 120; // Hauteur fixe
+    private static final int MINIMAP_WIDTH = (int)(MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
     private static final int MINIMAP_MARGIN = 10;
-    private static final float MINIMAP_SCALE = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
+    public static final float MINIMAP_SCALE_X = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
+    public static final float MINIMAP_SCALE_Y = MINIMAP_HEIGHT / (float)TERRAIN_HEIGHT;
 
     private int grid[][] = new int[TileManager.nbTilesWidth][TileManager.nbTilesHeight];
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
@@ -46,12 +48,14 @@ public class GamePanel extends JPanel {
     private ProximityChecker proxy;
     private TileUpdater updater;
 
-    // Les deux panels d'info regroupés dans un container avec CardLayout
+    // Composants UI
     private JPanel infoContainer;
-    private CardLayout infoCardLayout;
+    private InfoPanel infoPanel;
+    private InfoPanelUNC infoPanelUNC;
+    private MinimapPanel minimapPanel;
 
     private boolean paused = false;
-    private ArrayList<model.objets.Ressource> collectedResources = new ArrayList<>();
+    private ArrayList<Ressource> collectedResources = new ArrayList<>();
     private Ressource ressourceSelectionnee;
 
     public static final Position BASE_POSITION = new Position(40, 100);
@@ -64,8 +68,6 @@ public class GamePanel extends JPanel {
             GAME_AREA_WIDTH = VIEWPORT_WIDTH;
 
     private SelectionClic selectionClic;
-    private InfoPanel infoPanel;
-    private InfoPanelUNC infoPanelUNC;
     private final int INFO_PANEL_TARGET_WIDTH = 200;
     private int currentInfoPanelWidth = 0;
     private Timer slideTimer;
@@ -73,107 +75,63 @@ public class GamePanel extends JPanel {
     private boolean deplacementMode = false;
     private boolean recuperationMode = false;
 
+
     public GamePanel() {
         instance = this;
         setLayout(null);
         setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
         setBackground(new Color(173, 216, 230));
 
-        // Initialisation des composants UI
         initUIComponents();
-
-        // Configuration des listeners
         setupListeners();
-
-        // Initialisation des systèmes
         initSystems();
-
-        // Initialisation de la gestion des victoires
         this.victoryManager = new VictoryManager(this);
     }
 
-    private void drawMinimap(Graphics g) {
-        // Fond de la minimap
-        g.setColor(new Color(30, 30, 30, 200));
-        g.fillRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN,
-                MINIMAP_MARGIN,
-                MINIMAP_WIDTH,
-                MINIMAP_HEIGHT);
-
-        // Dessiner le terrain sur la minimap
-        g.setColor(new Color(100, 100, 100));
-        g.fillRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN,
-                MINIMAP_MARGIN,
-                (int)(TERRAIN_WIDTH * MINIMAP_SCALE),
-                (int)(TERRAIN_HEIGHT * MINIMAP_SCALE));
-
-        // Dessiner les objets sur la minimap
-        for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
-            int x = (int)(objet.getPosition().getX() * MINIMAP_SCALE);
-            int y = (int)(objet.getPosition().getY() * MINIMAP_SCALE);
-            x = PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN + x;
-            y = MINIMAP_MARGIN + y;
-
-            if (objet instanceof UniteControlable) {
-                g.setColor(objet instanceof Plongeur ? Color.BLUE : Color.GREEN);
-            } else if (objet instanceof Ressource) {
-                g.setColor(Color.YELLOW);
-            } else {
-                g.setColor(Color.RED);
-            }
-
-            g.fillRect(x, y, 2, 2);
-        }
-
-        // Dessiner le rectangle de la vue actuelle
-        g.setColor(Color.WHITE);
-        int viewX = (int)(cameraX * MINIMAP_SCALE);
-        int viewY = (int)(cameraY * MINIMAP_SCALE);
-        int viewWidth = (int)(VIEWPORT_WIDTH * MINIMAP_SCALE);
-        int viewHeight = (int)(VIEWPORT_HEIGHT * MINIMAP_SCALE);
-
-        g.drawRect(PANELDIMENSION - MINIMAP_WIDTH - MINIMAP_MARGIN + viewX,
-                MINIMAP_MARGIN + viewY,
-                viewWidth,
-                viewHeight);
-    }
-
     private void initUIComponents() {
+        // Panel d'informations
         infoContainer = new JPanel(new CardLayout());
         infoPanel = new InfoPanel();
         infoPanelUNC = new InfoPanelUNC();
-        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setOpaque(false);
 
         infoContainer.add(infoPanel, "unit");
         infoContainer.add(infoPanelUNC, "resource");
-        infoContainer.add(emptyPanel, "empty");
-
-        CardLayout cl = (CardLayout) infoContainer.getLayout();
-        cl.show(infoContainer, "empty");
+        infoContainer.add(new JPanel(), "empty");
 
         infoContainer.setBounds(PANELDIMENSION - 200, 0, 200, PANELDIMENSION);
         add(infoContainer);
 
+        // Bouton Market
         JButton marketButton = new JButton("Market");
         marketButton.setBounds(500, 10, 100, 30);
         marketButton.addActionListener(e -> {
             setPaused(true);
-            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(GamePanel.this);
-            MarketPopup popup = new MarketPopup(topFrame);
-            popup.setVisible(true);
+            JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
+            new MarketPopup(topFrame).setVisible(true);
             setPaused(false);
         });
         add(marketButton);
+
+        // Minimap
+        minimapPanel = new MinimapPanel();
+        minimapPanel.setBounds(
+                MINIMAP_MARGIN, // X: à gauche avec marge
+                PANELDIMENSION - MINIMAP_HEIGHT - MINIMAP_MARGIN, // Y: en bas avec marge
+                MINIMAP_WIDTH,
+                MINIMAP_HEIGHT
+        );
+        add(minimapPanel);
+
+        // Timer pour rafraîchir la minimap
+        new Timer(100, e -> minimapPanel.repaint()).start();
     }
+
 
     private void setupListeners() {
         selectionClic = new SelectionClic(this);
         addMouseListener(selectionClic);
         addMouseMotionListener(selectionClic);
 
-        // Ajouter les listeners pour le déplacement de la caméra
         addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -197,7 +155,6 @@ public class GamePanel extends JPanel {
                 if (isDragging) {
                     int dx = e.getX() - dragStart.x;
                     int dy = e.getY() - dragStart.y;
-
                     moveCamera(-dx, -dy);
                     dragStart = e.getPoint();
                 }
@@ -557,7 +514,7 @@ public class GamePanel extends JPanel {
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Dessiner la partie visible du terrain
+        // Dessin du terrain
         for (int i = cameraX/TileManager.TILESIZE; i < (cameraX+VIEWPORT_WIDTH)/TileManager.TILESIZE + 1; i++) {
             for (int j = cameraY/TileManager.TILESIZE; j < (cameraY+VIEWPORT_HEIGHT)/TileManager.TILESIZE + 1; j++) {
                 if (i >= 0 && i < TileManager.nbTilesWidth && j >= 0 && j < TileManager.nbTilesHeight) {
@@ -568,72 +525,85 @@ public class GamePanel extends JPanel {
             }
         }
 
-        // Dessiner les bordures de la carte
-        g.setColor(Color.RED);
-        g.drawRect(-cameraX, -cameraY, TERRAIN_WIDTH, TERRAIN_HEIGHT);
-
-        // Dessiner les objets visibles
+        // Dessin des objets
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
 
-            // Ne dessiner que si visible dans la vue
-            if (screenPos.x + objet.getRayon()*2 >= 0 && screenPos.x - objet.getRayon() <= VIEWPORT_WIDTH &&
-                    screenPos.y + objet.getRayon()*2 >= 0 && screenPos.y - objet.getRayon() <= VIEWPORT_HEIGHT) {
-
-                int diametre = objet.getRayon() * 2;
-
-                if (objet instanceof model.objets.Ressource) {
-                    model.objets.Ressource ressource = (model.objets.Ressource) objet;
-                    if (ressource.getEtat() == model.objets.Ressource.Etat.EN_CROISSANCE) {
-                        g.setColor(Color.YELLOW);
-                    } else if (ressource.getEtat() == model.objets.Ressource.Etat.PRET_A_RECOLTER) {
-                        g.setColor(Color.GREEN);
-                    } else {
-                        continue;
-                    }
-                } else if (objet instanceof model.objets.UniteControlable) {
-                    model.objets.UniteControlable unite = (model.objets.UniteControlable) objet;
-                    g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
-
-                    if (unite.getDestination() != null) {
-                        Point destScreenPos = worldToScreen(unite.getDestination().getX(), unite.getDestination().getY());
-                        g.setColor(Color.BLUE);
-                        g.drawLine(screenPos.x, screenPos.y, destScreenPos.x, destScreenPos.y);
-                    }
-                } else {
-                    g.setColor(Color.PINK);
-                }
-
-                // Dessiner l'objet
-                g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
-
-                // Dessiner le périmètre de fuite pour les Plongeurs
-                if (objet instanceof Plongeur) {
-                    Plongeur plongeur = (Plongeur) objet;
-                    if (plongeur.isFaitFuire()) {
-                        g.setColor(Color.ORANGE);
-                        int rayonFuite = plongeur.getRayonFuite();
-                        g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
-                    }
-                }
+            if (isVisibleInViewport(screenPos, objet.getRayon())) {
+                drawObjet(g, objet, screenPos);
             }
         }
 
-        // Dessiner les spawn points
+        // Dessin des éléments supplémentaires
+        drawSpawnPoints(g);
+        drawBase(g);
+        drawPlayerInfo(g);
+        selectionClic.paintSelection(g);
+    }
+
+    private boolean isVisibleInViewport(Point screenPos, int rayon) {
+        return screenPos.x + rayon*2 >= 0 && screenPos.x - rayon <= VIEWPORT_WIDTH &&
+                screenPos.y + rayon*2 >= 0 && screenPos.y - rayon <= VIEWPORT_HEIGHT;
+    }
+
+    private void drawObjet(Graphics g, Objet objet, Point screenPos) {
+        int diametre = objet.getRayon() * 2;
+
+        if (objet instanceof Ressource) {
+            drawRessource(g, (Ressource) objet, screenPos, diametre);
+        } else if (objet instanceof UniteControlable) {
+            drawUniteControlable(g, (UniteControlable) objet, screenPos, diametre);
+        } else {
+            g.setColor(Color.PINK);
+            g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
+        }
+    }
+
+    private void drawRessource(Graphics g, Ressource ressource, Point screenPos, int diametre) {
+        if (ressource.getEtat() == Ressource.Etat.EN_CROISSANCE) {
+            g.setColor(Color.YELLOW);
+        } else if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
+            g.setColor(Color.GREEN);
+        } else {
+            return;
+        }
+        g.fillOval(screenPos.x - ressource.getRayon(), screenPos.y - ressource.getRayon(), diametre, diametre);
+    }
+
+    private void drawUniteControlable(Graphics g, UniteControlable unite, Point screenPos, int diametre) {
+        g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+        g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
+
+        if (unite.getDestination() != null) {
+            Point destScreenPos = worldToScreen(unite.getDestination().getX(), unite.getDestination().getY());
+            g.setColor(Color.BLUE);
+            g.drawLine(screenPos.x, screenPos.y, destScreenPos.x, destScreenPos.y);
+        }
+
+        if (unite instanceof Plongeur && ((Plongeur)unite).isFaitFuire()) {
+            g.setColor(Color.ORANGE);
+            int rayonFuite = ((Plongeur)unite).getRayonFuite();
+            g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+        }
+    }
+
+    private void drawSpawnPoints(Graphics g) {
         g.setColor(Color.ORANGE);
         for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getSpawnPoints()) {
             Point screenPos = worldToScreen(spawnPoint.getPosition().getX(), spawnPoint.getPosition().getY());
             int diameter = spawnPoint.getRayon() * 2;
             g.fillOval(screenPos.x - spawnPoint.getRayon(), screenPos.y - spawnPoint.getRayon(), diameter, diameter);
         }
+    }
 
-        // Dessiner la base
+    private void drawBase(Graphics g) {
         Point baseScreenPos = worldToScreen(BASE_POSITION.getX(), BASE_POSITION.getY());
         g.setColor(Color.GREEN);
         int baseSize = 20;
         g.fillRect(baseScreenPos.x - baseSize/2, baseScreenPos.y - baseSize/2, baseSize, baseSize);
+    }
 
-        // Afficher les informations du joueur
+    private void drawPlayerInfo(Graphics g) {
         g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
         g.drawString("Points: " + Referee.getInstance().getPointsVictoire(), 10, 20);
@@ -643,12 +613,6 @@ public class GamePanel extends JPanel {
         if (victoryManager != null) {
             g.drawString("Temps: " + victoryManager.getRemainingTime(), 10, 80);
         }
-
-        // Dessiner la sélection
-        selectionClic.paintSelection(g);
-
-        // Dessiner la minimap
-        drawMinimap(g);
     }
 
     public static int getMinimapWidth() {
@@ -663,8 +627,16 @@ public class GamePanel extends JPanel {
         return MINIMAP_MARGIN;
     }
 
-    public static float getMinimapScale() {
-        return MINIMAP_SCALE;
+    public static float getMinimapScaleX() {
+        return MINIMAP_SCALE_X;
+    }
+
+    public static float getMinimapScaleY() {
+        return MINIMAP_SCALE_Y;
+    }
+
+    public MinimapPanel getMinimapPanel() {
+        return minimapPanel;
     }
 
     public void checkAndClearResourcePanel(Ressource ressource) {
