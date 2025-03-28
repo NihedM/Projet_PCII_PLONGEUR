@@ -62,22 +62,29 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         // Vérifier si le clic est sur la minimap
         MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
         if (minimap != null &&
-                e.getX() >= minimap.getX() &&
-                e.getX() <= minimap.getX() + minimap.getWidth() &&
-                e.getY() >= minimap.getY() &&
-                e.getY() <= minimap.getY() + minimap.getHeight()) {
+                point.x >= minimap.getX() &&
+                point.x <= minimap.getX() + minimap.getWidth() &&
+                point.y >= minimap.getY() &&
+                point.y <= minimap.getY() + minimap.getHeight()) {
 
             // Calculer les coordonnées dans le monde
-            int worldX = (int)((e.getX() - minimap.getX()) / GamePanel.MINIMAP_SCALE_X);
-            int worldY = (int)((e.getY() - minimap.getY()) / GamePanel.MINIMAP_SCALE_Y);
+            double minimapX = point.x - minimap.getX();
+            double minimapY = point.y - minimap.getY();
+
+
+            double worldX= (minimapX / GamePanel.MINIMAP_SCALE_X) - GamePanel.getInstance().getCameraX();
+            double worldY = (minimapY / GamePanel.MINIMAP_SCALE_Y) - GamePanel.getInstance().getCameraY();
+
 
             // Centrer la caméra sur ce point
             GamePanel.getInstance().moveCamera(
-                    worldX - GamePanel.VIEWPORT_WIDTH/2,
-                    worldY - GamePanel.VIEWPORT_HEIGHT/2
+                    (int)worldX - (GamePanel.VIEWPORT_WIDTH / 2) - GamePanel.getInstance().getCameraX(),
+                    (int)worldY - (GamePanel.VIEWPORT_HEIGHT / 2) - GamePanel.getInstance().getCameraY()
             );
             return;
         }
+
+
         Point worldPos = panel.screenToWorld(e.getPoint());
         int x = worldPos.x;
         int y = worldPos.y;

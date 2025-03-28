@@ -96,6 +96,12 @@ public class GamePanel extends JPanel {
         this.victoryManager = new VictoryManager(this);
     }
 
+
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+
     private void initUIComponents() {
         // Panel d'informations
         infoContainer = new JPanel(new CardLayout());
