@@ -55,12 +55,21 @@ public class SpawnManager extends Thread{
         addSpawnPoint(randomTile, maxEnemies);
     }
 
+
+
+
+    private int cpt = 0;
+
+
     @Override
     public void run() {
         ThreadManager.incrementThreadCount("SpawnManager");
 
         while (true) {
-            generateRandomSpawnPoint(10);
+            if(cpt == 0){
+                generateRandomSpawnPoint(10);
+                cpt++;
+            }
             try {
                 Thread.sleep(getRandomInterval(10000, 20000));
             } catch (InterruptedException e) {
