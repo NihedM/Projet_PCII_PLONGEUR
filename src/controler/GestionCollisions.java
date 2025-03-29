@@ -1,5 +1,6 @@
 package controler;
 
+import model.constructions.Base;
 import model.objets.Objet;
 import model.objets.Unite;
 import model.unite_controlables.Plongeur;
@@ -43,12 +44,23 @@ public class GestionCollisions{
 
 
 
-    //todo collsion entre un objet circulaire et un objet rectangulaire
+    //collsion entre un objet circulaire et un objet rectangulaire
+
+
+    public static boolean estDans(int xA, int yA, int xB, int yB, int x, int y){
+        int xmin = Math.min(xA, xB),
+                xmax = Math.max(xA, xB),
+                ymin = Math.min(yA, yB),
+                ymax = Math.max(yA, yB);
+
+        return xmin <= x && x <= xmax && ymin <= y && y <= ymax;
+    }
 
 
 
 
-    public static void rebound(Unite a, Unite b) {
+
+        public static void rebound(Unite a, Unite b) {
         // Calcul de la normale
         double normalX = b.getPosition().getX() - a.getPosition().getX();
         double normalY = b.getPosition().getY() - a.getPosition().getY();
@@ -95,8 +107,10 @@ public class GestionCollisions{
         // Move objects apart based on their velocities
         a.getPosition().setX(a.getPosition().getX() - (int) (dx * overlap ));
         a.getPosition().setY(a.getPosition().getY() - (int) (dy * overlap ));
-        b.getPosition().setX(b.getPosition().getX() + (int) (dx * overlap ));
-        b.getPosition().setY(b.getPosition().getY() + (int) (dy * overlap ));
+        if (!(b instanceof Base)) {
+            b.getPosition().setX(b.getPosition().getX() + (int) (dx * overlap));
+            b.getPosition().setY(b.getPosition().getY() + (int) (dy * overlap));
+        }
 
 
 

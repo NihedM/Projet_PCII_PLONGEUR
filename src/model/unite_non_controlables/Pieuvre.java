@@ -11,7 +11,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class Pieuvre extends Enemy {
     public static final int VITESSE_VADROUILLE = 5;
     private CopyOnWriteArrayList<UniteControlable> targetsDisponibles = new CopyOnWriteArrayList<>();
-
+    private CopyOnWriteArrayList<Objet> sac = new CopyOnWriteArrayList<>();
     private UniteControlable target;
     private double stalkingDistance = TileManager.TILESIZE * 2;
 
@@ -47,12 +47,16 @@ public class Pieuvre extends Enemy {
 
 
     public void voleTarget(){
+        if(GestionCollisions.collisionCC(this, target) > -1){
+            if(target instanceof Plongeur plongeur){
+                if(plongeur.getSacSize() > 0){
+                    plongeur.seFaitVoler();
+                    sac.add(plongeur.seFaitVoler());
+                    attente();
+                }
+            }
 
-        //retire du sac
-
-        //ajoute dans le sac
-
-        //attente temporaire
+        }
 
     }
 
@@ -85,40 +89,16 @@ public class Pieuvre extends Enemy {
                     Plongeur plongeur = (Plongeur) target;
                     if(plongeur.getSacSize() == 0) {
                         //stalk
-
-                        if(getDestination() != null)return;
-
-                        int dx = target.getPosition().getX() - this.getPosition().getX();
-                        int dy = target.getPosition().getY() - this.getPosition().getY();
-
-                        double norm = Math.sqrt(dx * dx + dy * dy);
-                        double unitDx = dx / norm;
-                        double unitDy = dy / norm;
-
-                        setVx((int) (unitDx * getVitesseCourante()));
-                        setVy((int) (unitDy * getVitesseCourante()));
-
-                        boolean targetNotMoving = plongeur.getVitesseCourante() == 0;
-                        double randomAngle = Math.random() * 2 * Math.PI;
-
-                        if (targetNotMoving) {
-                            randomAngle *= 2; // Increase the random angle
-                            setVitesseCourante(getVitesseAttente()); // Reduce the speed
+                        if (distance < TileManager.TILESIZE * 2) {
+                            // Stop moving
+                            setDestination(null);
+                        } else if (distance >= TileManager.TILESIZE * 2 && distance <= TileManager.TILESIZE * 4) {
+                            // Move closer
+                            setDestination(plongeur.getPosition());
                         }
 
-                        double randomDistance = Math.random() * stalkingDistance + stalkingDistance - target.getRayon();
-
-                        int stalkX = target.getPosition().getX() - (int) (unitDx * randomDistance );
-                        int stalkY = target.getPosition().getY() - (int) (unitDy * randomDistance );
-
-                        setDestination(new Position(stalkX, stalkY));
-
-
-
-
                     }else {
-
-                        //still
+                        voleTarget();
                     }
 
                 }

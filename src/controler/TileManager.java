@@ -5,7 +5,9 @@ import model.objets.Position;
 import view.GamePanel;
 
 public class TileManager {
-    public static final int TILESIZE = GamePanel.PANELDIMENSION / 20; // Taille d'une tile
+
+
+    public static final int TILESIZE = GamePanel.PANELDIMENSION / 4; // Taille d'une tile
     public static final int nbTilesWidth = GamePanel.TERRAIN_WIDTH / TILESIZE;
     public static final int nbTilesHeight = GamePanel.TERRAIN_HEIGHT / TILESIZE;
 

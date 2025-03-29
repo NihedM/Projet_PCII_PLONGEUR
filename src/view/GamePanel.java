@@ -1,6 +1,7 @@
 package view;
 
 import controler.*;
+import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
@@ -36,6 +37,8 @@ public class GamePanel extends JPanel {
 
     private Terrain terrain;
 
+    private Base baseUnique;   //Temporairement
+
 
     // Dimensions minimap (même ratio que la carte principale)
     private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
@@ -64,7 +67,6 @@ public class GamePanel extends JPanel {
     private ArrayList<Ressource> collectedResources = new ArrayList<>();
     private Ressource ressourceSelectionnee;
 
-    public static final Position BASE_POSITION = new Position(40, 100);
 
     // Dimensions du terrain
     public static final int TERRAIN_MIN_X = 0,
@@ -88,7 +90,8 @@ public class GamePanel extends JPanel {
         setBackground(new Color(173, 216, 230));
 
         this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
-
+        this.baseUnique = new Base(new Position(100, 200), 20); //Temporairement
+        addObjet(baseUnique); //Temporairement
 
         initUIComponents();
         setupListeners();
@@ -357,13 +360,13 @@ public class GamePanel extends JPanel {
             objetsMap.put(objet.getCoordGrid(), objetsAtCoord);
         }
 
-        if (objet instanceof Ressource){
+        /*if (objet instanceof Ressource){
             Ressource ressource = (Ressource) objet;
             GestionRessource gestionRessource = new GestionRessource(ressource, 1000); // Intervalle de 1 seconde
             gestionRessource.addListener(infoPanelUNC); // ajouter InfoPanelUNC comme listener
             gestionRessource.start(); // Démarrer le thread
 
-        }
+        }*/
     }
 
     public void addUniteControlable(UniteControlable unite) {
@@ -539,6 +542,8 @@ public class GamePanel extends JPanel {
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        drawBase(g);
+
         // Dessin du terrain
         for (int i = cameraX/TileManager.TILESIZE; i < (cameraX+VIEWPORT_WIDTH)/TileManager.TILESIZE + 1; i++) {
             for (int j = cameraY/TileManager.TILESIZE; j < (cameraY+VIEWPORT_HEIGHT)/TileManager.TILESIZE + 1; j++) {
@@ -559,9 +564,27 @@ public class GamePanel extends JPanel {
             }
         }
 
+
+        //!!!!!! pas effacer, si besoin transformer en fonction et commenter
+
+        //dessiner les lignes de proximités pour les voisins des unités en jeu
+        for (UniteControlable unite : unitesEnJeu) {
+            //getVoisins renvoie les coordonnées des 8 voisins de l'unité
+            CopyOnWriteArrayList<Objet> voisins = proxy.getVoisins(unite);
+            for (Objet voisin : voisins) {
+
+                Point uniteScreenPos = worldToScreen(unite.getPosition().getX(), unite.getPosition().getY());
+                Point voisinScreenPos = worldToScreen(voisin.getPosition().getX(), voisin.getPosition().getY());
+                g.setColor(Color.RED);
+                g.drawLine(uniteScreenPos.x, uniteScreenPos.y, voisinScreenPos.x, voisinScreenPos.y);
+
+            }
+        }
+
+
+
         // Dessin des éléments supplémentaires
         drawSpawnPoints(g);
-        drawBase(g);
         drawPlayerInfo(g);
         selectionClic.paintSelection(g);
     }
@@ -573,6 +596,10 @@ public class GamePanel extends JPanel {
 
     private void drawObjet(Graphics g, Objet objet, Point screenPos) {
         int diametre = objet.getRayon() * 2;
+
+        if(objet instanceof Base){
+            return;
+        }
 
         if (objet instanceof Ressource) {
             drawRessource(g, (Ressource) objet, screenPos, diametre);
@@ -622,10 +649,22 @@ public class GamePanel extends JPanel {
     }
 
     private void drawBase(Graphics g) {
-        Point baseScreenPos = worldToScreen(BASE_POSITION.getX(), BASE_POSITION.getY());
+
+        Point baseScreenPos = worldToScreen(baseUnique.getPosition().getX(), baseUnique.getPosition().getY());
+
+
         g.setColor(Color.GREEN);
-        int baseSize = 20;
-        g.fillRect(baseScreenPos.x - baseSize/2, baseScreenPos.y - baseSize/2, baseSize, baseSize);
+        Position[] coints = baseUnique.getCoints();
+        Point topLeftScreenPos = worldToScreen(coints[0].getX(), coints[0].getY());
+
+        g.fillRect(topLeftScreenPos.x, topLeftScreenPos.y, baseUnique.getLargeur(), baseUnique.getLongueur());
+
+
+        g.setColor(Color.CYAN);
+        g.fillOval(baseScreenPos.x- baseUnique.getRayon(),
+                   baseScreenPos.y - baseUnique.getRayon(),
+                baseUnique.getRayon() * 2, baseUnique.getRayon() * 2);
+
     }
 
     private void drawPlayerInfo(Graphics g) {

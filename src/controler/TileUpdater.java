@@ -2,6 +2,7 @@ package controler;
 
 import model.objets.CoordGrid;
 import model.objets.Objet;
+import model.objets.Ressource;
 import view.GamePanel;
 
 import java.util.List;
@@ -26,6 +27,9 @@ public class TileUpdater extends Thread{
         while (true) {
             synchronized (objetsMap) {
                 for (Objet objet : objetsMap.values().stream().flatMap(List::stream).toList()) {
+                    if(objet instanceof Ressource || objet instanceof model.constructions.Base){
+                        continue;
+                    }
 
                     CoordGrid oldCoord = objet.getCoordGrid();
 

@@ -54,10 +54,22 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
         // Convertir les coordonnées du clic
         java.awt.Point point = SwingUtilities.convertPoint(e.getComponent(), e.getPoint(), panel);
-        startXView = point.x;
-        startYView = point.y;
-        endXView = startXView;
-        endYView = startYView;
+        Point worldPos = panel.screenToWorld(point);
+        int x = worldPos.x;
+        int y = worldPos.y;
+
+        startXWorld = x;
+        startYWorld = y;
+
+        endXView = point.x;
+        endYView = point.y;
+
+        endXWorld = x;
+        endYWorld = y;
+
+        startXView = endXView;
+        startYView = endYView;
+
 
         // Vérifier si le clic est sur la minimap
         MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
@@ -85,12 +97,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         }
 
 
-        Point worldPos = panel.screenToWorld(e.getPoint());
-        int x = worldPos.x;
-        int y = worldPos.y;
 
-        startXWorld = x;
-        startYWorld = y;
 
 
         // Si le mode déplacement est actif, on ne fait rien ici

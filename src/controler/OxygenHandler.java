@@ -7,6 +7,7 @@ import view.GamePanel;
 public class OxygenHandler extends GameHandler {
     private static final int DELAY = 3000;
     public static final int OXYGEN_DECREMENT = 1;
+    public static final int OXYGEN_INCREMENT = 1;
     private static OxygenHandler instance;
 
     public static synchronized OxygenHandler getInstance() {

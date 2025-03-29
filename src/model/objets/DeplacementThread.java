@@ -174,14 +174,7 @@ public class DeplacementThread extends Thread {
                                 }
                             }
                         }
-                        //Vérifie si le plongeur est arrivé à la base pour livrer son backpack
-                        Position base = GamePanel.BASE_POSITION;
-                        int dxBase = p.getPosition().getX() - base.getX();
-                        int dyBase = p.getPosition().getY() - base.getY();
-                        double distBase = Math.sqrt(dxBase * dxBase + dyBase * dyBase);
-                        if (distBase <= 20) { // seuil de proximité à ajuster si nécessaire
-                            p.deliverBackpack();
-                        }
+
                     }
 
                     unite.setVitesseCourante(0);
@@ -192,7 +185,7 @@ public class DeplacementThread extends Thread {
                 }
 
                 // Gestion de la mort du Calamar si hors terrain
-                if (unite instanceof model.unite_non_controlables.Calamar &&
+                if (unite instanceof UniteNonControlableInterface &&
                         !GamePanel.getInstance().isWithinTerrainBounds(unite.getPosition())) {
                     GamePanel.getInstance().removeObjet(unite, unite.getCoordGrid());
                     break;

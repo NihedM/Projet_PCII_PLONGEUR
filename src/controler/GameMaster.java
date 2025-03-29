@@ -94,6 +94,8 @@ public class GameMaster extends Thread{
                 ((Calamar) enemy).setRessourcesDisponibles(ressources);
             }else if(enemy instanceof Pieuvre){
                 //((Pieuvre) enemy).setTargetsDisponibles(GamePanel.getInstance().getUnitesEnJeu());
+                //ne pas appeler
+
             }
 
 

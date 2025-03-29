@@ -78,6 +78,8 @@ public class Plongeur extends UniteControlable {
 
 
     public void setCurrentOxygen(int oxygen) {
+        if(oxygen > MAX_OXYGEN) return;
+
         this.oxygen = oxygen;
     }
 

@@ -1,5 +1,7 @@
 package controler;
 
+import model.constructions.Base;
+import model.constructions.Construction;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Calamar;
@@ -30,7 +32,7 @@ public class ProximityChecker extends Thread{
     //------------------------------------------------------------------------------------------------
 
 
-    public synchronized CopyOnWriteArrayList<Objet> getObjetDansMemeTile(Objet objet){
+    public CopyOnWriteArrayList<Objet> getObjetDansMemeTile(Objet objet){
         CopyOnWriteArrayList<Objet> voisins = objetsMap.get(objet.getCoordGrid());
 
         if (voisins == null)
@@ -42,7 +44,7 @@ public class ProximityChecker extends Thread{
         return voisinsCopy;
     }
 
-    public synchronized CopyOnWriteArrayList<Objet> getObjetTilesVoisines(Objet objet) {
+    public  CopyOnWriteArrayList<Objet> getObjetTilesVoisines(Objet objet) {
         CopyOnWriteArrayList<Objet> voisins = new CopyOnWriteArrayList<>();
         int x = objet.getCoordGrid().getX();
         int y = objet.getCoordGrid().getY();
@@ -84,43 +86,54 @@ public class ProximityChecker extends Thread{
         try{
             while (true){
                 //GamePanel.printGridContents(objetsMap);
-                synchronized (objetsMap) {
-                    for (UniteControlable unite : unitesEnJeu) {
+                CopyOnWriteArrayList<UniteControlable> unitesCopy;
 
-                        CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
+                synchronized (unitesEnJeu) {
+                    unitesCopy = new CopyOnWriteArrayList<>(unitesEnJeu);
 
-                        for (Objet voisin : voisins) {
-                            if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
-                                continue;
-                            }
+                }
+                for (UniteControlable unite : unitesCopy) {
 
-                            if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
-                                if (voisin instanceof Unite) {
-                                    GestionCollisions.rebound((Unite) unite, (Unite) voisin);
+                    CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
+
+                    for (Objet voisin : voisins) {
+                        if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
+                            continue;
+                        }
+
+                        if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                            GestionCollisions.preventOverlap(unite, voisin);
+                        }
+
+
+
+                        if (unite instanceof Plongeur) {
+                            if (voisin instanceof Calamar) {
+                                if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
+                                    ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
                                 }
-                                GestionCollisions.preventOverlap(unite, voisin);
-                            }
-
-
-                            if (unite instanceof Plongeur) {
-                                if (voisin instanceof Calamar) {
-                                    if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
-                                        ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
-                                    }
-                                }else if (voisin instanceof Pieuvre){
-                                    ((Pieuvre) voisin).repaireTarget(unite);
+                            }else if (voisin instanceof Pieuvre){
+                                ((Pieuvre) voisin).repaireTarget(unite);
+                            }else if(voisin instanceof Base){
+                                Position[] coins = ((Base) voisin).getCoints();
+                                if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){
+                                    ((Plongeur)unite).deliverBackpack();
+                                    Plongeur plongeur = (Plongeur) unite;
+                                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
                                 }
 
-
                             }
+
 
                         }
-                    }
 
-                    Thread.sleep(10);
+                    }
                 }
 
+                Thread.sleep(10);
             }
+
+
         } catch (InterruptedException ignored) {
         }
             ThreadManager.decrementThreadCount("ProximityChecker");
