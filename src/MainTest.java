@@ -50,7 +50,7 @@ public class MainTest {
         launchDialog.setVisible(true);
 
         // Démarrer le ResourceSpawner
-        int maxResources = 500; // Nombre total de ressources à générer
+        int maxResources = 5000; // Nombre total de ressources à générer
         int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
         int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
         int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
@@ -60,7 +60,7 @@ public class MainTest {
 
 
         SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
-        //spawnManager.start();
+        spawnManager.start();
 
 
 

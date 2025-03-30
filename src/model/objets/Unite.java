@@ -1,5 +1,7 @@
 package model.objets;
 
+import view.Redessine;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -95,5 +97,6 @@ public class Unite extends Objet {
     }
 
 
+    public DeplacementThread getDeplacementThread() {return deplacementThread;}
 }
 

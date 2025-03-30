@@ -3,21 +3,27 @@ package controler;
 import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Ressource;
+import model.objets.Unite;
 import view.GamePanel;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class TileUpdater extends Thread{
 
     private final ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap;
     private volatile boolean running = true;
+    private final ExecutorService executor;
+
 
 
     public TileUpdater(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap) {
         this.objetsMap = objetsMap;
 
+        this.executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
 
 
@@ -29,37 +35,50 @@ public class TileUpdater extends Thread{
     public void run() {
 
         ThreadManager.incrementThreadCount("TileUpdater");
-        view.GamePanel.printGridContents(objetsMap);
+        //view.GamePanel.printGridContents(objetsMap);
 
         while(running) {
-                for (Objet objet : objetsMap.values().stream().flatMap(List::stream).toList()) {
-                    if(objet instanceof Ressource || objet instanceof model.constructions.Base){
-                        continue;
+            List<Objet> objets = objetsMap.values().stream().flatMap(List::stream).toList();
+            int batchSize = Math.max(1, objets.size() / Runtime.getRuntime().availableProcessors());
+
+            for (int i = 0; i < objets.size(); i += batchSize) {
+                int start = i;
+                int end = Math.min(i + batchSize, objets.size());
+                ThreadManager.incrementThreadCount("TileUpdaterWorker");
+                executor.submit(() -> {
+                    try {
+                        updateBatch(objets.subList(start, end));
+                    } finally {
+                        ThreadManager.decrementThreadCount("TileUpdaterWorker");
                     }
-
-                    CoordGrid oldCoord = objet.getCoordGrid();
-
-                    objet.updatePosition();
-
-                    CoordGrid newCoord = objet.getCoordGrid();
-
-                    if (!oldCoord.equals(newCoord)) {
-                        view.GamePanel.getInstance().removeObjet(objet, oldCoord);
-                        GamePanel.getInstance().addObjet(objet);
-                    }
-
-                }
-                try {
-                    Thread.sleep(50);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                    break;
-                }
+                });
             }
-            //printCoordonnees();
 
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+            //printCoordonnees();
         ThreadManager.decrementThreadCount("TileUpdater");
 
+    }
+
+    private void updateBatch(List<Objet> objets) {
+        for (Objet objet : objets) {
+            if (!(objet instanceof Unite)) continue;
+
+            CoordGrid oldCoord = objet.getCoordGrid();
+            objet.updatePosition();
+            CoordGrid newCoord = objet.getCoordGrid();
+
+            if (!oldCoord.equals(newCoord)) {
+                GamePanel.getInstance().removeObjet(objet, oldCoord);
+                GamePanel.getInstance().addObjet(objet);
+            }
+        }
     }
 
 

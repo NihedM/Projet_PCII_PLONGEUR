@@ -4,7 +4,7 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
-public class StaminaRegenHandler extends GameHandler {
+public class StaminaRegenHandler extends Thread {
     private static final int DELAY = 1000;
     private static final int STAMINA_INCREMENT = 1;
     private static final int STAMINA_DECREMENT = 2;
@@ -19,17 +19,28 @@ public class StaminaRegenHandler extends GameHandler {
     }
 
     @Override
-    protected void executeHandlerLogic() {
-        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
-            if (!(unite instanceof Plongeur)) continue;
+    public void run() {
+        while (true) {
+            try {
+                for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+                    if (!(unite instanceof Plongeur)) continue;
 
-            Plongeur plongeur = (Plongeur) unite;
-            updateStamina(plongeur);
+                    Plongeur plongeur = (Plongeur) unite;
+                    updateStamina(plongeur);
 
-            if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
-                GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
+                        GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    }
+                }
+
+                Thread.sleep(DELAY);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+
+
+
     }
 
     private void updateStamina(Plongeur plongeur) {
@@ -43,8 +54,4 @@ public class StaminaRegenHandler extends GameHandler {
         }
     }
 
-    @Override
-    protected int getDelay() {
-        return DELAY;
-    }
 }

@@ -4,7 +4,7 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
-public class OxygenHandler extends GameHandler {
+public class OxygenHandler extends Thread {
     private static final int DELAY = 3000;
     public static final int OXYGEN_DECREMENT = 1;
     public static final int OXYGEN_INCREMENT = 1;
@@ -19,22 +19,29 @@ public class OxygenHandler extends GameHandler {
     }
 
     @Override
-    protected void executeHandlerLogic() {
-        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
-            if (!(unite instanceof Plongeur)) continue;
+    public void run() {
+        while (true) {
+            try {
+                for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+                    if (!(unite instanceof Plongeur)) continue;
 
-            Plongeur plongeur = (Plongeur) unite;
-            plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OXYGEN_DECREMENT);
+                    Plongeur plongeur = (Plongeur) unite;
+                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OXYGEN_DECREMENT);
 
-            if (plongeur.getCurrentOxygen() <= 0) {
-                GamePanel.getInstance().removeObjet(plongeur, plongeur.getCoordGrid());
-                GamePanel.getInstance().showEmptyInfoPanel();
+                    if (plongeur.getCurrentOxygen() <= 0) {
+
+                        GamePanel.getInstance().killUnite(plongeur);
+                        GamePanel.getInstance().showEmptyInfoPanel();
+
+
+                    }
+                }
+                Thread.sleep(DELAY);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
+
     }
 
-    @Override
-    protected int getDelay() {
-        return DELAY;
-    }
 }

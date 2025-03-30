@@ -120,13 +120,10 @@ public class DeplacementThread extends Thread {
                     // Mise à jour de la position
                     int newX = unite.getPosition().getX() + (int) newVx;
                     int newY = unite.getPosition().getY() + (int) newVy;
-                    if (GamePanel.getInstance().isWithinTerrainBounds(new Position(newX, newY))) {
-                        unite.getPosition().setX(newX);
-                        unite.getPosition().setY(newY);
-                    } else {
-                        unite.setDestination(null);
-                    }
 
+                    //if (GamePanel.getInstance().isWithinTerrainBounds(new Position(newX, newY))) {        !!!!NOOOOOOO NEVER
+                    unite.getPosition().setX(newX);
+                    unite.getPosition().setY(newY);
 
 
                     if(vitesseCourante <= 0.001 && unite.getDestination() != null){
@@ -186,12 +183,6 @@ public class DeplacementThread extends Thread {
                     GamePanel.getInstance().repaint();
                 }
 
-                // Gestion de la mort du Calamar si hors terrain
-                if (unite instanceof UniteNonControlableInterface &&
-                        !GamePanel.getInstance().isWithinTerrainBounds(unite.getPosition())) {
-                    GamePanel.getInstance().removeObjet(unite, unite.getCoordGrid());
-                    break;
-                }
 
                 try {
                     Thread.sleep(DELAY);

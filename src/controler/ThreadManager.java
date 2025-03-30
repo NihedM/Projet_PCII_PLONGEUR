@@ -2,12 +2,12 @@ package controler;
 
 import view.debeug.ThreadManagerPanel;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class ThreadManager {
     private static int totalThreadCount = 0;
-    private static Map<String, Integer> runningThreadCounts = new HashMap<>();
+    private static Map<String, Integer> runningThreadCounts = new LinkedHashMap<>();
 
     private static ThreadManagerPanel threadManagerPanel;
 
@@ -17,13 +17,14 @@ public class ThreadManager {
         runningThreadCounts.put("Redessine", 0);
         runningThreadCounts.put("GestionnairesDeRessources", 0);
         runningThreadCounts.put("TileUpdater", 0);
+        runningThreadCounts.put("TileUpdaterWorker", 0);
         runningThreadCounts.put("ProximityChecker", 0);
         runningThreadCounts.put("GameMaster", 0);
         runningThreadCounts.put("SpawnManager", 0);
-        runningThreadCounts.put("RessourceSpawner",0);
         runningThreadCounts.put("EnemySpawnPoints",0);
-        runningThreadCounts.put("VictoryCheckThread", 0);
         runningThreadCounts.put("ResourceGenerationThread", 0);
+        runningThreadCounts.put("RessourceSpawner",0);
+        runningThreadCounts.put("VictoryCheckThread", 0);
         runningThreadCounts.put("DeplacementThread", 0);
         runningThreadCounts.put("FuiteHandler", 0);
     }

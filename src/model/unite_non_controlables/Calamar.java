@@ -16,7 +16,7 @@ public class Calamar extends Enemy {
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     public Calamar(Position position) {
-        super(position,5, 5, 5);
+        super(position,10, 50, 10);
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
     }
 
@@ -73,14 +73,15 @@ public class Calamar extends Enemy {
         int minDistance = Math.min(Math.min(distanceToLeftEdge, distanceToRightEdge), Math.min(distanceToTopEdge, distanceToBottomEdge));
 
         if (minDistance == distanceToLeftEdge) {
-            this.setDestination(new Position(-1, y));
+            this.setDestination(new Position(-500, y));
         } else if (minDistance == distanceToRightEdge) {
-            this.setDestination(new Position(GamePanel.TERRAIN_WIDTH, y));
+            this.setDestination(new Position(GamePanel.TERRAIN_WIDTH + 500, y));
         } else if (minDistance == distanceToTopEdge) {
-            this.setDestination(new Position(x, -1));
+            this.setDestination(new Position(x, -500));
         } else {
-            this.setDestination(new Position(x, GamePanel.TERRAIN_HEIGHT));
+            this.setDestination(new Position(x, GamePanel.TERRAIN_HEIGHT + 500));
         }
+        setVitesseCourante(getVitesseMax());
 
         this.objectifCourrant = null;
     }
@@ -102,13 +103,14 @@ public class Calamar extends Enemy {
     public void action() {
         //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
+
+
         if(GestionCollisions.collisionCC(this, objectifCourrant) > -1 ) {
             if (ressourcesDisponibles.contains(objectifCourrant)) {
 
                 inventaire.add(objectifCourrant);
                 ressourcesDisponibles.remove(objectifCourrant);
                 GamePanel.getInstance().removeObjet(objectifCourrant, objectifCourrant.getCoordGrid());
-
                 GamePanel.getInstance().checkAndClearResourcePanel(objectifCourrant);
 
                 objectifCourrant = null;

@@ -1,5 +1,6 @@
 package view.debeug;
 
+import controler.GameMaster;
 import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.UniteControlable;
@@ -59,6 +60,11 @@ public class GameInfoWindow extends JFrame {
 
             // Display the size of unitesSelected
             g.drawString("Size of unitesSelected: " + unitesSelected.size(), 20, y);
+            y += 20;
+
+            g.drawString("Size of Enemies: " + GameMaster.getInstance().getEnemies().size(), 20, y);
+            y += 20;
+            g.drawString("Size of Ressources: " + GameMaster.getInstance().getRessources().size(), 20, y);
             y += 20;
         }
     }

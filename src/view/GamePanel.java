@@ -5,6 +5,7 @@ import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
+import model.unite_non_controlables.Enemy;
 import view.debeug.GameInfoWindow;
 
 import javax.swing.*;
@@ -190,8 +191,12 @@ public class GamePanel extends JPanel {
         this.proxy = new ProximityChecker(objetsMap, unitesEnJeu);
 
         ExecutorService executor = Executors.newFixedThreadPool(2);
-        executor.submit(updater);
-        executor.submit(proxy);
+        try {
+            executor.submit(updater);
+            executor.submit(proxy);
+        } finally {
+            executor.shutdown();
+        }
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
 
     }
@@ -297,7 +302,7 @@ public class GamePanel extends JPanel {
     public boolean isWithinTerrainBounds(Position position) {
         int x = position.getX();
         int y = position.getY();
-        return x >= TERRAIN_MIN_X && x <= TERRAIN_MAX_X && y >= TERRAIN_MIN_Y && y <= TERRAIN_MAX_Y;
+        return x > TERRAIN_MIN_X && x < TERRAIN_MAX_X && y > TERRAIN_MIN_Y && y < TERRAIN_MAX_Y;
     }
 
     public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesEnJeu() {
@@ -433,6 +438,34 @@ public class GamePanel extends JPanel {
         removeObjet(unite);
     }*/
 
+    public void killUnite(Unite unite){
+        boolean existsInObjetsMap = objetsMap.containsKey(unite.getCoordGrid()) && objetsMap.get(unite.getCoordGrid()).contains(unite);
+        if(existsInObjetsMap) {
+            removeObjet(unite, unite.getCoordGrid());
+            unite.getDeplacementThread().stopThread();
+        }
+        if(unite instanceof UniteControlable){
+            boolean existsInUnitesEnJeu = unitesEnJeu.contains(unite);
+            boolean existsInUnitesSelected = unitesSelected.contains(unite);
+            if(existsInUnitesSelected)
+                unitesSelected.remove(unite);
+            if(existsInUnitesEnJeu)
+                unitesEnJeu.remove(unite);
+
+
+        }else {
+            if(unite instanceof Enemy){
+                GameMaster.getInstance().removeEnemy((Enemy) unite);
+            }
+        }
+
+
+
+
+
+
+    }
+
 
 
 
@@ -532,7 +565,7 @@ public class GamePanel extends JPanel {
     }
 
 
-    public static void printGridContents(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> objetsMap) {
+    /*public static void printGridContents(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> objetsMap) {
         for (ConcurrentHashMap.Entry<CoordGrid,CopyOnWriteArrayList<model.objets.Objet>> entry : objetsMap.entrySet()) {
             CoordGrid coord = entry.getKey();
             CopyOnWriteArrayList<model.objets.Objet> objetsDansTile = entry.getValue();
@@ -542,8 +575,7 @@ public class GamePanel extends JPanel {
                 System.out.println("  - " + objet.getClass().getSimpleName() + " at (" + objet.getPosition().getX() + ", " + objet.getPosition().getY() + ")");
             }
         }
-    }
-
+    }*/
 
 
 
@@ -612,6 +644,14 @@ public class GamePanel extends JPanel {
                 g.drawLine(uniteScreenPos.x, uniteScreenPos.y, voisinScreenPos.x, voisinScreenPos.y);
 
             }
+
+            //get keys of objetsMap
+            for (CoordGrid coord : objetsMap.keySet()) {
+                if(objetsMap.get(coord).contains(unite)){
+                    System.out.println("Unite at " + coord.getX() + " " + coord.getY());
+                }
+            }
+
         }
 
 

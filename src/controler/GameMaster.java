@@ -3,6 +3,7 @@ package controler;
 import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Ressource;
+import model.objets.UniteNonControlableInterface;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
@@ -57,6 +58,9 @@ public class GameMaster extends Thread{
         this.ressources = ressources;
     }
 
+    public CopyOnWriteArrayList<Enemy> getEnemies() {
+        return enemies;
+    }
 
 
 
@@ -72,10 +76,11 @@ public class GameMaster extends Thread{
     }
 
 
-
-    public void AleaSpawnRessources(int x, int y, int nb) {
-    }
-    public void SpawnRessources(int x, int y, int nb) {
+    public void removeEnemy(Enemy enemy) {
+        if(enemies.contains(enemy))
+            enemies.remove(enemy);
+        else
+            throw new UnsupportedOperationException("Enemy not found in list");
     }
 
 
@@ -121,7 +126,13 @@ public class GameMaster extends Thread{
             if(enemies != null) {  // Inverser la condition
                 for (Enemy enemy : enemies) {
                     enemy.action();
+
+                    // Gestion du hors terrain
+                    if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                        GamePanel.getInstance().killUnite(enemy);
+                    }
                 }
+
                 updateTargets();
             }
             try {

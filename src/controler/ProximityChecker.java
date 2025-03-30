@@ -137,7 +137,7 @@ public class ProximityChecker extends Thread{
                     }
                 }
 
-                Thread.sleep(10);
+                Thread.sleep(50);
             }
 
 
