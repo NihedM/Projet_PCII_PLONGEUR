@@ -1,5 +1,6 @@
 package view;
 
+import model.constructions.Base;
 import model.objets.Objet;
 import model.objets.Ressource;
 import model.objets.UniteControlable;
@@ -29,37 +30,54 @@ public class MinimapPanel extends JPanel {
         super.paintComponent(g);
 
         // Fond semi-transparent plus visible
-        g.setColor(new Color(30, 30, 30, 220)); // Augmenter l'opacité
+        g.setColor(new Color(30, 30, 30, 220));
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // Dessiner le terrain (avec le bon ratio)
-        g.setColor(new Color(70, 70, 70)); // Couleur plus claire
+        // Dessin du terrain
+        g.setColor(new Color(70, 70, 70));
         g.fillRect(0, 0, getWidth(), getHeight());
 
-        // Dessiner les objets
-        for (Objet objet : GamePanel.getInstance().getObjetsMap().values()
-                .stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
+        // Taille minimale pour les éléments
+        final int MIN_SIZE = 3;
 
-            int x = (int)(objet.getPosition().getX() * SCALE_X);
-            int y = (int)(objet.getPosition().getY() * SCALE_Y);
+        // Dessiner les ressources
+        for (Ressource ressource : GamePanel.getInstance().getRessourcesMap()) {
+            int x = (int)(ressource.getPosition().getX() * SCALE_X);
+            int y = (int)(ressource.getPosition().getY() * SCALE_Y);
+            int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * SCALE_X));
 
-            int size = (int) (objet.getRayon() * 2 * SCALE_X); // Proportional size
-
-
-            if (objet instanceof UniteControlable) {
-                g.setColor(objet instanceof Plongeur ? Color.BLUE : Color.GREEN);
-            } else if (objet instanceof Ressource) {
-                g.setColor(((Ressource) objet).getEtat() == Ressource.Etat.PRET_A_RECOLTER
-                        ? Color.GREEN : Color.YELLOW);
+            // Couleur selon l'état de la ressource
+            if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
+                g.setColor(Color.GREEN);
             } else {
-                g.setColor(Color.RED);
+                g.setColor(Color.YELLOW);
             }
-            g.fillRect(x - size / 2, y - size / 2, size, size);
-
+            g.fillOval(x, y, size, size);
         }
 
-        // Dessiner le rectangle de la vue actuelle
-        g.setColor(new Color(255, 255, 255, 150)); // Plus visible
+        // Dessiner les unités
+        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+            int x = (int)(unite.getPosition().getX() * SCALE_X);
+            int y = (int)(unite.getPosition().getY() * SCALE_Y);
+            int size = Math.max(MIN_SIZE, (int)(unite.getRayon() * 3 * SCALE_X));
+
+            g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
+            g.fillOval(x, y, size, size);
+        }
+
+        // Dessiner la base
+        Base base = GamePanel.getInstance().getMainBase();
+        if (base != null) {
+            int x = (int)(base.getPosition().getX() * SCALE_X);
+            int y = (int)(base.getPosition().getY() * SCALE_Y);
+            int size = Math.max(MIN_SIZE, (int)(base.getRayon() * 3 * SCALE_X));
+
+            g.setColor(Color.CYAN);
+            g.fillRect(x, y, size, size);
+        }
+
+        // Rectangle de vue
+        g.setColor(new Color(255, 255, 255, 180));
         int viewX = (int)(GamePanel.getInstance().getCameraX() * SCALE_X);
         int viewY = (int)(GamePanel.getInstance().getCameraY() * SCALE_Y);
         int viewW = (int)(GamePanel.VIEWPORT_WIDTH * SCALE_X);
