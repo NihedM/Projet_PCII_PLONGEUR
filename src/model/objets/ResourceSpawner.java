@@ -52,7 +52,7 @@ public class ResourceSpawner extends Thread {
                 gamePanel.addObjet(collier);
 
                 // Créer et démarrer un thread GestionRessource pour cette ressource
-                GestionRessource gestionRessource = new GestionRessource(collier, 20000); // Intervalle de 1 seconde
+                GestionRessource gestionRessource = new GestionRessource(collier, 200);
                 gestionRessource.addListener(gamePanel.getInfoPanelUNC()); // Ajouter InfoPanelUNC comme listener
                 gestionRessource.start(); // Démarrer le thread
 

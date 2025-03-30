@@ -1,5 +1,6 @@
 package model.objets;
 
+import controler.GestionCollisions;
 import controler.ThreadManager;
 import controler.TileManager;
 import view.GamePanel;
@@ -66,14 +67,7 @@ public class DeplacementThread extends Thread {
                     break;
                 }
 
-               if (unite.getAcceleration() < 0.1 ) {
-                    unite.setDestination(null);
-                    unite.setVitesseCourante(0);
-                    unite.setAcceleration(0.1);
-                    unite.setVx(0);
-                    unite.setVy(0);
-                    break;
-                }
+
 
 
                 // Calcul du vecteur direction et de la distance à parcourir
@@ -135,9 +129,18 @@ public class DeplacementThread extends Thread {
 
 
 
-                    if(vitesseCourante <= 0.001){
-                        unite.setDestination(null);
+                    if(vitesseCourante <= 0.001 && unite.getDestination() != null){
+                        unite.setVitesseCourante(1);
                     }
+
+                    /*if (unite.getAcceleration() < 0.1 ) {
+                        unite.setDestination(null);
+                        unite.setVitesseCourante(0);
+                        unite.setAcceleration(0.1);
+                        unite.setVx(0);
+                        unite.setVy(0);
+                        break;
+                    }*/
 
 
 
@@ -162,15 +165,14 @@ public class DeplacementThread extends Thread {
                     if (unite instanceof model.unite_controlables.Plongeur) {
                         model.unite_controlables.Plongeur p = (model.unite_controlables.Plongeur) unite;
                         if (p.getTargetResource() != null) {
-                            int dxRes = p.getPosition().getX() - p.getTargetResource().getPosition().getX();
-                            int dyRes = p.getPosition().getY() - p.getTargetResource().getPosition().getY();
-                            double distRes = Math.sqrt(dxRes * dxRes + dyRes * dyRes);
-                            if (distRes <= p.getRayon() + p.getTargetResource().getRayon()) {
-                                boolean collected = p.recolter(p.getTargetResource());
-                                if (collected) {
-                                    // Une fois collectée, on réinitialise la cible et désactive le flag targeted
-                                    p.getTargetResource().setTargeted(false);
-                                    p.setTargetResource(null);
+                            if(GestionCollisions.collisionCC(p, p.getTargetResource()) > -1){
+                                if(p.getTargetResource().estRecoltable()) {
+                                    boolean collected = p.recolter(p.getTargetResource());
+                                    if (collected) {
+                                        // Une fois collectée, on réinitialise la cible et désactive le flag targeted
+                                        p.getTargetResource().setTargeted(false);
+                                        p.setTargetResource(null);
+                                    }
                                 }
                             }
                         }

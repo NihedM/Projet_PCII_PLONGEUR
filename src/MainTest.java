@@ -39,7 +39,7 @@ public class MainTest {
 
 
 
-        for(int i = 0; i < 10; i++)
+        for(int i = 0; i < 1; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
 
         // Démarrer le ResourceSpawner
