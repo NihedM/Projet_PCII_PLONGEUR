@@ -16,6 +16,9 @@ public class ProximityChecker extends Thread{
 
     private static ProximityChecker instance;
 
+    private volatile boolean running = true;
+
+
 
     public ProximityChecker(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap, CopyOnWriteArrayList<UniteControlable> unitesEnJeu) {
         this.objetsMap = objetsMap;
@@ -78,13 +81,17 @@ public class ProximityChecker extends Thread{
         return voisins;
     }
 
+    public boolean isRunning() {
+        return running;
+    }
+
 
 
     @Override
     public void run() {
         controler.ThreadManager.incrementThreadCount("ProximityChecker");
         try{
-            while (true){
+            while (running){
                 //GamePanel.printGridContents(objetsMap);
                 CopyOnWriteArrayList<UniteControlable> unitesCopy;
 
@@ -137,7 +144,6 @@ public class ProximityChecker extends Thread{
         } catch (InterruptedException ignored) {
         }
             ThreadManager.decrementThreadCount("ProximityChecker");
-            System.exit(1);//se controlleur doit marcher en permanence si ou si, donc si il est interrompu, on arrete le programme
 
     }
 }

@@ -73,13 +73,13 @@ public class Calamar extends Enemy {
         int minDistance = Math.min(Math.min(distanceToLeftEdge, distanceToRightEdge), Math.min(distanceToTopEdge, distanceToBottomEdge));
 
         if (minDistance == distanceToLeftEdge) {
-            this.setDestination(new Position(0, y));
+            this.setDestination(new Position(-1, y));
         } else if (minDistance == distanceToRightEdge) {
-            this.setDestination(new Position(GamePanel.PANELDIMENSION, y));
+            this.setDestination(new Position(GamePanel.TERRAIN_WIDTH, y));
         } else if (minDistance == distanceToTopEdge) {
-            this.setDestination(new Position(x, 0));
+            this.setDestination(new Position(x, -1));
         } else {
-            this.setDestination(new Position(x, GamePanel.PANELDIMENSION));
+            this.setDestination(new Position(x, GamePanel.TERRAIN_HEIGHT));
         }
 
         this.objectifCourrant = null;

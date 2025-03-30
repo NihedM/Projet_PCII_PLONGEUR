@@ -42,11 +42,7 @@ public class ResourceSpawner extends Thread {
 
             // Générer les ressources
             for (int i = 0; i < spawnCount && resourcesSpawned < maxResources; i++) {
-                // Générer une ressource à une position aléatoire
-                int x = random.nextInt(GamePanel.PANELDIMENSION);
-                int y = random.nextInt(GamePanel.PANELDIMENSION);
-                Position position = new Position(x, y);
-                Collier collier = new Collier(position);
+                Collier collier = new Collier(new Position());
 
                 // Ajouter la ressource au jeu
                 gamePanel.addObjet(collier);

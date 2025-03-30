@@ -1,5 +1,9 @@
 package model.objets;
 
+import view.GamePanel;
+
+import java.util.Random;
+
 public class Position {
     private int x, y;           // vraie position
 
@@ -9,9 +13,12 @@ public class Position {
     }
 
     public Position() {
-        /*generate random position*/
-        this.x = (int) (Math.random() * 600);       //TODO
-        this.y = (int) (Math.random() * 600);       //TODO
+        /*generate random position dans le terrain terrainwidth heigth */
+        Random random = new Random();
+        this.x = random.nextInt(GamePanel.TERRAIN_WIDTH);
+        this.y = random.nextInt(GamePanel.TERRAIN_HEIGHT);
+
+
     }
 
     public int getX() {

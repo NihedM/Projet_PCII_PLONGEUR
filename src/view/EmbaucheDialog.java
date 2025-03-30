@@ -55,8 +55,8 @@ public class EmbaucheDialog extends JDialog {
                 // Générer une position aléatoire dans la zone de jeu
                 Random rand = new Random();
                 int margin = 25;
-                int x = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
-                int y = rand.nextInt(GamePanel.PANELDIMENSION - 2 * margin) + margin;
+                int x = rand.nextInt(GamePanel.PANELWIDTH - 2 * margin) + margin;
+                int y = rand.nextInt(GamePanel.PANELHEIGTH - 2 * margin) + margin;
                 model.objets.Position pos = new model.objets.Position(x, y);
 
                 // Créer et ajouter une nouvelle unité (ici un Plongeur)

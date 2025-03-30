@@ -66,10 +66,10 @@ public class SpawnManager extends Thread{
         ThreadManager.incrementThreadCount("SpawnManager");
 
         while (true) {
-            if(cpt == 0){
+            //if(cpt == 0){
                 generateRandomSpawnPoint(10);
                 cpt++;
-            }
+            //}
             try {
                 Thread.sleep(getRandomInterval(10000, 20000));
             } catch (InterruptedException e) {

@@ -1,4 +1,5 @@
 import controler.*;
+import model.constructions.Base;
 import model.objets.CoordGrid;
 import model.objets.Position;
 import model.objets.ResourceSpawner;
@@ -39,11 +40,12 @@ public class MainTest {
 
 
 
+        Base base = gamePanel.getMainBase();
         for(int i = 0; i < 1; i++)
-            gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
+            gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY()), 5));
 
         // Démarrer le ResourceSpawner
-        int maxResources = 50; // Nombre total de ressources à générer
+        int maxResources = 500; // Nombre total de ressources à générer
         int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
         int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
         int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
@@ -53,7 +55,7 @@ public class MainTest {
 
 
         SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
-        spawnManager.start();
+        //spawnManager.start();
 
 
 

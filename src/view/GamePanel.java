@@ -17,7 +17,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
-    public static final int PANELDIMENSION = 600;
+    public static final int PANELWIDTH = 600;
+    public static final int PANELHEIGTH = 600;
     private static GamePanel instance;
     private final VictoryManager victoryManager;
 
@@ -31,9 +32,9 @@ public class GamePanel extends JPanel {
     public static final int TERRAIN_WIDTH = 2000;
     public static final int TERRAIN_HEIGHT = 2000;
 
-    public static final int PANEL_INFO_WIDTH = PANELDIMENSION/4;
-    public static final int VIEWPORT_WIDTH = PANELDIMENSION - PANEL_INFO_WIDTH;
-    public static final int VIEWPORT_HEIGHT = PANELDIMENSION;
+    public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
+    public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
+    public static final int VIEWPORT_HEIGHT = PANELHEIGTH;
 
     private Terrain terrain;
 
@@ -86,7 +87,7 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         instance = this;
         setLayout(null);
-        setPreferredSize(new Dimension(PANELDIMENSION, PANELDIMENSION));
+        setPreferredSize(new Dimension(PANELWIDTH, PANELHEIGTH));
         setBackground(new Color(173, 216, 230));
 
         this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
@@ -103,6 +104,7 @@ public class GamePanel extends JPanel {
     public Terrain getTerrain() {
         return terrain;
     }
+    public Base getMainBase() {return baseUnique;}
 
 
     private void initUIComponents() {
@@ -115,7 +117,7 @@ public class GamePanel extends JPanel {
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(new JPanel(), "empty");
 
-        infoContainer.setBounds(VIEWPORT_WIDTH, 0, PANEL_INFO_WIDTH, PANELDIMENSION);
+        infoContainer.setBounds(VIEWPORT_WIDTH, 0, PANEL_INFO_WIDTH, PANELHEIGTH);
         add(infoContainer);
 
         // Bouton Market
@@ -133,7 +135,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN, // X: à gauche avec marge
-                PANELDIMENSION - MINIMAP_HEIGHT - MINIMAP_MARGIN, // Y: en bas avec marge
+                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN, // Y: en bas avec marge
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -190,6 +192,7 @@ public class GamePanel extends JPanel {
         executor.submit(updater);
         executor.submit(proxy);
         new GameInfoWindow(objetsMap, unitesEnJeu, unitesSelected);
+
     }
 
     // Méthodes pour la caméra
@@ -422,7 +425,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (currentWidth < targetWidth) {
                     currentWidth += animationStep;
-                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELDIMENSION));
+                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELHEIGTH));
                     infoContainer.revalidate();
                     repaint();
                 } else {
@@ -448,7 +451,7 @@ public class GamePanel extends JPanel {
                     if (currentWidth < 0) {
                         currentWidth = 0;
                     }
-                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELDIMENSION));
+                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELHEIGTH));
                     infoContainer.revalidate();
                     repaint();
                 } else {
@@ -469,7 +472,7 @@ public class GamePanel extends JPanel {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
         // Définir une largeur fixe pour le panneau d'info (par exemple 200 pixels)
-        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
+        infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
         infoContainer.revalidate();
         repaint();
     }
@@ -477,7 +480,7 @@ public class GamePanel extends JPanel {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, panelType);
         // Définir la largeur fixe souhaitée (par exemple 200 pixels)
-        infoContainer.setPreferredSize(new Dimension(200, PANELDIMENSION));
+        infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
         infoContainer.revalidate();
         repaint();
     }
@@ -541,6 +544,7 @@ public class GamePanel extends JPanel {
     @Override
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
+
 
         drawBase(g);
 

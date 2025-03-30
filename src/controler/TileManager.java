@@ -7,7 +7,7 @@ import view.GamePanel;
 public class TileManager {
 
 
-    public static final int TILESIZE = GamePanel.PANELDIMENSION / 4; // Taille d'une tile
+    public static final int TILESIZE = 100; // Taille d'une tile constante
     public static final int nbTilesWidth = GamePanel.TERRAIN_WIDTH / TILESIZE;
     public static final int nbTilesHeight = GamePanel.TERRAIN_HEIGHT / TILESIZE;
 
@@ -26,6 +26,10 @@ public class TileManager {
     }
 
     public static CoordGrid transformePos_to_Coord(Position pos) {
+        //print dimentions
+        //System.out.println("nbTilesWidth: " + nbTilesWidth + " nbTilesHeight: " + nbTilesHeight);
+        //System.out.println("x: " + pos.getX() + " y: " + pos.getY());
+        //System.out.println("x: " + transformeP_to_grid(pos.getX()) + " y: " + transformeP_to_grid(pos.getY()));
         return coordTiles[transformeP_to_grid(pos.getX())][transformeP_to_grid(pos.getY())];
     }
 

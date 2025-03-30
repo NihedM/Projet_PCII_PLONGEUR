@@ -130,7 +130,7 @@ public class DeplacementThread extends Thread {
 
 
                     if(vitesseCourante <= 0.001 && unite.getDestination() != null){
-                        unite.setVitesseCourante(1);
+                        unite.setVitesseCourante(0.5);
                     }
 
                     /*if (unite.getAcceleration() < 0.1 ) {
@@ -197,7 +197,7 @@ public class DeplacementThread extends Thread {
                     Thread.sleep(DELAY);
                 } catch (InterruptedException e) {
                     //Thread.currentThread().interrupt();
-                    System.out.println("Thread interrupted");
+                    //System.out.println("Thread interrupted");
                 }
             }
         }finally {
