@@ -39,6 +39,9 @@ public class Referee {
         this.pointsVictoire += points;
     }
 
-
+    public void reset() {
+        this.argentJoueur = 0;
+        this.pointsVictoire = 0;
+    }
 }
 

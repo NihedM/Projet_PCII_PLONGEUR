@@ -20,7 +20,6 @@ public class GamePanel extends JPanel {
     public static final int PANELWIDTH = 600;
     public static final int PANELHEIGTH = 600;
     private static GamePanel instance;
-    private final VictoryManager victoryManager;
 
     // Variables pour la caméra
     private int cameraX = 0;
@@ -84,6 +83,9 @@ public class GamePanel extends JPanel {
     private boolean deplacementMode = false;
     private boolean recuperationMode = false;
 
+    private VictoryManager victoryManager;
+
+
     public GamePanel() {
         instance = this;
         setLayout(null);
@@ -97,7 +99,6 @@ public class GamePanel extends JPanel {
         initUIComponents();
         setupListeners();
         initSystems();
-        this.victoryManager = new VictoryManager(this);
     }
 
 
@@ -122,7 +123,7 @@ public class GamePanel extends JPanel {
 
         // Bouton Market
         JButton marketButton = new JButton("Market");
-        marketButton.setBounds(500, 10, 100, 30);
+        marketButton.setBounds(350, 10, 100, 30);
         marketButton.addActionListener(e -> {
             setPaused(true);
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -229,7 +230,35 @@ public class GamePanel extends JPanel {
         victoryManager.startGame();
     }
 
+    public void setVictoryManager(VictoryManager vm) {
+        this.victoryManager = vm;
+    }
+    public void reset() {
+        // Réinitialiser la caméra
+        cameraX = 0;
+        cameraY = 0;
+        // Réinitialiser le mode de déplacement/récupération
+        // (les autres variables booléennes si nécessaire)
 
+        // Vider toutes les collections d'objets
+        objetsMap.clear();
+        unitesEnJeu.clear();
+        unitesSelected.clear();
+        collectedResources.clear();
+
+        // Réinitialiser le terrain et recréer la base initiale
+        terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
+        baseUnique = new Base(new Position(100, 200), 20);
+        addObjet(baseUnique);
+
+        addUniteControlable(new Plongeur(3, new Position(50, 50), 5));
+
+        // Réinitialiser le VictoryManager
+        victoryManager = null;
+
+        // Repaint pour mettre à jour l'affichage
+        repaint();
+    }
     //------------------GETTERS------------------------------------------------------------------------------------------------------
     public static GamePanel getInstance() {
         return instance;

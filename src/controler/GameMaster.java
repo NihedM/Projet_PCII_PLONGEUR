@@ -106,6 +106,10 @@ public class GameMaster extends Thread{
             }
         }
     }
+    public void reset() {
+        ressources.clear();
+        updateLists();
+    }
 
 
     @Override

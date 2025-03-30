@@ -35,7 +35,7 @@ public class EmbaucheDialog extends JDialog {
                 // Afficher le coût sous le cercle
                 g.setColor(Color.BLACK);
                 g.setFont(new Font("Arial", Font.BOLD, 14));
-                String costStr = "Prix : 30 €";
+                String costStr = "Prix : 50 €";
                 int strWidth = g.getFontMetrics().stringWidth(costStr);
                 g.drawString(costStr, (getWidth() - strWidth) / 2, y + diameter + 20);
             }
@@ -47,7 +47,7 @@ public class EmbaucheDialog extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Vérifier si le joueur a assez d'argent (coût = 30)
-                if (model.gains_joueur.Referee.getInstance().getArgentJoueur() < 30) {
+                if (model.gains_joueur.Referee.getInstance().getArgentJoueur() < 50) {
                     JOptionPane.showMessageDialog(EmbaucheDialog.this, "Pas assez d'argent pour embaucher");
                     return;
                 }
@@ -60,12 +60,15 @@ public class EmbaucheDialog extends JDialog {
                 model.objets.Position pos = new model.objets.Position(x, y);
 
                 // Créer et ajouter une nouvelle unité (ici un Plongeur)
-                model.unite_controlables.Plongeur newUnit = new model.unite_controlables.Plongeur(3,pos,10);
+                model.unite_controlables.Plongeur newUnit = new model.unite_controlables.Plongeur(3,pos,5);
                 GamePanel.getInstance().addUniteControlable(newUnit);
                 GamePanel.getInstance().repaint();
 
                 // Déduire le coût d'embauche
-                model.gains_joueur.Referee.getInstance().retirerArgent(30);
+                model.gains_joueur.Referee.getInstance().retirerArgent(50);
+
+                //Augmenter ke nb de points
+                model.gains_joueur.Referee.getInstance().ajouterPointsVictoire(20);
 
                 // Afficher un message de confirmation sans fermer la fenêtre
                 JOptionPane.showMessageDialog(EmbaucheDialog.this, "Unité embauchée !");
