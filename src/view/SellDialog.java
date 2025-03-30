@@ -40,6 +40,10 @@ import java.awt.event.MouseEvent;
                         Referee.getInstance().ajouterArgent(resource.getValeur());
                         // Retirer la ressource de l'inventaire (GamePanel)
                         GamePanel.getInstance().removeCollectedResource(resource);
+
+                        //Augmneter le nb de points de victoire
+                        model.gains_joueur.Referee.getInstance().ajouterPointsVictoire(20);
+
                         // Actualiser l'affichage
                         updateResourceList();
                         JOptionPane.showMessageDialog(SellDialog.this, "Ressource vendue pour " + resource.getValeur() + " €.");

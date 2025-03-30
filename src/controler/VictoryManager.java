@@ -1,6 +1,7 @@
 package controler;
 
 import model.gains_joueur.Referee;
+import view.GameOverDialog;
 import view.GamePanel;
 
 import javax.swing.*;
@@ -8,18 +9,22 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class VictoryManager {
-    private static final int VICTORY_POINTS = 10000;
-    private static final int GAME_DURATION = 10 * 60 * 1000; // 10 minutes en millisecondes
+
+    private final int victoryPoints;  // Points à atteindre pour gagner
+    private final long gameDuration;  // Durée de la partie en millisecondes
 
     private final GamePanel gamePanel;
     private final Timer gameTimer;
     private long startTime;
     private boolean gameEnded = false;
 
-    public VictoryManager(GamePanel gamePanel) {
+    public VictoryManager(GamePanel gamePanel, long gameDuration, int victoryPoints) {
         this.gamePanel = gamePanel;
+        this.gameDuration = gameDuration;
+        this.victoryPoints = victoryPoints;
         this.gameTimer = new Timer();
     }
+
 
     public void startGame() {
         this.startTime = System.currentTimeMillis();
@@ -35,18 +40,16 @@ public class VictoryManager {
     private void checkGameStatus() {
         if (gameEnded) return;
 
-        // Vérifier victoire
-        if (Referee.getInstance().getPointsVictoire() >= VICTORY_POINTS) {
-            endGame(true);
-            return;
-        }
-
-        // Vérifier défaite (temps écoulé)
+        // Ne pas arrêter immédiatement si le nombre de points est atteint
         long elapsed = System.currentTimeMillis() - startTime;
-        if (elapsed >= GAME_DURATION) {
-            endGame(false);
+        if (elapsed >= gameDuration) {
+            // À la fin, on vérifie si l'objectif de points a été atteint
+            boolean win = Referee.getInstance().getPointsVictoire() >= victoryPoints;
+            endGame(win);
         }
     }
+
+
 
     private void endGame(boolean victory) {
         gameEnded = true;
@@ -54,17 +57,19 @@ public class VictoryManager {
 
         SwingUtilities.invokeLater(() -> {
             String message = victory
-                    ? "Félicitations ! Vous avez atteint " + VICTORY_POINTS + " points de victoire !"
-                    : "Temps écoulé ! Vous n'avez pas atteint les " + VICTORY_POINTS + " points à temps.";
+                    ? "Félicitations ! Vous avez atteint " + victoryPoints + " points de victoire !"
+                    : "Temps écoulé ! Vous n'avez pas atteint les " + victoryPoints + " points à temps.";
 
             JOptionPane.showMessageDialog(gamePanel, message, "Fin de partie", JOptionPane.INFORMATION_MESSAGE);
-            System.exit(0); // Fermer le jeu
+            // Au lieu de fermer le jeu, on affiche le menu de fin de partie
+            GameOverDialog gameOverDialog = new GameOverDialog(SwingUtilities.getWindowAncestor(gamePanel));
+            gameOverDialog.setVisible(true);
         });
     }
 
     public String getRemainingTime() {
         long elapsed = System.currentTimeMillis() - startTime;
-        long remaining = Math.max(0, GAME_DURATION - elapsed);
+        long remaining = Math.max(0, gameDuration - elapsed);
 
         int minutes = (int) (remaining / (1000 * 60));
         int seconds = (int) ((remaining / 1000) % 60);

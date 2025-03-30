@@ -4,6 +4,7 @@ import model.objets.Position;
 import model.objets.ResourceSpawner;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
+import view.GameLaunchDialog;
 import view.GamePanel;
 import view.Redessine;
 import view.debeug.ThreadManagerPanel;
@@ -41,6 +42,10 @@ public class MainTest {
 
         for(int i = 0; i < 1; i++)
             gamePanel.addUniteControlable(new Plongeur(3, new Position(), 5));
+
+        // Afficher la fenêtre de lancement pour paramétrer la partie
+        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
+        launchDialog.setVisible(true);
 
         // Démarrer le ResourceSpawner
         int maxResources = 50; // Nombre total de ressources à générer
