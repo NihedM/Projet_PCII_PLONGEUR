@@ -40,10 +40,21 @@ public class VictoryManager {
     private void checkGameStatus() {
         if (gameEnded) return;
 
-        // Ne pas arrêter immédiatement si le nombre de points est atteint
         long elapsed = System.currentTimeMillis() - startTime;
+        long remaining = gameDuration - elapsed;
+
+        // Convertir en secondes pour la Barre
+        int remainingSeconds = (int)(remaining / 1000);
+        int totalSeconds = (int)(gameDuration / 1000);
+
+        SwingUtilities.invokeLater(() -> {
+            gamePanel.getTimeProgressBar().updateProgress(remainingSeconds, totalSeconds);
+
+            // La Barre s'occupe elle-même du formatage du texte grâce à setShowAsTime(true)
+            // Et de la couleur grâce à updateColor()
+        });
+
         if (elapsed >= gameDuration) {
-            // À la fin, on vérifie si l'objectif de points a été atteint
             boolean win = Referee.getInstance().getPointsVictoire() >= victoryPoints;
             endGame(win);
         }
@@ -65,15 +76,5 @@ public class VictoryManager {
             GameOverDialog gameOverDialog = new GameOverDialog(SwingUtilities.getWindowAncestor(gamePanel));
             gameOverDialog.setVisible(true);
         });
-    }
-
-    public String getRemainingTime() {
-        long elapsed = System.currentTimeMillis() - startTime;
-        long remaining = Math.max(0, gameDuration - elapsed);
-
-        int minutes = (int) (remaining / (1000 * 60));
-        int seconds = (int) ((remaining / 1000) % 60);
-
-        return String.format("%02d:%02d", minutes, seconds);
     }
 }
