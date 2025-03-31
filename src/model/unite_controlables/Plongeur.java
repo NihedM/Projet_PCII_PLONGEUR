@@ -63,9 +63,9 @@ public class Plongeur extends UniteControlable {
     @Override
     public Map<String, String> getAttributes() {
         Map<String, String> attributes = super.getAttributes();
-        attributes.put("Oxygen ", String.valueOf(getCurrentOxygen()));
-        attributes.put("Stamina ", String.valueOf(getCurrentStamina()));
-        attributes.put("Backpack ", String.valueOf(backpack.size()));
+        attributes.put("Oxygen", String.valueOf(getCurrentOxygen()));
+        attributes.put("Stamina", String.valueOf(getCurrentStamina()));
+        attributes.put("Backpack", String.valueOf(backpack.size()));
         return attributes;
     }
 

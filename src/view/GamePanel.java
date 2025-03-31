@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
-    public static final int PANELWIDTH = 1000;
+    public static final int PANELWIDTH = 800;
     public static final int PANELHEIGTH = 600;
     private static GamePanel instance;
 
