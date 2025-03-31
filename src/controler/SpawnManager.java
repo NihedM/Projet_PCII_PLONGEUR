@@ -29,7 +29,7 @@ public class SpawnManager extends Thread{
 
     public void addSpawnPoint(CoordGrid tile, int maxEnemies) {
         EnemySpawnPoint spawnPoint = new EnemySpawnPoint(tile, maxEnemies);
-        //spawnPoint.setEnemyType(Pieuvre.class);
+        spawnPoint.setEnemyType(Pieuvre.class);
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
     }

@@ -141,4 +141,8 @@ public class Pieuvre extends Enemy {
         }
 
     }
+
+    public void removeChild(PieuvreBebe enemy) {
+        enfants.remove(enemy);
+    }
 }

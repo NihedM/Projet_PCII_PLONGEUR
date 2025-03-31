@@ -1,5 +1,6 @@
 package controler;
 
+import model.constructions.Base;
 import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Ressource;
@@ -108,6 +109,7 @@ public class GameMaster extends Thread{
                 throw new UnsupportedOperationException("Enemy type not supported: "+enemy.getClass());
 
             }
+
         }
     }
     public void reset() {
@@ -128,6 +130,13 @@ public class GameMaster extends Thread{
 
                     // Gestion du hors terrain
                     if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                        GamePanel.getInstance().killUnite(enemy);
+                    }
+                    Base base = GamePanel.getInstance().getMainBase();
+                    if(GestionCollisions.estDans(base.getCoints()[0].getX(), base.getCoints()[0].getY(), base.getCoints()[3].getX(), base.getCoints()[3].getY(), enemy.getPosition().getX(), enemy.getPosition().getY())){
+                        if(enemy instanceof PieuvreBebe){
+                            ((PieuvreBebe) enemy).getParent().removeChild((PieuvreBebe) enemy);
+                        }
                         GamePanel.getInstance().killUnite(enemy);
                     }
                 }
