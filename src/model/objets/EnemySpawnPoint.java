@@ -10,6 +10,7 @@ import model.objets.Position;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
+import model.unite_non_controlables.PieuvreBebe;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -62,10 +63,11 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
             } else if (enemy instanceof Pieuvre) {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
-
+                //generate random number of children
+                int nbChildren = (int) (Math.random() * 5) + 1;
+                for (int i = 0; i < nbChildren; i++)
+                  ((Pieuvre)enemy).addChild();
             }
-
-
 
 
 
@@ -77,6 +79,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
             e.printStackTrace();
         }
     }
+
+
+
 
     @Override
     public void run() {

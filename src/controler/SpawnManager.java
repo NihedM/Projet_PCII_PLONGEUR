@@ -48,31 +48,6 @@ public class SpawnManager extends Thread{
 
 
 
-    public void spawnPieuvreSwarm(CoordGrid tile, int nbChilds){
-
-        Position parentPosition = EnemySpawnPoint.generateRandomPositionInTile(tile);
-        Pieuvre parentPieuvre = new Pieuvre(parentPosition);
-        gameMaster.addEnemy(parentPieuvre, new CopyOnWriteArrayList<>());
-        // Create the swarm of PieuvreBebe
-        for (int i = 0; i < nbChilds; i++) {
-            // Generate a random position around the parent Pieuvre
-            int offsetX = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
-            int offsetY = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
-            Position childPosition = new Position(parentPosition.getX() + offsetX, parentPosition.getY() + offsetY);
-
-            // Ensure the new position is not too close to the parent
-            while (Math.abs(offsetX) < TileManager.TILESIZE && Math.abs(offsetY) < TileManager.TILESIZE) {
-                offsetX = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
-                offsetY = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
-                childPosition = new Position(parentPosition.getX() + offsetX, parentPosition.getY() + offsetY);
-            }
-
-            PieuvreBebe childPieuvre = new PieuvreBebe(childPosition, parentPieuvre);
-            gameMaster.addEnemy(childPieuvre, new CopyOnWriteArrayList<>());
-        }
-
-    }
-
 
     public void generateRandomSpawnPoint(int maxEnemies) {
         int randomX = random.nextInt(TileManager.nbTilesWidth);
@@ -93,8 +68,7 @@ public class SpawnManager extends Thread{
 
         while (true) {
             if(cpt == 0){
-                //generateRandomSpawnPoint(10);
-                spawnPieuvreSwarm(new CoordGrid(5, 5), 5);
+                generateRandomSpawnPoint(2);
                 cpt++;
             }
             try {

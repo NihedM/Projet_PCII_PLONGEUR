@@ -30,8 +30,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 800;
-    public static final int TERRAIN_HEIGHT = 800;
+    public static final int TERRAIN_WIDTH = 2000;
+    public static final int TERRAIN_HEIGHT = 2000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;

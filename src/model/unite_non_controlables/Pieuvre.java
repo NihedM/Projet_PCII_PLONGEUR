@@ -1,5 +1,6 @@
 package model.unite_non_controlables;
 
+import controler.GameMaster;
 import controler.GestionCollisions;
 import controler.TileManager;
 import model.objets.*;
@@ -12,6 +13,8 @@ public class Pieuvre extends Enemy {
     public static final int VITESSE_VADROUILLE = 5;
     private CopyOnWriteArrayList<UniteControlable> targetsDisponibles = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<Objet> sac = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<PieuvreBebe> enfants = new CopyOnWriteArrayList<>();
+
     private UniteControlable target;
     private static final double STALKING_DISTANCE = TileManager.TILESIZE * 2;
     private static final double MAX_DISTANCE = TileManager.TILESIZE * 3;
@@ -43,6 +46,9 @@ public class Pieuvre extends Enemy {
     public UniteControlable getTarget() {
         return target;
     }
+    public CopyOnWriteArrayList<Objet> getSac() {
+        return sac;
+    }
 
 
     public void repaireTarget(UniteControlable target){
@@ -50,6 +56,9 @@ public class Pieuvre extends Enemy {
         if(!targetsDisponibles.contains(target)) {
             targetsDisponibles.add(target);
             selectTargetPlusProche(targetsDisponibles);
+            if(!enfants.isEmpty()){
+               enfants.get(0).passTargetToSiblings();
+            }
         }
     }
 
@@ -67,6 +76,16 @@ public class Pieuvre extends Enemy {
         }
         return false;
 
+    }
+
+    public void addChild(){
+        Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
+        PieuvreBebe bebe = new PieuvreBebe(position, this);
+        enfants.add(bebe);
+        GameMaster.getInstance().addEnemy(bebe, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
+    }
+    public CopyOnWriteArrayList<PieuvreBebe> getEnfants() {
+        return enfants;
     }
 
 
