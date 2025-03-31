@@ -5,7 +5,9 @@ import model.constructions.Construction;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Calamar;
+import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
+import model.unite_non_controlables.PieuvreBebe;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -119,8 +121,10 @@ public class ProximityChecker extends Thread{
                                 if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
                                     ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
                                 }
-                            }else if (voisin instanceof Pieuvre){
+                            }else if (voisin instanceof Pieuvre) {
                                 ((Pieuvre) voisin).repaireTarget(unite);
+                            } else if (voisin instanceof PieuvreBebe) {
+                                ((Enemy)voisin).vadrouille();
                             }else if(voisin instanceof Base){
                                 Position[] coins = ((Base) voisin).getCoints();
                                 if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){

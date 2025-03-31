@@ -32,12 +32,12 @@ public class Plongeur extends UniteControlable {
         this.faitFuire = false;
         this.oxygen = MAX_OXYGEN;
         this.stamina = MAX_STAMINA;
-        backpack = new ArrayList<>();
+        this.backpack = new ArrayList<>();
 
     }
 
-    public HashMap<model.objets.Ressource, Integer> getSac() {
-        return sac;
+    public List<Ressource>  getBackPac() {
+        return backpack;
     }
 
     public int getRayonFuite() {
@@ -72,9 +72,6 @@ public class Plongeur extends UniteControlable {
 
     //-------------------Méthodes-------------------
 
-    public int getSacSize() {
-        return sac.size();
-    }
 
 
     public void setCurrentOxygen(int oxygen) {

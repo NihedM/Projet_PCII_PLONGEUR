@@ -6,6 +6,7 @@ import model.gains_joueur.Referee;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Enemy;
+import model.unite_non_controlables.Pieuvre;
 import view.debeug.GameInfoWindow;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
-    public static final int PANELWIDTH = 600;
+    public static final int PANELWIDTH = 1000;
     public static final int PANELHEIGTH = 600;
     private static GamePanel instance;
 
@@ -29,8 +30,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 2000;
-    public static final int TERRAIN_HEIGHT = 2000;
+    public static final int TERRAIN_WIDTH = 800;
+    public static final int TERRAIN_HEIGHT = 800;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -627,6 +628,16 @@ public class GamePanel extends JPanel {
             if (isVisibleInViewport(screenPos, objet.getRayon())) {
                 drawObjet(g, objet, screenPos);
             }
+
+            // Draw line from Pieuvre to its target
+            if (objet instanceof Pieuvre) {
+                Pieuvre pieuvre = (Pieuvre) objet;
+                if (pieuvre.getTarget() != null) {
+                    Point targetScreenPos = worldToScreen(pieuvre.getTarget().getPosition().getX(), pieuvre.getTarget().getPosition().getY());
+                    g.setColor(Color.YELLOW);
+                    g.drawLine(screenPos.x, screenPos.y, targetScreenPos.x, targetScreenPos.y);
+                }
+            }
         }
 
 
@@ -643,13 +654,6 @@ public class GamePanel extends JPanel {
                 g.setColor(Color.RED);
                 g.drawLine(uniteScreenPos.x, uniteScreenPos.y, voisinScreenPos.x, voisinScreenPos.y);
 
-            }
-
-            //get keys of objetsMap
-            for (CoordGrid coord : objetsMap.keySet()) {
-                if(objetsMap.get(coord).contains(unite)){
-                    System.out.println("Unite at " + coord.getX() + " " + coord.getY());
-                }
             }
 
         }

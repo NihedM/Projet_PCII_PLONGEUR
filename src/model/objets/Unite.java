@@ -61,10 +61,11 @@ public class Unite extends Objet {
                 deplacementThread.stopThread();
             }
 
-            this.destination = destination;
 
 
             if (destination != null) {
+                this.destination = new Position(destination.getX(), destination.getY());
+
                 if (deplacementThread != null)
                     deplacementThread.stopThread();
 
@@ -72,6 +73,7 @@ public class Unite extends Objet {
                 deplacementThread = new DeplacementThread(this);
                 deplacementThread.start();
             }
+            else this.destination = null;
         }
 
 

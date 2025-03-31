@@ -5,6 +5,7 @@ import model.objets.EnemySpawnPoint;
 import model.objets.Position;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Pieuvre;
+import model.unite_non_controlables.PieuvreBebe;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class SpawnManager extends Thread{
 
     public void addSpawnPoint(CoordGrid tile, int maxEnemies) {
         EnemySpawnPoint spawnPoint = new EnemySpawnPoint(tile, maxEnemies);
-        //spawnPoint.setEnemyType(Pieuvre.class);
+        spawnPoint.setEnemyType(Pieuvre.class);
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
     }
@@ -46,6 +47,31 @@ public class SpawnManager extends Thread{
     }
 
 
+
+    public void spawnPieuvreSwarm(CoordGrid tile, int nbChilds){
+
+        Position parentPosition = EnemySpawnPoint.generateRandomPositionInTile(tile);
+        Pieuvre parentPieuvre = new Pieuvre(parentPosition);
+        gameMaster.addEnemy(parentPieuvre, new CopyOnWriteArrayList<>());
+        // Create the swarm of PieuvreBebe
+        for (int i = 0; i < nbChilds; i++) {
+            // Generate a random position around the parent Pieuvre
+            int offsetX = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
+            int offsetY = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
+            Position childPosition = new Position(parentPosition.getX() + offsetX, parentPosition.getY() + offsetY);
+
+            // Ensure the new position is not too close to the parent
+            while (Math.abs(offsetX) < TileManager.TILESIZE && Math.abs(offsetY) < TileManager.TILESIZE) {
+                offsetX = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
+                offsetY = (random.nextInt(2 * TileManager.TILESIZE) - TileManager.TILESIZE);
+                childPosition = new Position(parentPosition.getX() + offsetX, parentPosition.getY() + offsetY);
+            }
+
+            PieuvreBebe childPieuvre = new PieuvreBebe(childPosition, parentPieuvre);
+            gameMaster.addEnemy(childPieuvre, new CopyOnWriteArrayList<>());
+        }
+
+    }
 
 
     public void generateRandomSpawnPoint(int maxEnemies) {
@@ -66,10 +92,11 @@ public class SpawnManager extends Thread{
         ThreadManager.incrementThreadCount("SpawnManager");
 
         while (true) {
-            //if(cpt == 0){
-                generateRandomSpawnPoint(10);
+            if(cpt == 0){
+                //generateRandomSpawnPoint(10);
+                spawnPieuvreSwarm(new CoordGrid(5, 5), 5);
                 cpt++;
-            //}
+            }
             try {
                 Thread.sleep(getRandomInterval(10000, 20000));
             } catch (InterruptedException e) {

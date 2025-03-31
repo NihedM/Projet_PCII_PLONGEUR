@@ -101,11 +101,15 @@ public class DeplacementThread extends Thread {
                 if (distance > unite.getRayon()) {
 
                     // Phase d'accélération ou de maintien
-                    if (distance > distanceInitiale / 2) {
-                        // Accélération jusqu'à la vitesse maximale
+                    if (vitesseCourante < unite.getVitesseMax()) {
+                        // Accélération progressive jusqu'à la vitesse maximale
                         vitesseCourante = Math.min(vitesseCourante + accel, unite.getVitesseMax());
+                    } else if (distance > distanceInitiale * 0.5) {
+                        // Maintien de la vitesse maximale jusqu'à 40% de la distance initiale
+                        vitesseCourante = unite.getVitesseMax();
                     } else {
-                        vitesseCourante = Math.max(vitesseCourante - accel, accel);
+                        // Décélération rapide lorsque très proche de la destination
+                        vitesseCourante = Math.max(vitesseCourante - accel * 2, 0.1);
                     }
 
                     // Mise à jour de la vitesse courante
@@ -126,9 +130,10 @@ public class DeplacementThread extends Thread {
                     unite.getPosition().setY(newY);
 
 
-                    if(vitesseCourante <= 0.001 && unite.getDestination() != null){
-                        unite.setVitesseCourante(0.5);
-                    }
+                    /*if(vitesseCourante <= 0.01 && unite.getDestination() != null){
+                        unite.setVitesseCourante(0.1);
+                        unite.setAcceleration(0.2);
+                    }*/
 
                     /*if (unite.getAcceleration() < 0.1 ) {
                         unite.setDestination(null);
@@ -157,6 +162,15 @@ public class DeplacementThread extends Thread {
                     }
                     GamePanel.getInstance().repaint();
 */
+                    // Si la distance est très faible, fixer la position directement à la destination
+                    unite.getPosition().setX(destination.getX());
+                    unite.getPosition().setY(destination.getY());
+                    unite.setVx(0);
+                    unite.setVy(0);
+                    unite.setVitesseCourante(0);
+                    unite.setAcceleration(0.1);
+                    unite.setDestination(null);
+                    GamePanel.getInstance().repaint();
 
 
                     if (unite instanceof model.unite_controlables.Plongeur) {

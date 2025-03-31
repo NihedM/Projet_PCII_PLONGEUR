@@ -52,6 +52,10 @@ public class StaminaRegenHandler extends Thread {
         } else {
             plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
         }
+
+        if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
+            GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+        }
     }
 
 }

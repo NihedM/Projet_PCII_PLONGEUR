@@ -20,6 +20,7 @@ public class Redessine extends Thread {
         ThreadManager.incrementThreadCount("Redessine");
         while (running) {
             GamePanel.getInstance().repaint();
+            //GamePanel.getInstance().getInfoPanel().repaint();
             try {
                 Thread.sleep(DELAY);
             } catch (InterruptedException e) {

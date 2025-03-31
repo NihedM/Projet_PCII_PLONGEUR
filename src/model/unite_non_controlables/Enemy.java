@@ -30,6 +30,8 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
     public double getVitesseAttente() {return VITESSE_ATTENTE;}
 
+    public Random getRandom() {return random;}
+
     public Etat getEtat() {return etat;}
     public void setEtat(Etat etat) {this.etat = etat;}
     public int getTempsRestant() {return secondesRestant;}
@@ -76,7 +78,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     @Override
     public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
         //lancer une erreur de sort que si on a pas override la methode
-        throw new UnsupportedOperationException("Override this method");
+        //throw new UnsupportedOperationException("Override this method");
 
     }
     public void action(){}

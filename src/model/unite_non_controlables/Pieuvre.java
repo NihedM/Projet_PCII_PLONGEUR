@@ -13,7 +13,9 @@ public class Pieuvre extends Enemy {
     private CopyOnWriteArrayList<UniteControlable> targetsDisponibles = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<Objet> sac = new CopyOnWriteArrayList<>();
     private UniteControlable target;
-    private double stalkingDistance = TileManager.TILESIZE * 2;
+    private static final double STALKING_DISTANCE = TileManager.TILESIZE * 2;
+    private static final double MAX_DISTANCE = TileManager.TILESIZE * 3;
+
 
 
 
@@ -33,7 +35,13 @@ public class Pieuvre extends Enemy {
 
         if (unitePlusProche != null) {
                this.target = unitePlusProche;
+        }else{
+            setEtat(Etat.ATTENTE);
         }
+    }
+
+    public UniteControlable getTarget() {
+        return target;
     }
 
 
@@ -46,60 +54,65 @@ public class Pieuvre extends Enemy {
     }
 
 
-    public void voleTarget(){
+    public boolean voleTarget(){
         if(GestionCollisions.collisionCC(this, target) > -1){
             if(target instanceof Plongeur plongeur){
-                if(plongeur.getSacSize() > 0){
-                    plongeur.seFaitVoler();
+                if(!plongeur.getBackPac().isEmpty()){
                     sac.add(plongeur.seFaitVoler());
+                    GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
                     attente();
+                    return true;
                 }
             }
-
         }
+        return false;
 
     }
 
 
-    @Override
-    public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {
-        //Todo en attente tend qu'il ne soit pas détécté
-    }
+
     @Override
     public void action() {
-        if(getEtat().equals(Etat.ATTENTE)){
+
+
+
+        if(getEtat().equals(Etat.ATTENTE) || target == null){
             attente();
+            return;
+        }
+
+        double distance = this.distance(target);
+        if(distance >= MAX_DISTANCE) {
+            targetsDisponibles.remove(target);
+            target = null;
+            setEtat(Etat.ATTENTE);
+            return;
         }
 
         if (getEtat().equals(Etat.VADROUILLE)) {
             if(targetsDisponibles.isEmpty()){
                 setEtat(Etat.ATTENTE);
             }else{
-
-                //si la cible ce trouve à plus de 5 tiles de distance alors on la retire des targets disponibles
-                double distance = this.distance(target);
-
-                if(distance >= TileManager.TILESIZE* 5){
-                    targetsDisponibles.remove(target);
-                }
-                selectTargetPlusProche(targetsDisponibles);
-
-
                 if(target instanceof Plongeur){
+
                     Plongeur plongeur = (Plongeur) target;
-                    if(plongeur.getSacSize() == 0) {
-                        //stalk
-                        if (distance < TileManager.TILESIZE * 2) {
-                            // Stop moving
-                            setDestination(null);
-                        } else if (distance >= TileManager.TILESIZE * 2 && distance <= TileManager.TILESIZE * 4) {
-                            // Move closer
-                            setDestination(plongeur.getPosition());
+                    if(plongeur.getBackPac().isEmpty()) {
+                        //stalk, la cible se mantient près du plongeu
+                        // r
+
+                        if (distance < STALKING_DISTANCE) return;
+                        setDestination(target.getPosition());
+                    }else {
+                        if(getDestination() != target.getPosition())
+                            setDestination(target.getPosition());
+                        boolean vole = voleTarget();
+                        if(vole){
+                            targetsDisponibles.remove(target);
+                            target = null;
                         }
 
-                    }else {
-                        voleTarget();
                     }
+
 
                 }
 
