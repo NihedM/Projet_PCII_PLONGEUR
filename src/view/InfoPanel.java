@@ -7,16 +7,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 
 public class InfoPanel extends JPanel {
 
 
-    private JLabel infoLabel;
     private AtributInfo atributInfo;
-
-    private JButton deplacerButton;
-    private JButton recupererButton;
-    private JButton faireFuirButton;
+    private JPanel buttonPanel;
 
 
 
@@ -38,65 +35,10 @@ public class InfoPanel extends JPanel {
 
 
         // Panneau central pour empiler les boutons verticalement et les centrer
-        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setBackground(Color.CYAN);
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Bouton "Se déplacer"
-        deplacerButton = new JButton("Se déplacer (D)");
-        deplacerButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Recherche du GamePanel parent pour activer le mode déplacement
-                view.GamePanel gamePanel = (view.GamePanel) SwingUtilities.getAncestorOfClass(view.GamePanel.class, InfoPanel.this);
-                if (gamePanel != null) {
-                    gamePanel.setDeplacementMode(true);
-                }
-            }
-        });
-        buttonPanel.add(deplacerButton, gbc);
-
-        // Ajout du panneau centré dans l'InfoPanel
         add(buttonPanel, BorderLayout.CENTER);
 
-        // Incrémenter la ligne pour placer le second bouton en-dessous
-        gbc.gridy++;
-
-        // Bouton "Récupérer"
-        recupererButton = new JButton("Récupérer (R)");
-        recupererButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GamePanel.getInstance().setRecuperationMode(true);
-            }
-        });
-        buttonPanel.add(recupererButton, gbc);
-
-        // Ajout du panneau centré dans l'InfoPanel
-        add(buttonPanel, BorderLayout.CENTER);
-
-
-        gbc.gridy++;
-        faireFuirButton = new JButton("Faire fuire (F)");
-        faireFuirButton.addActionListener(e -> {
-            GamePanel gamePanel = (GamePanel) SwingUtilities.getAncestorOfClass(GamePanel.class, InfoPanel.this);
-            if (gamePanel != null) {
-                for (UniteControlable unite : gamePanel.getUnitesSelected()) {
-                    if (unite instanceof Plongeur plongeur) {
-                        plongeur.setFaitFuire(true);
-                    }
-                }
-            }
-        });
-        buttonPanel.add(faireFuirButton, gbc);
-
-
-        add(buttonPanel);
 
         //Temporaire
 
@@ -110,9 +52,27 @@ public class InfoPanel extends JPanel {
     public void updateInfo(UniteControlable unite) {
         atributInfo.removeAll();
         atributInfo.updateInfo(unite.getAttributes());
-        atributInfo.revalidate();
-        atributInfo.repaint();
+
+        if (unite instanceof Plongeur plongeur) {
+            List<ButtonAction> actions = plongeur.getButtonActions();
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            gbc.anchor = GridBagConstraints.CENTER;
+            gbc.insets = new Insets(10, 10, 10, 10);
+
+            for (ButtonAction action : actions) {
+                JButton button = new JButton(action.getLabel());
+                button.addActionListener(action.getAction());
+                buttonPanel.add(button, gbc);
+                gbc.gridy++;
+            }
+        }
+
+        buttonPanel.revalidate();
+        buttonPanel.repaint();
     }
+
 
 
 }

@@ -6,6 +6,7 @@ import model.objets.Position;
 import model.objets.Ressource;
 import model.objets.UniteControlable;
 import model.unite_non_controlables.Calamar;
+import view.ButtonAction;
 import view.GamePanel;
 
 import javax.swing.*;
@@ -213,6 +214,46 @@ public class Plongeur extends UniteControlable {
         }
     }
 
+
+
+
+    //--------------------logique des actions--------------------
+
+
+
+
+    public void stopAction() {
+        super.stopAction();
+        if(faitFuire) {
+            setFaitFuire(false);
+        }
+        GamePanel.getInstance().setRecuperationMode(false);
+    }
+
+    public List<ButtonAction> getButtonActions() {
+        List<ButtonAction> actions = super.getButtonActions();
+
+
+        actions.add(new ButtonAction("Récupérer (R)", e -> {
+            GamePanel.getInstance().setRecuperationMode(true);
+        }));
+
+        actions.add(new ButtonAction("Faire fuire (F)", e -> {
+            GamePanel gamePanel = GamePanel.getInstance();
+            if (gamePanel != null) {
+                for (UniteControlable unite : gamePanel.getUnitesSelected()) {
+                    if (unite instanceof Plongeur plongeur) {
+                        plongeur.setFaitFuire(true);
+                    }
+                }
+            }
+        }));
+
+
+        //ajouter des actions pour le plongeur ici
+
+        return actions;
+    }
 
 
 

@@ -9,9 +9,13 @@ import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
 import view.debeug.GameInfoWindow;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -88,11 +92,21 @@ public class GamePanel extends JPanel {
     private VictoryManager victoryManager;
 
 
+    private BufferedImage plongeurImage;
     public GamePanel() {
         instance = this;
         setLayout(null);
         setPreferredSize(new Dimension(PANELWIDTH, PANELHEIGTH));
         setBackground(new Color(173, 216, 230));
+
+
+        //todo
+        try {
+            plongeurImage = ImageIO.read(getClass().getResource("/view/images/test.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
 
         this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
         this.baseUnique = new Base(new Position(100, 200), 20); //Temporairement
@@ -700,7 +714,7 @@ public class GamePanel extends JPanel {
     }
 
     private void drawUniteControlable(Graphics g, UniteControlable unite, Point screenPos, int diametre) {
-        g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+        /*g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
         g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
 
         if (unite.getDestination() != null) {
@@ -709,10 +723,23 @@ public class GamePanel extends JPanel {
             g.drawLine(screenPos.x, screenPos.y, destScreenPos.x, destScreenPos.y);
         }
 
-        if (unite instanceof Plongeur && ((Plongeur)unite).isFaitFuire()) {
-            g.setColor(Color.ORANGE);
-            int rayonFuite = ((Plongeur)unite).getRayonFuite();
-            g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+
+        }*/if (unite instanceof Plongeur) {
+            if (plongeurImage != null) {
+                g.drawImage(plongeurImage, screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre, null);
+            } else {
+                g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+                g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
+            }
+
+            if (((Plongeur)unite).isFaitFuire()) {
+                g.setColor(Color.ORANGE);
+                int rayonFuite = ((Plongeur) unite).getRayonFuite();
+                g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+            }
+        } else {
+            g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+            g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
         }
     }
 

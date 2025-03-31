@@ -1,8 +1,12 @@
 package model.objets;
 
+import view.ButtonAction;
+import view.GamePanel;
 import view.Redessine;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Unite extends Objet {
@@ -100,5 +104,33 @@ public class Unite extends Objet {
 
 
     public DeplacementThread getDeplacementThread() {return deplacementThread;}
+
+
+
+    //-----------logique des actions--------------------------------
+
+    public void stopAction() {
+        setDestination(null);
+        if (deplacementThread != null) {
+            deplacementThread.stopThread();
+        }
+    }
+
+    public List<ButtonAction> getButtonActions() {
+        List<ButtonAction> actions = new ArrayList<>();
+
+        actions.add(new ButtonAction("Se déplacer (D)", e -> {
+            GamePanel gamePanel = GamePanel.getInstance();
+            if (gamePanel != null) {
+                gamePanel.setDeplacementMode(true);
+            }
+        }));
+
+        actions.add(new ButtonAction(("Stop (S)"), e -> {
+            stopAction();
+        }));
+
+        return actions;
+    }
 }
 
