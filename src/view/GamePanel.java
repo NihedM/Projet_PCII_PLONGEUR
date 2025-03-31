@@ -23,6 +23,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
+    private Barre timeProgressBar;
+    private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
     public static final int PANELWIDTH = 800;
     public static final int PANELHEIGTH = 600;
     private static GamePanel instance;
@@ -125,8 +127,16 @@ public class GamePanel extends JPanel {
 
 
     private void initUIComponents() {
+        // Création de la barre de temps
+        timeProgressBar = new Barre(0, 100, Color.GREEN, VIEWPORT_WIDTH, 20, WARNING_THRESHOLD);
+        timeProgressBar.setBounds(0, 0, VIEWPORT_WIDTH, 20);
+        timeProgressBar.setShowAsTime(true); // Active le format temporel
+        timeProgressBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+        add(timeProgressBar);
+
         // Panel d'informations
         infoContainer = new JPanel(new CardLayout());
+        infoContainer.setBackground(new Color(173, 216, 230)); // Même fond que le panel principal
         infoPanel = new InfoPanel();
         infoPanelUNC = new InfoPanelUNC();
 
@@ -773,14 +783,15 @@ public class GamePanel extends JPanel {
 
     private void drawPlayerInfo(Graphics g) {
         g.setColor(Color.BLACK);
+        g.setColor(Color.BLACK);
         g.setFont(new Font("Arial", Font.BOLD, 16));
-        g.drawString("Points: " + Referee.getInstance().getPointsVictoire(), 10, 20);
-        g.drawString("Argent: " + Referee.getInstance().getArgentJoueur(), 10, 40);
-        g.drawString("Unités: " + unitesEnJeu.size(), 10, 60);
+        g.drawString("Points: " + Referee.getInstance().getPointsVictoire(), 10, 40);
+        g.drawString("Argent: " + Referee.getInstance().getArgentJoueur(), 10, 60);
+        g.drawString("Unités: " + unitesEnJeu.size(), 10, 80);
+    }
 
-        if (victoryManager != null) {
-            g.drawString("Temps: " + victoryManager.getRemainingTime(), 10, 80);
-        }
+    public Barre getTimeProgressBar() {
+        return timeProgressBar;
     }
 
     public static int getMinimapWidth() {
