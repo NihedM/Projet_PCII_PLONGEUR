@@ -17,6 +17,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -92,21 +93,16 @@ public class GamePanel extends JPanel {
     private VictoryManager victoryManager;
 
 
-    private BufferedImage plongeurImage;
+    private BufferedImage plongeurImage, objetImage, enemyImage;
+    private Image plongeurGif, enemyGif;
+
     public GamePanel() {
         instance = this;
         setLayout(null);
         setPreferredSize(new Dimension(PANELWIDTH, PANELHEIGTH));
         setBackground(new Color(173, 216, 230));
 
-
-        //todo
-        try {
-            plongeurImage = ImageIO.read(getClass().getResource("/view/images/test.png"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        loadImages();
 
         this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
         this.baseUnique = new Base(new Position(100, 200), 20); //Temporairement
@@ -123,6 +119,25 @@ public class GamePanel extends JPanel {
     }
     public Base getMainBase() {return baseUnique;}
 
+
+    private void loadImages(){
+        try {
+            plongeurImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurTest.png")));
+            objetImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/objetTest.png")));
+            enemyImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.png")));
+
+            plongeurGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/plongeurTest.gif"))).getImage();
+            enemyGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.gif"))).getImage();
+
+            if(plongeurImage == null || objetImage == null || enemyImage == null
+            ||plongeurGif == null || enemyGif == null){
+                throw new IOException("Image non trouvée");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void initUIComponents() {
         // Panel d'informations
@@ -639,7 +654,51 @@ public class GamePanel extends JPanel {
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
 
+            int diametre = objet.getRayon() * 2;
+            Graphics2D g2d = (Graphics2D) g.create();
+
             if (isVisibleInViewport(screenPos, objet.getRayon())) {
+                Image image = null;
+
+                if (objet instanceof Plongeur) {
+                    image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ?  plongeurGif : plongeurImage;
+                } else if (objet instanceof Enemy) {
+                    image = ((Enemy) objet).getVitesseCourante() >= 0.1 ? enemyGif : enemyImage;
+                } else {
+                    image = objetImage;
+                }
+
+                if(objet instanceof Unite unite){
+                    double angle = Math.atan2(unite.getVy(), unite.getVx());
+                    g2d.rotate(angle, screenPos.x, screenPos.y);
+                    if (unite.getVx() < 0) {
+                        g2d.drawImage(image,
+                                screenPos.x - unite.getRayon(),
+                                screenPos.y + unite.getRayon(),
+                                diametre*2,
+                                -diametre*2,
+                                null);
+                    }else{
+                        g2d.drawImage(image,
+                                screenPos.x - unite.getRayon(),
+                                screenPos.y - unite.getRayon(),
+                                diametre*2,
+                                diametre*2,
+                                null);
+                    }
+                    continue;
+                }
+
+                if (image != null) {
+                    g.drawImage(image, screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre*2, diametre*2, null);
+                } else {
+                    g.setColor(Color.PINK);
+                    g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
+                }
+            }
+
+
+            /*if (isVisibleInViewport(screenPos, objet.getRayon())) {
                 drawObjet(g, objet, screenPos);
             }
 
@@ -651,7 +710,7 @@ public class GamePanel extends JPanel {
                     g.setColor(Color.YELLOW);
                     g.drawLine(screenPos.x, screenPos.y, targetScreenPos.x, targetScreenPos.y);
                 }
-            }
+            }*/
         }
 
 
@@ -723,24 +782,55 @@ public class GamePanel extends JPanel {
             g.drawLine(screenPos.x, screenPos.y, destScreenPos.x, destScreenPos.y);
         }
 
+        }*/
 
-        }*/if (unite instanceof Plongeur) {
+        Graphics2D g2d = (Graphics2D) g.create();
+        double angle = Math.atan2(unite.getVy(), unite.getVx());
+        g2d.rotate(angle, screenPos.x, screenPos.y);
+
+        if (unite instanceof Plongeur) {
             if (plongeurImage != null) {
-                g.drawImage(plongeurImage, screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre, null);
+
+
+                if (unite.getVx() < 0) {
+                    g2d.drawImage(plongeurImage,
+                            screenPos.x - unite.getRayon(),
+                            screenPos.y + unite.getRayon(),
+                            diametre,
+                            -diametre,
+                            null);
+                } else {
+                    g2d.drawImage(plongeurImage,
+                            screenPos.x - unite.getRayon(),
+                            screenPos.y - unite.getRayon(),
+                            diametre,
+                            diametre,
+                            null);
+                }
             } else {
-                g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
-                g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
+                g2d.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+                g2d.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
             }
 
             if (((Plongeur)unite).isFaitFuire()) {
-                g.setColor(Color.ORANGE);
+                g2d.setColor(Color.ORANGE);
                 int rayonFuite = ((Plongeur) unite).getRayonFuite();
-                g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+                g2d.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
             }
         } else {
-            g.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
-            g.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
+            g2d.setColor(unite.isSelected() ? Color.RED : Color.BLACK);
+            g2d.fillOval(screenPos.x - unite.getRayon(), screenPos.y - unite.getRayon(), diametre, diametre);
         }
+
+        // Draw a line to indicate the direction
+        int lineLength = 20;
+        int endX = (int) (screenPos.x + lineLength * Math.cos(angle));
+        int endY = (int) (screenPos.y + lineLength * Math.sin(angle));
+        g2d.setColor(Color.BLUE);
+        g2d.drawLine(screenPos.x, screenPos.y, endX, endY);
+
+        g2d.dispose();
+
     }
 
     private void drawSpawnPoints(Graphics g) {
