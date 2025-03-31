@@ -132,7 +132,7 @@ public class GamePanel extends JPanel {
             enemyGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.gif"))).getImage();
 
             if(plongeurImage == null || objetImage == null || enemyImage == null
-            ||plongeurGif == null || enemyGif == null){
+                    ||plongeurGif == null || enemyGif == null){
                 throw new IOException("Image non trouvée");
             }
 
@@ -164,7 +164,7 @@ public class GamePanel extends JPanel {
 
         // Bouton Market
         JButton marketButton = new JButton("Market");
-        marketButton.setBounds(350, 10, 100, 30);
+        marketButton.setBounds(500, 20, 100, 30);
         marketButton.addActionListener(e -> {
             setPaused(true);
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -866,7 +866,7 @@ public class GamePanel extends JPanel {
 
         g.setColor(Color.CYAN);
         g.fillOval(baseScreenPos.x- baseUnique.getRayon(),
-                   baseScreenPos.y - baseUnique.getRayon(),
+                baseScreenPos.y - baseUnique.getRayon(),
                 baseUnique.getRayon() * 2, baseUnique.getRayon() * 2);
 
     }
@@ -916,4 +916,3 @@ public class GamePanel extends JPanel {
     }
 
 }
-
