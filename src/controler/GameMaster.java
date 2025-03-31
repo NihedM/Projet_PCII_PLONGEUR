@@ -98,14 +98,14 @@ public class GameMaster extends Thread{
         for (Enemy enemy : enemies) {
             if (enemy instanceof Calamar) {
                 ((Calamar) enemy).setRessourcesDisponibles(ressources);
-            }if(enemy instanceof Pieuvre || enemy instanceof PieuvreBebe) {
+            }else if(enemy instanceof Pieuvre || enemy instanceof PieuvreBebe) {
                 continue;
             }
 
 
 
             else{
-                throw new UnsupportedOperationException("Enemy type not supported");
+                throw new UnsupportedOperationException("Enemy type not supported: "+enemy.getClass());
 
             }
         }
