@@ -11,31 +11,33 @@ import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MinimapPanel extends JPanel {
-    private static final int WIDTH = 180;
-    private static final int HEIGHT = 120;
-    private static final float SCALE_X = WIDTH / (float) GamePanel.TERRAIN_WIDTH;
-    private static final float SCALE_Y = HEIGHT / (float) GamePanel.TERRAIN_HEIGHT;
-
+    // Supprimer les constantes WIDTH et HEIGHT et utiliser celles de GamePanel
+    private static final float SCALE_X = GamePanel.MINIMAP_SCALE_X;
+    private static final float SCALE_Y = GamePanel.MINIMAP_SCALE_Y;
 
     public MinimapPanel() {
         setOpaque(false);
-        setPreferredSize(new Dimension(WIDTH, HEIGHT));
+        setPreferredSize(new Dimension(GamePanel.MINIMAP_WIDTH, GamePanel.MINIMAP_HEIGHT));
         setBackground(new Color(30, 30, 30, 200));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY));
-        setFocusable(false); // Pour éviter qu'elle capture les événements
+        setFocusable(false);
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        // Fond semi-transparent plus visible
-        g.setColor(new Color(30, 30, 30, 220)); // Augmenter l'opacité
-        g.fillRect(0, 0, getWidth(), getHeight());
+        // Utiliser les dimensions réelles du composant
+        int width = getWidth();
+        int height = getHeight();
 
-        // Dessiner le terrain (avec le bon ratio)
-        g.setColor(new Color(70, 70, 70)); // Couleur plus claire
-        g.fillRect(0, 0, getWidth(), getHeight());
+        // Fond semi-transparent
+        g.setColor(new Color(30, 30, 30, 220));
+        g.fillRect(0, 0, width, height);
+
+        // Dessiner le terrain
+        g.setColor(new Color(70, 70, 70));
+        g.fillRect(0, 0, width, height);
 
         // Taille minimale pour les éléments
         final int MIN_SIZE = 3;
@@ -46,7 +48,6 @@ public class MinimapPanel extends JPanel {
             int y = (int)(ressource.getPosition().getY() * SCALE_Y);
             int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * SCALE_X));
 
-            // Couleur selon l'état de la ressource
             if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
                 g.setColor(Color.GREEN);
             } else {
@@ -66,7 +67,7 @@ public class MinimapPanel extends JPanel {
         }
 
         // Dessiner le rectangle de la vue actuelle
-        g.setColor(new Color(255, 255, 255, 150)); // Plus visible
+        g.setColor(new Color(255, 255, 255, 150));
         int viewX = (int)(GamePanel.getInstance().getCameraX() * SCALE_X);
         int viewY = (int)(GamePanel.getInstance().getCameraY() * SCALE_Y);
         int viewW = (int)(GamePanel.VIEWPORT_WIDTH * SCALE_X);

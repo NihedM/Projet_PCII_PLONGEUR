@@ -51,8 +51,8 @@ public class GamePanel extends JPanel {
 
     // Dimensions minimap (même ratio que la carte principale)
     private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
-    private static final int MINIMAP_HEIGHT = 120; // Hauteur fixe
-    private static final int MINIMAP_WIDTH = (int)(MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
+    public static final int MINIMAP_HEIGHT = 120; // Hauteur fixe
+    public static final int MINIMAP_WIDTH = (int)(MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
     private static final int MINIMAP_MARGIN = 10;
     public static final float MINIMAP_SCALE_X = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
     public static final float MINIMAP_SCALE_Y = MINIMAP_HEIGHT / (float)TERRAIN_HEIGHT;
@@ -132,7 +132,7 @@ public class GamePanel extends JPanel {
             enemyGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.gif"))).getImage();
 
             if(plongeurImage == null || objetImage == null || enemyImage == null
-            ||plongeurGif == null || enemyGif == null){
+                    ||plongeurGif == null || enemyGif == null){
                 throw new IOException("Image non trouvée");
             }
 
@@ -164,7 +164,7 @@ public class GamePanel extends JPanel {
 
         // Bouton Market
         JButton marketButton = new JButton("Market");
-        marketButton.setBounds(350, 10, 100, 30);
+        marketButton.setBounds(500, 20, 100, 30);
         marketButton.addActionListener(e -> {
             setPaused(true);
             JFrame topFrame = (JFrame) SwingUtilities.getWindowAncestor(this);
@@ -866,7 +866,7 @@ public class GamePanel extends JPanel {
 
         g.setColor(Color.CYAN);
         g.fillOval(baseScreenPos.x- baseUnique.getRayon(),
-                   baseScreenPos.y - baseUnique.getRayon(),
+                baseScreenPos.y - baseUnique.getRayon(),
                 baseUnique.getRayon() * 2, baseUnique.getRayon() * 2);
 
     }
@@ -916,4 +916,3 @@ public class GamePanel extends JPanel {
     }
 
 }
-
