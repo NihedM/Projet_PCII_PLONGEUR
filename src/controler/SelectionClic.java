@@ -83,15 +83,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             double minimapX = point.x - minimap.getX();
             double minimapY = point.y - minimap.getY();
 
-
-            double worldX= (minimapX / GamePanel.MINIMAP_SCALE_X) - GamePanel.getInstance().getCameraX();
-            double worldY = (minimapY / GamePanel.MINIMAP_SCALE_Y) - GamePanel.getInstance().getCameraY();
-
+            // Convertir en coordonnées monde
+            double worldX = minimapX / GamePanel.MINIMAP_SCALE_X;
+            double worldY = minimapY / GamePanel.MINIMAP_SCALE_Y;
 
             // Centrer la caméra sur ce point
             GamePanel.getInstance().moveCamera(
-                    (int)worldX - (GamePanel.VIEWPORT_WIDTH / 2) - GamePanel.getInstance().getCameraX(),
-                    (int)worldY - (GamePanel.VIEWPORT_HEIGHT / 2) - GamePanel.getInstance().getCameraY()
+                    (int)(worldX - GamePanel.VIEWPORT_WIDTH / 2) - GamePanel.getInstance().getCameraX(),
+                    (int)(worldY - GamePanel.VIEWPORT_HEIGHT / 2) - GamePanel.getInstance().getCameraY()
             );
             return;
         }
