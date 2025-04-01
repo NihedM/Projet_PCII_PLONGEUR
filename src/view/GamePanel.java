@@ -571,7 +571,7 @@ public class GamePanel extends JPanel {
         slideInInfoPanel("unit");
     }
     public void showEmptyInfoPanel() {
-        CardLayout cl = (CardLayout) infoContainer.getLayout();
+        CardLayout cl = (CardLayout) infoContainer.getLayout();  
         cl.show(infoContainer, "empty");
         // Définir une largeur fixe pour le panneau d'info (par exemple 200 pixels)
         infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
