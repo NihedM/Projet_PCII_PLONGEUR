@@ -55,6 +55,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         //generate random position in tile
         Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
 
+        if (!GamePanel.getInstance().getMainZone().isInside(position)) return;
+
+
 
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);

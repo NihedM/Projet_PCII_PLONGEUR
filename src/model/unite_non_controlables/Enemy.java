@@ -74,6 +74,13 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
         this.setDestination(new Position(getPosition().getX() + dx, getPosition().getY() + dY));
     }
 
+    public void stopAllThreads() {
+        if (getDeplacementThread() != null) {
+            getDeplacementThread().stopThread();
+        }
+        stopTimer();
+    }
+
 
     @Override
     public void setup(CopyOnWriteArrayList<Objet> interactionTargets) {

@@ -38,7 +38,13 @@ public class TileUpdater extends Thread{
         //view.GamePanel.printGridContents(objetsMap);
 
         while(running) {
-            List<Objet> objets = objetsMap.values().stream().flatMap(List::stream).toList();
+
+            // on update les objets dans les zones de fonctionnement
+            List<Objet> objets = objetsMap.values().stream()
+                    .flatMap(List::stream)
+                    .filter(objet -> GamePanel.getInstance().getMainZone().isInside(objet.getPosition()))
+                    .toList();
+
             int batchSize = Math.max(1, objets.size() / Runtime.getRuntime().availableProcessors());
 
             for (int i = 0; i < objets.size(); i += batchSize) {

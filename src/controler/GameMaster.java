@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 public class GameMaster extends Thread{
 
@@ -124,9 +125,25 @@ public class GameMaster extends Thread{
         updateLists();
 
         while(true) {
-            if(enemies != null) {  // Inverser la condition
-                for (Enemy enemy : enemies) {
+            if(enemies != null) {
+                //on filtre les ennemis qui sont dans de les zones de jeu
+                CopyOnWriteArrayList<Enemy> copy  = enemies.stream()
+                        .filter(enemy -> GamePanel.getInstance().getMainZone().isInside(enemy.getPosition()))
+                        .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
+
+
+                for (Enemy enemy : copy) {
+
+                    if (!GamePanel.getInstance().getMainZone().isInside(enemy.getPosition())) {
+                        enemy.stopAllThreads();
+                        //GamePanel.getInstance().killUnite(enemy);
+                        continue;
+                    }
+
+
+
                     enemy.action();
+
 
                     // Gestion du hors terrain
                     if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {

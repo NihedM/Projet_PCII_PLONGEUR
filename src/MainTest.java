@@ -59,7 +59,7 @@ public class MainTest {
         resourceSpawner.start();
 
 
-        SpawnManager spawnManager = new SpawnManager(gamePanel, gameMaster);
+        SpawnManager spawnManager = new SpawnManager();
         spawnManager.start();
 
 
@@ -89,6 +89,8 @@ public class MainTest {
 
 
         gameMaster.start();
+        ZoneMover z = new ZoneMover();
+        z.start();
 
         // Puis démarrer le système de victoire
         gamePanel.startGame();

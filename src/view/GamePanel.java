@@ -37,17 +37,12 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 2000;
-    public static final int TERRAIN_HEIGHT = 2000;
+    public static final int TERRAIN_WIDTH = 5000;
+    public static final int TERRAIN_HEIGHT = 5000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
     public static final int VIEWPORT_HEIGHT = PANELHEIGTH;
-
-    private Terrain terrain;
-
-    private Base baseUnique;   //Temporairement
-
 
     // Dimensions minimap (même ratio que la carte principale)
     private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
@@ -65,6 +60,9 @@ public class GamePanel extends JPanel {
 
     private ProximityChecker proxy;
     private TileUpdater updater;
+
+    private Terrain terrain;
+    private Base baseUnique;   //Temporairement
 
     // Composants UI
     private JPanel infoContainer;
@@ -84,6 +82,22 @@ public class GamePanel extends JPanel {
             TERRAIN_MAX_Y = TERRAIN_HEIGHT,
             GAME_AREA_WIDTH = VIEWPORT_WIDTH;
 
+
+    private ZoneEnFonctionnement mainZone;
+    private CopyOnWriteArrayList<ZoneEnFonctionnement> dynamicZones;
+
+    public static final int VIEWPORT_BUFFER = 500;
+    public static final int UNIT_BUFFER = 300;
+
+    private int viewportMinX = cameraX - VIEWPORT_BUFFER;
+    private int viewportMinY = cameraY - VIEWPORT_BUFFER;
+    private int viewportMaxX = cameraX + VIEWPORT_WIDTH + VIEWPORT_BUFFER;
+    private int viewportMaxY = cameraY + VIEWPORT_HEIGHT + VIEWPORT_BUFFER;
+
+
+
+
+
     private SelectionClic selectionClic;
     private final int INFO_PANEL_TARGET_WIDTH = 200;
     private int currentInfoPanelWidth = 0;
@@ -93,6 +107,8 @@ public class GamePanel extends JPanel {
     private boolean recuperationMode = false;
 
     private VictoryManager victoryManager;
+
+
 
 
     private BufferedImage plongeurImage, objetImage, enemyImage;
@@ -109,6 +125,17 @@ public class GamePanel extends JPanel {
         this.terrain = new Terrain(TERRAIN_WIDTH, TERRAIN_HEIGHT);
         this.baseUnique = new Base(new Position(100, 200), 20); //Temporairement
         addObjet(baseUnique); //Temporairement
+
+        int viewportMinX = cameraX - VIEWPORT_BUFFER;
+        int viewportMinY = cameraY - VIEWPORT_BUFFER;
+        int viewportMaxX = cameraX + VIEWPORT_WIDTH + VIEWPORT_BUFFER;
+        int viewportMaxY = cameraY + VIEWPORT_HEIGHT + VIEWPORT_BUFFER;
+
+        mainZone = new ZoneEnFonctionnement(viewportMinX, viewportMinY, viewportMaxX, viewportMaxY);
+        dynamicZones = new CopyOnWriteArrayList<>();
+
+
+
 
         initUIComponents();
         setupListeners();
@@ -245,6 +272,15 @@ public class GamePanel extends JPanel {
     public void moveCamera(int dx, int dy) {
         cameraX = Math.max(0, Math.min(TERRAIN_WIDTH - VIEWPORT_WIDTH, cameraX + dx));
         cameraY = Math.max(0, Math.min(TERRAIN_HEIGHT - VIEWPORT_HEIGHT, cameraY + dy));
+
+        viewportMinX = cameraX - VIEWPORT_BUFFER;
+        viewportMinY = cameraY - VIEWPORT_BUFFER;
+        viewportMaxX = cameraX + VIEWPORT_WIDTH + VIEWPORT_BUFFER;
+        viewportMaxY = cameraY + VIEWPORT_HEIGHT + VIEWPORT_BUFFER;
+
+        mainZone.updateMainBounds(viewportMinX, viewportMinY, viewportMaxX, viewportMaxY);
+
+
         repaint();
     }
 
@@ -344,6 +380,44 @@ public class GamePanel extends JPanel {
         int y = position.getY();
         return x > TERRAIN_MIN_X && x < TERRAIN_MAX_X && y > TERRAIN_MIN_Y && y < TERRAIN_MAX_Y;
     }
+
+
+
+
+    public ZoneEnFonctionnement getMainZone() {
+        return mainZone;
+    }
+    public CopyOnWriteArrayList<ZoneEnFonctionnement> getDynamicZones() {
+        return dynamicZones;
+    }
+
+
+    public void addDynamicZone(ZoneEnFonctionnement newZone) {
+        dynamicZones.add(newZone);
+        removeOverlappingZones();
+    }
+
+    private void removeOverlappingZones() {
+        for (int i = 0; i < dynamicZones.size(); i++) {
+            for (int j = i + 1; j < dynamicZones.size(); j++) {
+                if (dynamicZones.get(i).overlaps(dynamicZones.get(j))) {
+                    dynamicZones.get(i).expandToInclude(
+                            dynamicZones.get(j).getMinX(),
+                            dynamicZones.get(j).getMinY(),
+                            dynamicZones.get(j).getMaxX(),
+                            dynamicZones.get(j).getMaxY()
+                    );
+                    dynamicZones.remove(j);
+                    j--;
+                }
+            }
+        }
+    }
+
+
+
+
+
 
     public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesEnJeu() {
         return unitesEnJeu;
@@ -662,6 +736,7 @@ public class GamePanel extends JPanel {
 
         // Dessin des objets
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
+
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
 
             int diametre = objet.getRayon() * 2;
@@ -749,7 +824,7 @@ public class GamePanel extends JPanel {
         selectionClic.paintSelection(g);
     }
 
-    private boolean isVisibleInViewport(Point screenPos, int rayon) {
+    public static boolean isVisibleInViewport(Point screenPos, int rayon) {
         return screenPos.x + rayon*2 >= 0 && screenPos.x - rayon <= VIEWPORT_WIDTH &&
                 screenPos.y + rayon*2 >= 0 && screenPos.y - rayon <= VIEWPORT_HEIGHT;
     }

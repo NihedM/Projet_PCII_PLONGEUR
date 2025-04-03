@@ -8,7 +8,9 @@ import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
 import model.unite_non_controlables.PieuvreBebe;
+import view.GamePanel;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -19,7 +21,6 @@ public class ProximityChecker extends Thread{
     private static ProximityChecker instance;
 
     private volatile boolean running = true;
-
 
 
     public ProximityChecker(ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap, CopyOnWriteArrayList<UniteControlable> unitesEnJeu) {
@@ -87,6 +88,42 @@ public class ProximityChecker extends Thread{
         return running;
     }
 
+    private void checkCollisionWithCameraBorder(UniteControlable unite) {
+
+        GamePanel gamePanel = GamePanel.getInstance();
+        int viewportMinX = gamePanel.getCameraX();
+        int viewportMinY = gamePanel.getCameraY();
+        int viewportMaxX = viewportMinX + GamePanel.VIEWPORT_WIDTH;
+        int viewportMaxY = viewportMinY + GamePanel.VIEWPORT_HEIGHT;
+        Position position = unite.getPosition();
+
+        if (position.getX() < viewportMinX || position.getX() > viewportMaxX ||
+                position.getY() < viewportMinY || position.getY() > viewportMaxY) {
+
+            createNewDynamicZone(unite);
+        }
+    }
+
+    private void createNewDynamicZone(UniteControlable unite) {
+        //if(unite.isOutsideCamera()) return;     //une zone deja suit cette unite
+
+        GamePanel gamePanel = GamePanel.getInstance();
+        ZoneEnFonctionnement mainZone = gamePanel.getMainZone();
+        Position position = unite.getPosition();
+        int buffer = GamePanel.UNIT_BUFFER;
+
+        int newMinX = Math.min(mainZone.getMinX(), position.getX() - buffer);
+        int newMinY = Math.min(mainZone.getMinY(), position.getY() - buffer);
+        int newMaxX = Math.max(mainZone.getMaxX(), position.getX() + buffer);
+        int newMaxY = Math.max(mainZone.getMaxY(), position.getY() + buffer);
+
+        ZoneEnFonctionnement newZone = new ZoneEnFonctionnement(newMinX, newMinY, newMaxX, newMaxY);
+        unite.setOutsideCamera(true);
+        gamePanel.addDynamicZone(newZone);
+
+        newZone.setUnite(unite);
+
+    }
 
 
     @Override
@@ -94,53 +131,39 @@ public class ProximityChecker extends Thread{
         controler.ThreadManager.incrementThreadCount("ProximityChecker");
         try{
             while (running){
-                //GamePanel.printGridContents(objetsMap);
-                CopyOnWriteArrayList<UniteControlable> unitesCopy;
+                for (UniteControlable unite : unitesEnJeu) {
 
-                synchronized (unitesEnJeu) {
-                    unitesCopy = new CopyOnWriteArrayList<>(unitesEnJeu);
+                        checkCollisionWithCameraBorder(unite);
 
-                }
-                for (UniteControlable unite : unitesCopy) {
+                        CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
+                        for (Objet voisin : voisins) {
 
-                    CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
-
-                    for (Objet voisin : voisins) {
-                        if (voisin instanceof Ressource && ((Ressource) voisin).isFixed()) {
-                            continue;
-                        }
-
-                        if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
-                            GestionCollisions.preventOverlap(unite, voisin);
-                        }
-
-
-
-                        if (unite instanceof Plongeur) {
-                            if (voisin instanceof Calamar) {
-                                if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
-                                    ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
-                                }
-                            }else if (voisin instanceof Pieuvre) {
-                                ((Pieuvre) voisin).repaireTarget(unite);
-                            } else if (voisin instanceof PieuvreBebe) {
-                                ((Enemy)voisin).vadrouille();
-                                ((PieuvreBebe) voisin).setTarget(unite);
-                                ((PieuvreBebe) voisin).passTargetToSiblings();
-                            }else if(voisin instanceof Base){
-                                Position[] coins = ((Base) voisin).getCoints();
-                                if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){
-                                    ((Plongeur)unite).deliverBackpack();
-                                    Plongeur plongeur = (Plongeur) unite;
-                                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
-                                }
-
+                            if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                                GestionCollisions.preventOverlap(unite, voisin);
                             }
 
+                            if (unite instanceof Plongeur) {
+                                if (voisin instanceof Calamar) {
+                                    if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
+                                        ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                                    }
+                                }else if (voisin instanceof Pieuvre) {
+                                    ((Pieuvre) voisin).repaireTarget(unite);
+                                } else if (voisin instanceof PieuvreBebe) {
+                                    ((Enemy)voisin).vadrouille();
+                                    ((PieuvreBebe) voisin).setTarget(unite);
+                                    ((PieuvreBebe) voisin).passTargetToSiblings();
+                                }else if(voisin instanceof Base){
+                                    Position[] coins = ((Base) voisin).getCoints();
+                                    if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){
+                                        ((Plongeur)unite).deliverBackpack();
+                                        Plongeur plongeur = (Plongeur) unite;
+                                        plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
+                                    }
 
+                                }
+                            }
                         }
-
-                    }
                 }
 
                 Thread.sleep(50);

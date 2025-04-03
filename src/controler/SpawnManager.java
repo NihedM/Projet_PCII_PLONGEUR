@@ -14,16 +14,12 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SpawnManager extends Thread{
     private CopyOnWriteArrayList<EnemySpawnPoint> spawnPoints;
-    private GamePanel gamePanel;
-    private GameMaster gameMaster;
     private static SpawnManager instance;
     private static Random random = new Random();
 
 
-    public SpawnManager(GamePanel gamePanel, GameMaster gameMaster) {
+    public SpawnManager() {
         this.spawnPoints = new CopyOnWriteArrayList<>();
-        this.gamePanel = gamePanel;
-        this.gameMaster = gameMaster;
         instance = this;
     }
 
@@ -53,7 +49,9 @@ public class SpawnManager extends Thread{
         int randomX = random.nextInt(TileManager.nbTilesWidth);
         int randomY = random.nextInt(TileManager.nbTilesHeight);
         CoordGrid randomTile = new CoordGrid(randomX, randomY);
-        addSpawnPoint(randomTile, maxEnemies);
+        if (GamePanel.getInstance().getMainZone().isInside(EnemySpawnPoint.generateRandomPositionInTile(randomTile))) {
+            addSpawnPoint(randomTile, maxEnemies);
+        }
     }
 
 

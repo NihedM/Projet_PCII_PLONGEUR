@@ -1,10 +1,14 @@
 package view;
 
+import controler.GameMaster;
+import controler.ZoneEnFonctionnement;
 import model.constructions.Base;
 import model.objets.Objet;
+import model.objets.Position;
 import model.objets.Ressource;
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
+import model.unite_non_controlables.Enemy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -66,6 +70,33 @@ public class MinimapPanel extends JPanel {
             g.fillOval(x, y, size, size);
         }
 
+
+        for(Enemy enemy : GameMaster.getInstance().getEnemies()) {
+            int x = (int)(enemy.getPosition().getX() * SCALE_X);
+            int y = (int)(enemy.getPosition().getY() * SCALE_Y);
+            int size = Math.max(MIN_SIZE, (int)(enemy.getRayon() * 3 * SCALE_X));
+
+            g.setColor(Color.RED);
+            g.fillOval(x, y, size, size);
+        }
+        Base base = GamePanel.getInstance().getMainBase();
+        int x = (int)(base.getPosition().getX() * SCALE_X);
+        int y = (int)(base.getPosition().getY() * SCALE_Y);
+        int size = Math.max(MIN_SIZE, (int)(base.getRayon() * 3 * SCALE_X));
+        g.setColor(Color.CYAN);
+        g.fillOval(x, y, size, size);
+        Position[] coints = base.getCoints();
+        g.setColor(Color.CYAN);
+        for(int i = 0; i < coints.length; i++){
+            //topleft
+            int x1 = (int)(coints[i].getX() * SCALE_X);
+            int y1 = (int)(coints[i].getY() * SCALE_Y);
+            int x2 = (int)(coints[(i+1)%coints.length].getX() * SCALE_X);
+            int y2 = (int)(coints[(i+1)%coints.length].getY() * SCALE_Y);
+            g.drawLine(x1, y1, x2, y2);
+        }
+
+
         // Dessiner le rectangle de la vue actuelle
         g.setColor(new Color(255, 255, 255, 150));
         int viewX = (int)(GamePanel.getInstance().getCameraX() * SCALE_X);
@@ -73,5 +104,29 @@ public class MinimapPanel extends JPanel {
         int viewW = (int)(GamePanel.VIEWPORT_WIDTH * SCALE_X);
         int viewH = (int)(GamePanel.VIEWPORT_HEIGHT * SCALE_Y);
         g.drawRect(viewX, viewY, viewW, viewH);
+
+        drawZoneBorders(g);
+
+    }
+
+
+    private void drawZoneBorders(Graphics g) {
+        GamePanel gamePanel = GamePanel.getInstance();
+
+
+        ZoneEnFonctionnement mainZone = gamePanel.getMainZone();
+        drawZoneBorder(g, mainZone, Color.RED);
+
+        for (ZoneEnFonctionnement zone : gamePanel.getDynamicZones()) {
+            drawZoneBorder(g, zone, Color.BLUE);
+        }
+    }
+    private void drawZoneBorder(Graphics g, ZoneEnFonctionnement zone, Color color) {
+        g.setColor(color);
+        int x = (int) (zone.getMinX() * SCALE_X);
+        int y = (int) (zone.getMinY() * SCALE_Y);
+        int width = (int) ((zone.getMaxX() - zone.getMinX()) * SCALE_X);
+        int height = (int) ((zone.getMaxY() - zone.getMinY()) * SCALE_Y);
+        g.drawRect(x, y, width, height);
     }
 }

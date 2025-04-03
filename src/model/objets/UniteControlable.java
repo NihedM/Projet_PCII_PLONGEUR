@@ -5,6 +5,7 @@ import java.awt.*;
 public class UniteControlable extends Unite {
     private final int id;
     private boolean selected = false;
+    private boolean outsideCamera = false;
 
     private model.objets.DeplacementThread movementThread;
 
@@ -24,6 +25,8 @@ public class UniteControlable extends Unite {
     }
 
     public void setSelected(boolean selected) {this.selected = selected;}
+    public boolean isOutsideCamera() {return outsideCamera;}
+    public void setOutsideCamera(boolean outsideCamera) {this.outsideCamera = outsideCamera;}
 
     public void setMovementThread(model.objets.DeplacementThread dt) {
         this.movementThread = dt;
