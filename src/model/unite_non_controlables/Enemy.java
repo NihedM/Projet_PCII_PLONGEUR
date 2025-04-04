@@ -16,6 +16,8 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
 
     private Etat etat;
+    private boolean insideZone = true;
+
     private int secondesRestant;
     private Timer timer = new Timer();
     private Random random = new Random();
@@ -29,6 +31,9 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     }
 
     public double getVitesseAttente() {return VITESSE_ATTENTE;}
+    public boolean isInsideZone() {return insideZone;}
+    public void setInsideZone(boolean insideZone) {this.insideZone = insideZone;}
+
 
     public Random getRandom() {return random;}
 

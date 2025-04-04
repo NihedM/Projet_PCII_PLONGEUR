@@ -12,7 +12,6 @@ public class ZoneEnFonctionnement {
     public static final int MAX_HEIGHT = 800 + GamePanel.UNIT_BUFFER;
     private int minX, minY, maxX, maxY;
     private UniteControlable unit;
-    private boolean isFinalized = false;
 
 
     public ZoneEnFonctionnement(int minX, int minY, int maxX, int maxY) {
@@ -35,10 +34,14 @@ public class ZoneEnFonctionnement {
         return unit;
     }
 
-    public boolean isInside(Position position) {
+    public boolean isInsideMain(Position position) {
+        return GestionCollisions.estDans(minX, minY, maxX, maxY, position.getX(), position.getY());
+    }
+
+    public boolean isInsideDynamic(Position position) {
         int x = position.getX();
         int y = position.getY();
-        return x >= minX && x <= maxX && y >= minY && y <= maxY;
+        return GestionCollisions.estDans(minX, minY, maxX, maxY, x, y);
     }
 
     public boolean overlaps(ZoneEnFonctionnement other) {
@@ -47,43 +50,14 @@ public class ZoneEnFonctionnement {
     }
 
 
-    public void expandToInclude(int newMinX, int newMinY, int newMaxX, int newMaxY) {
-        if (!isFinalized) {
-            minX = Math.min(minX, newMinX);
-            minY = Math.min(minY, newMinY);
-            maxX = Math.max(maxX, newMaxX);
-            maxY = Math.max(maxY, newMaxY);
-        }
-    }
     public void updateBounds(int newMinX, int newMinY, int newMaxX, int newMaxY) {
         if(this.equals(GamePanel.getInstance().getMainZone()))
             throw new IllegalArgumentException("Cannot update main zone bounds");
 
-
-        if (!isFinalized) {
-            int width = this.maxX - this.minX;
-            int height = this.maxY - this.minY;
-
-
-            if (width < 400) {
-                this.minX = newMinX;
-                this.maxX = newMaxX;
-            }
-
-            if (height < 400) {
-                this.minY = newMinY;
-                this.maxY = newMaxY;
-            }
-
-            width = this.maxX - this.minX;
-            height = this.maxY - this.minY;
-
-            if (width >= 400 && height >= 400) {
-                isFinalized = true;
-            }
-
-
-        }
+        this.minX = newMinX;
+        this.minY = newMinY;
+        this.maxX = newMaxX;
+        this.maxY = newMaxY;
     }
 
 
@@ -92,25 +66,6 @@ public class ZoneEnFonctionnement {
         minY = newMinY;
         maxX = newMaxX;
         maxY = newMaxY;
-    }
-
-
-        public void expandToIncludeUnit(UniteControlable unit, int buffer) {
-        if (!isFinalized) {
-            Position position = unit.getPosition();
-            int unitMinX = position.getX() - buffer;
-            int unitMinY = position.getY() - buffer;
-            int unitMaxX = position.getX() + buffer;
-            int unitMaxY = position.getY() + buffer;
-            expandToInclude(unitMinX, unitMinY, unitMaxX, unitMaxY);
-        }
-    }
-    public void finalizeZone() {
-        isFinalized = true;
-    }
-
-    public void startZone() {
-        isFinalized = false;
     }
 
 }

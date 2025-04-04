@@ -38,7 +38,7 @@ public class GamePanel extends JPanel {
 
     // Dimensions du terrain
     public static final int TERRAIN_WIDTH = 5000;
-    public static final int TERRAIN_HEIGHT = 5000;
+    public static final int TERRAIN_HEIGHT = 800;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -87,7 +87,7 @@ public class GamePanel extends JPanel {
     private CopyOnWriteArrayList<ZoneEnFonctionnement> dynamicZones;
 
     public static final int VIEWPORT_BUFFER = 500;
-    public static final int UNIT_BUFFER = 300;
+    public static final int UNIT_BUFFER = 500;
 
     private int viewportMinX = cameraX - VIEWPORT_BUFFER;
     private int viewportMinY = cameraY - VIEWPORT_BUFFER;
@@ -394,25 +394,13 @@ public class GamePanel extends JPanel {
 
     public void addDynamicZone(ZoneEnFonctionnement newZone) {
         dynamicZones.add(newZone);
-        removeOverlappingZones();
+        //removeOverlappingZones();
     }
 
-    private void removeOverlappingZones() {
-        for (int i = 0; i < dynamicZones.size(); i++) {
-            for (int j = i + 1; j < dynamicZones.size(); j++) {
-                if (dynamicZones.get(i).overlaps(dynamicZones.get(j))) {
-                    dynamicZones.get(i).expandToInclude(
-                            dynamicZones.get(j).getMinX(),
-                            dynamicZones.get(j).getMinY(),
-                            dynamicZones.get(j).getMaxX(),
-                            dynamicZones.get(j).getMaxY()
-                    );
-                    dynamicZones.remove(j);
-                    j--;
-                }
-            }
-        }
+    public void removeDynamicZone(ZoneEnFonctionnement zone) {
+        dynamicZones.remove(zone);
     }
+
 
 
 

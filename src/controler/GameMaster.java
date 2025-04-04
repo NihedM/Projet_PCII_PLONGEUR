@@ -128,18 +128,50 @@ public class GameMaster extends Thread{
             if(enemies != null) {
                 //on filtre les ennemis qui sont dans de les zones de jeu
                 CopyOnWriteArrayList<Enemy> copy  = enemies.stream()
-                        .filter(enemy -> GamePanel.getInstance().getMainZone().isInside(enemy.getPosition()))
+                        //.filter(enemy -> GamePanel.getInstance().getMainZone().isInside(enemy.getPosition()))
                         .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
 
 
                 for (Enemy enemy : copy) {
 
-                    if (!GamePanel.getInstance().getMainZone().isInside(enemy.getPosition())) {
+
+
+
+                    //System.out.println("Enemy: " + enemy.getClass().getSimpleName() + " Position: " + enemy.getPosition());
+                    /*if (!GamePanel.getInstance().getMainZone().isInside(enemy.getPosition())) {
                         enemy.stopAllThreads();
-                        //GamePanel.getInstance().killUnite(enemy);
+
                         continue;
                     }
+                    for(ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()){
+                        if(!zone.isInside(enemy.getPosition())){
+                            enemy.stopAllThreads();
+                            continue;
+                        }
+                    }*/
 
+                    boolean insideAnyZone = false;
+
+                    if (GamePanel.getInstance().getMainZone().isInsideMain(enemy.getPosition())) {
+                        insideAnyZone = true;
+                    }else {
+                        for (ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()) {
+                            if (zone.isInsideDynamic(enemy.getPosition())) {
+                                insideAnyZone = true;
+                                break;
+                            }
+                        }
+
+                    }
+
+
+                    if (insideAnyZone) {
+                        enemy.setInsideZone(true);
+                    } else {
+                        enemy.stopAllThreads();
+                        enemy.setInsideZone(false);
+                        continue;
+                    }
 
 
                     enemy.action();

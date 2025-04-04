@@ -99,8 +99,14 @@ public class ProximityChecker extends Thread{
 
         if (position.getX() < viewportMinX || position.getX() > viewportMaxX ||
                 position.getY() < viewportMinY || position.getY() > viewportMaxY) {
-
-            createNewDynamicZone(unite);
+            if (!unite.isDynamicZoneCreated()) {
+                //System.out.println("Unité en dehors de la caméra : ");
+                createNewDynamicZone(unite);
+                unite.setDynamicZoneCreated(true);
+            }
+        }else{
+            destroyDynamicZone(unite);
+            unite.setDynamicZoneCreated(false);
         }
     }
 
@@ -112,21 +118,34 @@ public class ProximityChecker extends Thread{
         Position position = unite.getPosition();
         int buffer = GamePanel.UNIT_BUFFER;
 
-        int newMinX = Math.min(mainZone.getMinX(), position.getX() - buffer);
-        int newMinY = Math.min(mainZone.getMinY(), position.getY() - buffer);
-        int newMaxX = Math.max(mainZone.getMaxX(), position.getX() + buffer);
-        int newMaxY = Math.max(mainZone.getMaxY(), position.getY() + buffer);
+        int newMinX = position.getX() - buffer;//Math.min(mainZone.getMinX(), position.getX() - buffer);
+        int newMinY = position.getY() - buffer;//Math.min(mainZone.getMinY(), position.getY() - buffer);
+        int newMaxX = position.getX() + buffer ;//Math.max(mainZone.getMaxX(), position.getX() + buffer);
+        int newMaxY = position.getY() + buffer;//Math.max(mainZone.getMaxY(), position.getY() + buffer);
 
         ZoneEnFonctionnement newZone = new ZoneEnFonctionnement(newMinX, newMinY, newMaxX, newMaxY);
-        unite.setOutsideCamera(true);
         gamePanel.addDynamicZone(newZone);
-
         newZone.setUnite(unite);
 
     }
 
+    private void destroyDynamicZone(UniteControlable unite) {
 
-    @Override
+        ZoneEnFonctionnement dynamicZoneToRemove = null;
+        for (ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()) {
+            if (zone.getUnit() != null && zone.getUnit().equals(unite)) {
+                dynamicZoneToRemove = zone;
+                break;
+            }
+        }
+        if (dynamicZoneToRemove != null) {
+            GamePanel.getInstance().removeDynamicZone(dynamicZoneToRemove);
+        }
+
+    }
+
+
+        @Override
     public void run() {
         controler.ThreadManager.incrementThreadCount("ProximityChecker");
         try{

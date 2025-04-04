@@ -1,9 +1,6 @@
 package model.objets;
 
-import controler.GameMaster;
-import controler.SpawnManager;
-import controler.ThreadManager;
-import controler.TileManager;
+import controler.*;
 import model.objets.CoordGrid;
 import model.objets.Objet;
 import model.objets.Position;
@@ -55,9 +52,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         //generate random position in tile
         Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
 
-        if (!GamePanel.getInstance().getMainZone().isInside(position)) return;
-
-
+        if ( !ZoneMover.isInsideAnyZone(position)) return;
 
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);

@@ -118,6 +118,9 @@ public class MinimapPanel extends JPanel {
         drawZoneBorder(g, mainZone, Color.RED);
 
         for (ZoneEnFonctionnement zone : gamePanel.getDynamicZones()) {
+            if (zone.equals(mainZone))
+                //erreur le main devrais jamais etre ici
+                throw new IllegalStateException("Main zone should not be in dynamic zones");
             drawZoneBorder(g, zone, Color.BLUE);
         }
     }
@@ -127,6 +130,13 @@ public class MinimapPanel extends JPanel {
         int y = (int) (zone.getMinY() * SCALE_Y);
         int width = (int) ((zone.getMaxX() - zone.getMinX()) * SCALE_X);
         int height = (int) ((zone.getMaxY() - zone.getMinY()) * SCALE_Y);
+
+
+
+        if(!zone.equals(GamePanel.getInstance().getMainZone())) {
+           // System.out.println("Zone Position: MinX=" + zone.getMinX() + ", MinY=" + zone.getMinY() + ",\n MaxX=" + zone.getMaxX() + ", MaxY=" + zone.getMaxY());
+
+        }
         g.drawRect(x, y, width, height);
     }
 }
