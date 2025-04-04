@@ -37,8 +37,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 5000;
-    public static final int TERRAIN_HEIGHT = 800;
+    public static final int TERRAIN_WIDTH = 15000;
+    public static final int TERRAIN_HEIGHT = 15000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -520,14 +520,20 @@ public class GamePanel extends JPanel {
 
     //-----------------SUPPRESSIONS------------------------------------------------------------------------------------------------------
 
-    public synchronized void removeObjet(model.objets.Objet objet, CoordGrid coord) {
-        CopyOnWriteArrayList<model.objets.Objet> objetsAtCoord = objetsMap.get(coord);
+    public synchronized void removeObjet(Objet objet, CoordGrid coord) {
+        CopyOnWriteArrayList<Objet> objetsAtCoord = objetsMap.get(coord);
         if (objetsAtCoord != null) {
             boolean removed = objetsAtCoord.remove(objet);
-            if (removed && objetsAtCoord.isEmpty()) {
-                objetsMap.remove(coord);
-            }
+            if (removed) {
+                if (objet instanceof Ressource) {
+                    // Décrémente le compteur de ressources pour cette zone
+                    terrain.decrementResourcesAt(objet.getPosition().getX(), objet.getPosition().getY());
+                }
 
+                if (objetsAtCoord.isEmpty()) {
+                    objetsMap.remove(coord);
+                }
+            }
         }
     }
     public void removeCollectedResource(model.objets.Ressource r) {
@@ -633,7 +639,7 @@ public class GamePanel extends JPanel {
         slideInInfoPanel("unit");
     }
     public void showEmptyInfoPanel() {
-        CardLayout cl = (CardLayout) infoContainer.getLayout();  
+        CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
         // Définir une largeur fixe pour le panneau d'info (par exemple 200 pixels)
         infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
@@ -721,6 +727,9 @@ public class GamePanel extends JPanel {
                 }
             }
         }
+        // Dessin des zones de profondeur
+        drawDepthZones(g);
+
 
         // Dessin des objets
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
@@ -975,6 +984,25 @@ public class GamePanel extends JPanel {
         if (ressourceSelectionnee != null && ressourceSelectionnee.equals(ressource)) {
             setRessourceSelectionnee(null);
             showEmptyInfoPanel();
+        }
+    }
+
+    private void drawDepthZones(Graphics g) {
+        for (int x = 0; x < TERRAIN_WIDTH; x += TileManager.TILESIZE) {
+            for (int y = 0; y < TERRAIN_HEIGHT; y += TileManager.TILESIZE) {
+                int depth = terrain.getDepthAt(x, y);
+                Color color;
+                switch (depth) {
+                    case 1: color = new Color(100, 100, 255, 100); break; // Bleu clair
+                    case 2: color = new Color(50, 50, 200, 100); break;   // Bleu moyen
+                    case 3: color = new Color(0, 0, 150, 100); break;     // Bleu foncé
+                    case 4: color = new Color(0, 0, 100, 100); break;     // Bleu très foncé
+                    default: color = Color.BLACK;
+                }
+                g.setColor(color);
+                Point screenPos = worldToScreen(x, y);
+                g.fillRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
+            }
         }
     }
 

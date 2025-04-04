@@ -2,6 +2,7 @@ package model.objets;
 
 import controler.GameMaster;
 import controler.ThreadManager;
+import controler.ZoneMover;
 import model.objets.Position;
 import model.objets.GestionRessource;
 import model.ressources.Collier;
@@ -75,7 +76,7 @@ public class ResourceSpawner extends Thread {
             int x = random.nextInt(GamePanel.TERRAIN_WIDTH);
             int y = random.nextInt(GamePanel.TERRAIN_HEIGHT);
 
-            if (gamePanel.getTerrain().canAddResourceAt(x, y)) {
+            if (gamePanel.getTerrain().canAddResourceAt(x, y) && ZoneMover.isInsideAnyZone(new Position(x, y))) {
                 return new Position(x, y);
             }
             attempts++;

@@ -73,7 +73,7 @@ public class SpawnManager extends Thread{
                 cpt++;
             //}
             try {
-                Thread.sleep(getRandomInterval(100, 200));
+                Thread.sleep(getRandomInterval(10000, 20000));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;
