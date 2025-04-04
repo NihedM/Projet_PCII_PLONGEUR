@@ -532,14 +532,20 @@ public class GamePanel extends JPanel {
 
     //-----------------SUPPRESSIONS------------------------------------------------------------------------------------------------------
 
-    public synchronized void removeObjet(model.objets.Objet objet, CoordGrid coord) {
-        CopyOnWriteArrayList<model.objets.Objet> objetsAtCoord = objetsMap.get(coord);
+    public synchronized void removeObjet(Objet objet, CoordGrid coord) {
+        CopyOnWriteArrayList<Objet> objetsAtCoord = objetsMap.get(coord);
         if (objetsAtCoord != null) {
             boolean removed = objetsAtCoord.remove(objet);
-            if (removed && objetsAtCoord.isEmpty()) {
-                objetsMap.remove(coord);
-            }
+            if (removed) {
+                if (objet instanceof Ressource) {
+                    // Décrémente le compteur de ressources pour cette zone
+                    terrain.decrementResourcesAt(objet.getPosition().getX(), objet.getPosition().getY());
+                }
 
+                if (objetsAtCoord.isEmpty()) {
+                    objetsMap.remove(coord);
+                }
+            }
         }
     }
     public void removeCollectedResource(model.objets.Ressource r) {

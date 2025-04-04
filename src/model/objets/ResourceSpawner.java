@@ -1,6 +1,7 @@
 package model.objets;
 
 import controler.GameMaster;
+import controler.ThreadManager;
 import model.objets.Position;
 import model.objets.GestionRessource;
 import model.ressources.Collier;
@@ -10,14 +11,17 @@ import java.util.Random;
 
 public class ResourceSpawner extends Thread {
     private GamePanel gamePanel;
-    private int maxResources; // Nombre maximum de ressources à générer
-    private int spawnIntervalMin; // Intervalle minimum entre chaque apparition (en millisecondes)
-    private int spawnIntervalMax; // Intervalle maximum entre chaque apparition (en millisecondes)
-    private int spawnCountMin; // Nombre minimum de ressources à générer à chaque intervalle
-    private int spawnCountMax; // Nombre maximum de ressources à générer à chaque intervalle
+    private int maxResources;
+    private int spawnIntervalMin;
+    private int spawnIntervalMax;
+    private int spawnCountMin;
+    private int spawnCountMax;
     private volatile boolean running = true;
+    private Random random = new Random();
+    private int resourcesSpawned = 0; // Ajout de la variable manquante
 
-    public ResourceSpawner(GamePanel gamePanel, int maxResources, int spawnIntervalMin, int spawnIntervalMax, int spawnCountMin, int spawnCountMax) {
+    public ResourceSpawner(GamePanel gamePanel, int maxResources, int spawnIntervalMin,
+                           int spawnIntervalMax, int spawnCountMin, int spawnCountMax) {
         this.gamePanel = gamePanel;
         this.maxResources = maxResources;
         this.spawnIntervalMin = spawnIntervalMin;
@@ -32,44 +36,50 @@ public class ResourceSpawner extends Thread {
 
     @Override
     public void run() {
-        Random random = new Random();
-        int resourcesSpawned = 0;
-        controler.ThreadManager.incrementThreadCount("RessourceSpawner");
+        ThreadManager.incrementThreadCount("RessourceSpawner");
+        try {
+            while (running && resourcesSpawned < maxResources) {
+                int spawnCount = spawnCountMin + random.nextInt(spawnCountMax - spawnCountMin + 1);
 
-        while (running && resourcesSpawned < maxResources) {
-            // Déterminer combien de ressources générer à cet intervalle
-            int spawnCount = spawnCountMin + random.nextInt(spawnCountMax - spawnCountMin + 1);
+                for (int i = 0; i < spawnCount && resourcesSpawned < maxResources; i++) {
+                    Position randomPos = generateValidPosition();
+                    if (randomPos != null) {
+                        Collier collier = new Collier(randomPos);
+                        gamePanel.addObjet(collier);
+                        gamePanel.getTerrain().incrementResourcesAt(randomPos.getX(), randomPos.getY());
 
-            // Générer les ressources
-            for (int i = 0; i < spawnCount && resourcesSpawned < maxResources; i++) {
-                Collier collier = new Collier(new Position());
+                        GestionRessource gestionRessource = new GestionRessource(collier, 200);
+                        gestionRessource.addListener(gamePanel.getInfoPanelUNC());
+                        gestionRessource.start();
 
-                // Ajouter la ressource au jeu
-                gamePanel.addObjet(collier);
+                        resourcesSpawned++;
+                        GameMaster.getInstance().updateLists();
+                    }
+                }
 
-                // Créer et démarrer un thread GestionRessource pour cette ressource
-                GestionRessource gestionRessource = new GestionRessource(collier, 200);
-                gestionRessource.addListener(gamePanel.getInfoPanelUNC()); // Ajouter InfoPanelUNC comme listener
-                gestionRessource.start(); // Démarrer le thread
-
-                resourcesSpawned++;
-
-                GameMaster.getInstance().updateLists();
-
-            }
-
-            // Attendre un délai aléatoire avant de générer la prochaine vague de ressources
-            try {
                 int delay = spawnIntervalMin + random.nextInt(spawnIntervalMax - spawnIntervalMin);
                 Thread.sleep(delay);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("ResourceSpawner interrupted");
-                break;
             }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        } finally {
+            ThreadManager.decrementThreadCount("RessourceSpawner");
         }
-        controler.ThreadManager.decrementThreadCount("ResourceSpawner");
+    }
 
-        System.out.println("ResourceSpawner a terminé. Ressources générées : " + resourcesSpawned);
+    private Position generateValidPosition() {
+        int attempts = 0;
+        int maxAttempts = 100;
+
+        while (attempts < maxAttempts) {
+            int x = random.nextInt(GamePanel.TERRAIN_WIDTH);
+            int y = random.nextInt(GamePanel.TERRAIN_HEIGHT);
+
+            if (gamePanel.getTerrain().canAddResourceAt(x, y)) {
+                return new Position(x, y);
+            }
+            attempts++;
+        }
+        return null;
     }
 }

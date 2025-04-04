@@ -3,6 +3,7 @@ import model.constructions.Base;
 import model.objets.CoordGrid;
 import model.objets.Position;
 import model.objets.ResourceSpawner;
+import model.objets.Terrain;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
 import view.GameLaunchDialog;
@@ -37,6 +38,13 @@ public class MainTest {
         OxygenHandler.getInstance();
 
 
+
+        // Configuration des limites de ressources par profondeur
+        Terrain terrain = gamePanel.getTerrain();
+        terrain.configureDepthZone(1, 20); // Profondeur 1: max 30 ressources
+        terrain.configureDepthZone(2, 0); // Profondeur 2: max 50 ressources
+        terrain.configureDepthZone(3, 0); // Profondeur 3: max 20 ressources
+        terrain.configureDepthZone(4, 0); // Profondeur 4: max 40 ressources
 
 
 
