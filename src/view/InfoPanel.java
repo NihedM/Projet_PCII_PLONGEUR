@@ -2,6 +2,7 @@ package view;
 
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
+import model.unite_non_controlables.Enemy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,10 +31,10 @@ public class InfoPanel extends JPanel {
         //add(infoLabel, BorderLayout.NORTH);
 
         //
-        atributInfo = new AtributInfo();
+  /*      atributInfo = new AtributInfo();
         add(atributInfo);
 
-
+*/
         // Panneau central pour empiler les boutons verticalement et les centrer
         buttonPanel = new JPanel(new GridBagLayout());
         buttonPanel.setBackground(Color.CYAN);
@@ -50,27 +51,47 @@ public class InfoPanel extends JPanel {
 
 
     public void updateInfo(UniteControlable unite) {
-        atributInfo.removeAll();
+        removeAll();
+        atributInfo = new AtributInfo(unite);
+        add(atributInfo);
         atributInfo.updateInfo(unite.getAttributes());
 
-        if (unite instanceof Plongeur plongeur) {
-            List<ButtonAction> actions = plongeur.getButtonActions();
-            GridBagConstraints gbc = new GridBagConstraints();
-            gbc.gridx = 0;
-            gbc.gridy = 0;
-            gbc.anchor = GridBagConstraints.CENTER;
-            gbc.insets = new Insets(10, 10, 10, 10);
+        buttonPanel.removeAll();
+        List<ButtonAction> actions = unite.getButtonActions();
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 10, 10, 10);
 
-            for (ButtonAction action : actions) {
-                JButton button = new JButton(action.getLabel());
-                button.addActionListener(action.getAction());
-                buttonPanel.add(button, gbc);
-                gbc.gridy++;
-            }
+        for (ButtonAction action : actions) {
+            JButton button = new JButton(action.getLabel());
+            button.addActionListener(action.getAction());
+            buttonPanel.add(button, gbc);
+            gbc.gridy++;
         }
+
+        add(buttonPanel, BorderLayout.CENTER);
 
         buttonPanel.revalidate();
         buttonPanel.repaint();
+        revalidate();
+        repaint();
+    }
+    public void updateEnemyInfo(Enemy enemy) {
+        removeAll();
+        atributInfo = new AtributInfo(enemy);
+        add(atributInfo);
+        atributInfo.updateInfo(enemy.getAttributes());
+
+        buttonPanel.removeAll(); // No action buttons for enemies
+
+        add(buttonPanel, BorderLayout.CENTER);
+
+        buttonPanel.revalidate();
+        buttonPanel.repaint();
+        revalidate();
+        repaint();
     }
 
 

@@ -4,6 +4,7 @@ import view.ButtonAction;
 import view.GamePanel;
 import view.Redessine;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,6 +38,18 @@ public class Unite extends Objet {
     }
     public int get_Hp() {return heat_points;}
     public void set_Hp(int hp) {this.heat_points = hp;}
+    public void takeDamage(int damage) {
+        this.heat_points -= damage;
+        if (this.heat_points <= 0) {
+            // L'unité est détruite
+            this.setDestination(null);
+            if (deplacementThread != null) {
+                deplacementThread.stopThread();
+            }
+        }
+    }
+    public boolean isAlive() {return this.heat_points > 0;}
+
     public double getVitesseCourante() {return vitesseCourante;}
 
     public void setVitesseCourante(double vitesse) {this.vitesseCourante = vitesse;}
@@ -83,19 +96,12 @@ public class Unite extends Objet {
 
     }
 
-    // methode estProcheDe //TODO : ajouter un perimetre de detection (peut etre)
-    /*public boolean estProcheDe(Ressource ressource) {
-        int dx = ressource.getPosition().getX() - this.getPosition().getX();
-        int dy = ressource.getPosition().getY() - this.getPosition().getY();
-        double distance = Math.sqrt(dx * dx + dy * dy);
-        return distance <= this.getRayon() + 30;
-    }*/
-
     public String getInfo() {
         return "HP: " + get_Hp() + ", Vitesse: " + getVitesseCourante();
     }
 
-
+    public Color getColorForKey(String key) {return new Color(50, 150, 50);}// Default green color
+    public int getMaxValueForKey(String key) {return heat_points;} //Max HP
     public Map<String, String> getAttributes() {
         Map<String, String> attributes = new HashMap<>();
         attributes.put("HP", String.valueOf(get_Hp()));

@@ -88,7 +88,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         while (canSpawn()) {
             spawnEnemy();
             try {
-                Thread.sleep(SpawnManager.getRandomInterval(1000,5000)); // Random interval between 1 and 5 seconds
+                Thread.sleep(SpawnManager.getRandomInterval(100,500)); // Random interval between 1 and 5 seconds
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

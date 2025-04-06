@@ -1,5 +1,8 @@
 package view;
 
+import model.objets.Unite;
+import model.objets.UniteControlable;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
@@ -7,8 +10,11 @@ import java.util.Map;
 public class AtributInfo extends JPanel {
     private static final Color BACKGROUND_COLOR = new Color(173, 216, 230); // Bleu clair comme GamePanel
     private static final Color TEXT_COLOR = Color.BLACK;
+    private Unite unite;
 
-    public AtributInfo() {
+
+    public AtributInfo(Unite unite) {
+        this.unite = unite;
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBackground(BACKGROUND_COLOR);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -54,21 +60,12 @@ public class AtributInfo extends JPanel {
         repaint();
     }
 
+
     private Color getColorForKey(String key) {
-        return switch (key.toLowerCase()) {
-            case "oxygen" -> new Color(0, 100, 200); // Bleu profond
-            case "stamina" -> new Color(255, 165, 0); // Orange vif
-            case "backpack" -> new Color(128, 0, 128); // Violet
-            default -> new Color(50, 150, 50); // Vert par défaut
-        };
+        return unite.getColorForKey(key);
     }
 
     private int getMaxValueForKey(String key) {
-        switch (key.toLowerCase()) {
-            case "oxygen": return 100;
-            case "stamina": return 100;
-            case "backpack": return 4;
-            default: return 100;
-        }
+        return unite.getMaxValueForKey(key);
     }
 }

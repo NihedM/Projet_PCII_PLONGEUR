@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Objet {
-    private Position position;
-    public CoordGrid coordGrid;
+    private volatile Position position;
+    public volatile CoordGrid coordGrid;
 
     private final int rayon;                //TODO faire les constantes(rayons) de tout les objets
 

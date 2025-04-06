@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class GameMaster extends Thread{
 
-    private static GameMaster instance;
+    private volatile static GameMaster instance;
     private CopyOnWriteArrayList<Ressource> ressources;
     private CopyOnWriteArrayList<Enemy> enemies;
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap ;
@@ -72,7 +72,9 @@ public class GameMaster extends Thread{
     }
 
     public void addEnemy(Enemy enemy, CopyOnWriteArrayList<Objet> targets) {
-        this.enemies.add(enemy);
+        synchronized (enemies) {
+            this.enemies.add(enemy);
+        }
 
         enemy.setup(targets);
         GamePanel.getInstance().addObjet(enemy);

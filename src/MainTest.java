@@ -6,6 +6,7 @@ import model.objets.ResourceSpawner;
 import model.objets.Terrain;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
+import model.unite_controlables.PlongeurArme;
 import view.GameLaunchDialog;
 import view.GamePanel;
 import view.Redessine;
@@ -34,6 +35,8 @@ public class MainTest {
 
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
+        AmmoManager ammo = new AmmoManager();
+        ammo.start();
         StaminaRegenHandler.getInstance();
         OxygenHandler.getInstance();
 
@@ -51,7 +54,10 @@ public class MainTest {
 
         Base base = gamePanel.getMainBase();
         for(int i = 0; i < 1; i++)
-            gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY()), 5));
+            gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
+
+        //for(int i = 0; i < 1; i++)
+           // gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
 
         // Afficher la fenêtre de lancement pour paramétrer la partie
         GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
@@ -68,7 +74,7 @@ public class MainTest {
 
 
         SpawnManager spawnManager = new SpawnManager();
-        spawnManager.start();
+        //spawnManager.start();
 
 
 

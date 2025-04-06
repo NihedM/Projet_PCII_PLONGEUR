@@ -1,9 +1,6 @@
 package controler;
 
-import model.objets.CoordGrid;
-import model.objets.Objet;
-import model.objets.Ressource;
-import model.objets.Unite;
+import model.objets.*;
 import view.GamePanel;
 
 import java.util.List;
@@ -61,7 +58,7 @@ public class TileUpdater extends Thread{
             }
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(16);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;
@@ -74,6 +71,7 @@ public class TileUpdater extends Thread{
 
     private void updateBatch(List<Objet> objets) {
         for (Objet objet : objets) {
+
             if (!(objet instanceof Unite)) continue;
 
             CoordGrid oldCoord = objet.getCoordGrid();

@@ -10,6 +10,7 @@ import view.ButtonAction;
 import view.GamePanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,8 +27,8 @@ public class Plongeur extends UniteControlable {
     private Ressource targetResource;
 
 
-    public Plongeur(int id, Position position, int rayon) {
-        super(id, position, rayon, 10, MAX_HP);
+    public Plongeur(int id, Position position) {
+        super(id, position, 20, 10, MAX_HP);
         sac = new HashMap<>();
         this.rayonFuite = 50;
         this.faitFuire = false;
@@ -69,6 +70,26 @@ public class Plongeur extends UniteControlable {
         attributes.put("Backpack", String.valueOf(backpack.size()));
         return attributes;
     }
+
+    @Override
+    public Color getColorForKey(String key) {
+        return switch (key.toLowerCase()) {
+            case "oxygen" -> new Color(0, 100, 200); // Bleu profond
+            case "stamina" -> new Color(255, 165, 0); // Orange vif
+            case "backpack" -> new Color(128, 0, 128); // Violet
+            default -> super.getColorForKey(key);
+        };
+    }
+    @Override
+    public int getMaxValueForKey(String key) {
+        return switch (key.toLowerCase()) {
+            case "oxygen" -> MAX_OXYGEN;
+            case "stamina" -> MAX_STAMINA;
+            case "backpack" -> BACKPACK_CAPACITY;
+            default -> super.getMaxValueForKey(key);
+        };
+    }
+
 
 
     //-------------------Méthodes-------------------

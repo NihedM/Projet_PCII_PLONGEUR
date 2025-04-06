@@ -4,15 +4,19 @@ import controler.*;
 import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
+import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
+import model.unite_controlables.PlongeurArme;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
+import model.unite_non_controlables.PieuvreBebe;
 import view.debeug.GameInfoWindow;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +32,7 @@ public class GamePanel extends JPanel {
     private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
     public static final int PANELWIDTH = 800;
     public static final int PANELHEIGTH = 600;
-    private static GamePanel instance;
+    private static volatile GamePanel instance;
 
     // Variables pour la caméra
     private int cameraX = 0;
@@ -37,8 +41,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 15000;
-    public static final int TERRAIN_HEIGHT = 15000;
+    public static final int TERRAIN_WIDTH = 2000;
+    public static final int TERRAIN_HEIGHT = 2000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -105,14 +109,15 @@ public class GamePanel extends JPanel {
     private boolean isSliding = false;
     private boolean deplacementMode = false;
     private boolean recuperationMode = false;
+    private boolean isShootingMode = false;
 
     private VictoryManager victoryManager;
 
 
 
 
-    private BufferedImage plongeurImage, objetImage, enemyImage;
-    private Image plongeurGif, enemyGif;
+    private BufferedImage plongeurImage,plongeurArmeImage, collierImage, pieuvreImage;
+    private Image plongeurGif, enemyGif, plongeurArmeGif;
 
     public GamePanel() {
         instance = this;
@@ -151,14 +156,17 @@ public class GamePanel extends JPanel {
 
     private void loadImages(){
         try {
-            plongeurImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurTest.png")));
-            objetImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/objetTest.png")));
-            enemyImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.png")));
+            plongeurImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurNormal.png")));
+            plongeurArmeImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurArme.png")));
 
-            plongeurGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/plongeurTest.gif"))).getImage();
+            collierImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/collier.png")));
+            pieuvreImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/pieuvre.png")));
+
+            plongeurGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/plongeurNormal.gif"))).getImage();
+            plongeurArmeGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/plongeurArme.gif"))).getImage();
             enemyGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.gif"))).getImage();
 
-            if(plongeurImage == null || objetImage == null || enemyImage == null
+            if(plongeurImage == null || collierImage == null || pieuvreImage == null
                     ||plongeurGif == null || enemyGif == null){
                 throw new IOException("Image non trouvée");
             }
@@ -332,7 +340,7 @@ public class GamePanel extends JPanel {
         baseUnique = new Base(new Position(100, 200), 20);
         addObjet(baseUnique);
 
-        addUniteControlable(new Plongeur(3, new Position(50, 50), 5));
+        addUniteControlable(new Plongeur(3, new Position(50, 50)));
 
         // Réinitialiser le VictoryManager
         victoryManager = null;
@@ -378,7 +386,24 @@ public class GamePanel extends JPanel {
     public boolean isWithinTerrainBounds(Position position) {
         int x = position.getX();
         int y = position.getY();
-        return x > TERRAIN_MIN_X && x < TERRAIN_MAX_X && y > TERRAIN_MIN_Y && y < TERRAIN_MAX_Y;
+        boolean withinTerrain = x > TERRAIN_MIN_X && x < TERRAIN_MAX_X && y > TERRAIN_MIN_Y && y < TERRAIN_MAX_Y;
+        boolean withinTiles = x >= 0 && x < TileManager.nbTilesWidth * TileManager.TILESIZE &&
+                y >= 0 && y < TileManager.nbTilesHeight * TileManager.TILESIZE;
+        return withinTerrain && withinTiles;
+    }
+
+
+    public void setShootingMode(boolean shootingMode) {
+        this.isShootingMode = shootingMode;
+        if (shootingMode) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }
+
+    public boolean isShootingMode() {
+        return isShootingMode;
     }
 
 
@@ -550,7 +575,8 @@ public class GamePanel extends JPanel {
         boolean existsInObjetsMap = objetsMap.containsKey(unite.getCoordGrid()) && objetsMap.get(unite.getCoordGrid()).contains(unite);
         if(existsInObjetsMap) {
             removeObjet(unite, unite.getCoordGrid());
-            unite.getDeplacementThread().stopThread();
+            if(unite.getDeplacementThread() != null)
+                unite.getDeplacementThread().stopThread();
         }
         if(unite instanceof UniteControlable){
             boolean existsInUnitesEnJeu = unitesEnJeu.contains(unite);
@@ -737,42 +763,84 @@ public class GamePanel extends JPanel {
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
 
             int diametre = objet.getRayon() * 2;
-            Graphics2D g2d = (Graphics2D) g.create();
 
             if (isVisibleInViewport(screenPos, objet.getRayon())) {
                 Image image = null;
+                Graphics2D g2d = (Graphics2D) g.create();
 
-                if (objet instanceof Plongeur) {
-                    image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ?  plongeurGif : plongeurImage;
-                } else if (objet instanceof Enemy) {
-                    image = ((Enemy) objet).getVitesseCourante() >= 0.1 ? enemyGif : enemyImage;
-                } else {
-                    image = objetImage;
+                if(objet instanceof PlongeurArme)
+                    image = ((PlongeurArme) objet).getVitesseCourante() >= 0.1  ? plongeurArmeGif : plongeurArmeImage;
+                
+                else if (objet instanceof Plongeur) {
+                       image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ?  plongeurGif : plongeurImage;
+                    if (((Plongeur)objet).isFaitFuire()) {
+                        g2d.setColor(Color.ORANGE);
+                        int rayonFuite = ((Plongeur) objet).getRayonFuite();
+                        g2d.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+                    }
+                } else if (objet instanceof Pieuvre || objet instanceof PieuvreBebe) {
+                    image = pieuvreImage;//((Enemy) objet).getVitesseCourante() >= 0.1 ? enemyGif : enemyImage;
+                } else if (objet instanceof Collier) {
+                    image = collierImage;
                 }
 
-                if(objet instanceof Unite unite){
-                    double angle = Math.atan2(unite.getVy(), unite.getVx());
-                    g2d.rotate(angle, screenPos.x, screenPos.y);
-                    if (unite.getVx() < 0) {
-                        g2d.drawImage(image,
-                                screenPos.x - unite.getRayon(),
-                                screenPos.y + unite.getRayon(),
-                                diametre*2,
-                                -diametre*2,
-                                null);
-                    }else{
-                        g2d.drawImage(image,
-                                screenPos.x - unite.getRayon(),
-                                screenPos.y - unite.getRayon(),
-                                diametre*2,
-                                diametre*2,
+                if (objet instanceof Unite unite) {
+                    // Draw the circle/base
+                    g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
+
+                    assert image != null;
+                    int originalImgWidth = image.getWidth(null);
+                    int originalImgHeight = image.getHeight(null);
+
+                // Calculate scaling factor based on hitbox radius (adjust 2.0 multiplier as needed)
+                    double scaleFactor;
+
+                    if (unite instanceof UniteControlable) {
+                        scaleFactor = (unite.getRayon() * 4.0) / Math.min(originalImgWidth, originalImgHeight);
+                    } else {
+                        scaleFactor = (unite.getRayon() *3.0) / Math.min(originalImgWidth, originalImgHeight); // Adjust the factor for non-controllable units
+                    }
+                // Scale image dimensions
+                    int imgWidth = (int)(originalImgWidth * scaleFactor);
+                    int imgHeight = (int)(originalImgHeight * scaleFactor);
+                    int halfWidth = imgWidth / 2;
+                    int halfHeight = imgHeight / 2;
+
+// Only rotate if there's significant movement
+                    if (Math.hypot(unite.getVx(), unite.getVy()) > 0.1) {
+                        double angle = Math.atan2(unite.getVy(), unite.getVx());
+
+                        try {
+                            g2d.translate(screenPos.x, screenPos.y);
+                            g2d.rotate(angle + Math.PI/2);
+
+                            if (unite.getVx() > 0) {  // Fixed: Changed back to < 0 for left movement
+                                g2d.scale(-1, 1);
+                            }
+
+                            g2d.drawImage(image,
+                                    -halfWidth,
+                                    -halfHeight,
+                                    imgWidth,
+                                    imgHeight,
+                                    null);
+                        } finally {
+                            g2d.dispose();
+                        }
+                    } else {
+                        // Default drawing when not moving
+                        g.drawImage(image,
+                                screenPos.x - halfWidth,
+                                screenPos.y - halfHeight,
+                                imgWidth,
+                                imgHeight,
                                 null);
                     }
                     continue;
                 }
 
                 if (image != null) {
-                    g.drawImage(image, screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre*2, diametre*2, null);
+                    g.drawImage(image, screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre, null);
                 } else {
                     g.setColor(Color.PINK);
                     g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
@@ -818,6 +886,7 @@ public class GamePanel extends JPanel {
         // Dessin des éléments supplémentaires
         drawSpawnPoints(g);
         drawPlayerInfo(g);
+        drawAmmo(g);
         selectionClic.paintSelection(g);
     }
 
@@ -1003,6 +1072,14 @@ public class GamePanel extends JPanel {
                 Point screenPos = worldToScreen(x, y);
                 g.fillRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
             }
+        }
+    }
+    private void drawAmmo(Graphics g) {
+        for (Ammo ammo : AmmoManager.getInstance().getActiveAmmo()) {
+            Point screenPos = worldToScreen(ammo.getPosition().getX(), ammo.getPosition().getY());
+            int diameter = ammo.getRayon() * 2;
+            g.setColor(Color.RED); // Set the color for the ammo
+            g.fillOval(screenPos.x - ammo.getRayon(), screenPos.y - ammo.getRayon(), diameter, diameter);
         }
     }
 

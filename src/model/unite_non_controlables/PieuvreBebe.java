@@ -23,7 +23,7 @@ public class PieuvreBebe extends Enemy {
 
 
     public PieuvreBebe(Position position, Pieuvre parent) {
-        super(position, 5, 120, VITESSE_VADROUILLE);
+        super(position, 10, 120, VITESSE_VADROUILLE);
         this.parent = parent;
         this.target = parent.getTarget();
         setEtat(Etat.ATTENTE);

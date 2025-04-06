@@ -1,9 +1,13 @@
 package controler;
 
 import model.gains_joueur.Referee;
+import model.objets.CoordGrid;
+import model.objets.Objet;
 import model.objets.Position;
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
+import model.unite_controlables.PlongeurArme;
+import model.unite_non_controlables.Enemy;
 import view.GamePanel;
 import view.MinimapPanel;
 
@@ -27,6 +31,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private int startXWorld, startYWorld, endXWorld, endYWorld;
 
     private boolean isSelecting = false;
+
 
     public SelectionClic(GamePanel panel) {
         this.panel = panel;
@@ -141,6 +146,65 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 return;
             }
 
+
+            if (panel.isShootingMode()){
+                worldPos = panel.screenToWorld(e.getPoint());
+                x = worldPos.x;
+                y = worldPos.y;
+
+                if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
+                    panel.setShootingMode(false);
+                    System.out.println("Clic en dehors du terrain");
+                    return;
+                }
+
+                CoordGrid gridCoord = TileManager.transformePos_to_Coord(new Position(x, y));
+                CopyOnWriteArrayList<Objet> objetsAtCoord = panel.getObjetsMap().get(gridCoord);
+                if (objetsAtCoord != null) {
+                    System.out.println("nb objets à la coordonnée : " + objetsAtCoord.size());
+
+                    for (Objet objet : objetsAtCoord) {
+                        System.out.println("Objet trouvé : " + objet);
+
+
+
+                        if (objet instanceof Enemy) {
+                            Enemy enemy = (Enemy) objet;
+                            Ellipse2D.Double enemyArea = new Ellipse2D.Double(
+                                    enemy.getPosition().getX() - enemy.getRayon(),
+                                    enemy.getPosition().getY() - enemy.getRayon(),
+                                    enemy.getRayon() * 2,
+                                    enemy.getRayon() * 2
+                            );
+
+                            if (enemyArea.contains(x, y)) {
+                                System.out.println("Enemy selected: " + objet);
+                                // Trouvé un ennemi à attaquer
+                                for (UniteControlable unite : panel.getUnitesSelected()) {
+                                    if (unite instanceof PlongeurArme) {
+                                        ((PlongeurArme)unite).attack(enemy);
+                                    }
+                                }
+                                return;
+                            }
+
+
+                        }
+                    }
+                }
+                panel.setShootingMode(false);
+                panel.repaint();
+                return;
+
+            }
+
+
+
+            // ----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
             // Si on n'est pas en mode récupération, on effectue la sélection d'une unité ou d'une ressource classique
             dropUnitesSelectionnees();
             boolean unitSelected = false;
@@ -190,6 +254,35 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     panel.getUnitesSelected().clear();
                 }
             }
+
+
+
+            if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
+                System.out.println("Clic en dehors du terrain");
+                return;
+            }
+
+            CoordGrid gridCoord = TileManager.transformePos_to_Coord(new Position(x, y));
+            CopyOnWriteArrayList<Objet> objetsAtCoord = panel.getObjetsMap().get(gridCoord);
+            if(objetsAtCoord == null) return;
+
+            for(Objet objet: objetsAtCoord) {
+                if (objet instanceof Enemy) {
+                    Enemy enemy = (Enemy) objet;
+                    Ellipse2D.Double enemyArea = new Ellipse2D.Double(
+                            enemy.getPosition().getX() - enemy.getRayon(),
+                            enemy.getPosition().getY() - enemy.getRayon(),
+                            enemy.getRayon() * 2,
+                            enemy.getRayon() * 2
+                    );
+
+                    if (enemyArea.contains(x, y)) {
+                        panel.getInfoPanel().updateEnemyInfo(enemy);
+                        panel.showFixedInfoPanel("unit");
+                        return;
+                    }
+                }
+            }
         }
 
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
@@ -201,6 +294,10 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
             }
         }
+
+
+
+
     }
 
 
@@ -306,6 +403,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             g2d.drawRect(Math.min(startXView, endXView), Math.min(startYView, endYView), Math.abs(startXView - endXView), Math.abs(startYView - endYView));
         }
     }
+
 
 
     @Override

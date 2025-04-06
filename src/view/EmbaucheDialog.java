@@ -60,7 +60,7 @@ public class EmbaucheDialog extends JDialog {
                 model.objets.Position pos = new model.objets.Position(x, y);
 
                 // Créer et ajouter une nouvelle unité (ici un Plongeur)
-                model.unite_controlables.Plongeur newUnit = new model.unite_controlables.Plongeur(3,pos,5);
+                model.unite_controlables.Plongeur newUnit = new model.unite_controlables.Plongeur(3,pos);
                 GamePanel.getInstance().addUniteControlable(newUnit);
                 GamePanel.getInstance().repaint();
 

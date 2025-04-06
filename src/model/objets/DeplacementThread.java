@@ -13,7 +13,7 @@ import java.util.logging.Logger;
 public class DeplacementThread extends Thread {
     private static final Logger LOGGER = Logger.getLogger(DeplacementThread.class.getName());
 
-    private model.objets.Unite unite;
+    private Unite unite;
 
     private static final int DELAY = 30;
     private volatile boolean running = true;
@@ -38,8 +38,6 @@ public class DeplacementThread extends Thread {
     public double getDistanceInitiale() {
         return distanceInitiale;
     }
-
-
 
     @Override
     public void run() {
@@ -209,4 +207,9 @@ public class DeplacementThread extends Thread {
             ThreadManager.decrementThreadCount("DeplacementThread");
         }
     }
+
 }
+
+
+
+

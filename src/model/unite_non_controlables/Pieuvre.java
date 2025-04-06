@@ -24,7 +24,7 @@ public class Pieuvre extends Enemy {
 
 
     public Pieuvre(Position position) {
-        super(position, 10, 120, VITESSE_VADROUILLE);
+        super(position, 20, 120, VITESSE_VADROUILLE);
         this.targetsDisponibles = new CopyOnWriteArrayList<>();
         setEtat(Etat.ATTENTE);
     }

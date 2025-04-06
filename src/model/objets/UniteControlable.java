@@ -1,6 +1,8 @@
 package model.objets;
 
 import java.awt.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UniteControlable extends Unite {
     private final int id;
@@ -33,5 +35,7 @@ public class UniteControlable extends Unite {
     public DeplacementThread getMovementThread() {
         return this.movementThread;
     }
+
+
 }
 
