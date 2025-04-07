@@ -770,7 +770,7 @@ public class GamePanel extends JPanel {
 
                 if(objet instanceof PlongeurArme)
                     image = ((PlongeurArme) objet).getVitesseCourante() >= 0.1  ? plongeurArmeGif : plongeurArmeImage;
-                
+
                 else if (objet instanceof Plongeur) {
                        image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ?  plongeurGif : plongeurImage;
                     if (((Plongeur)objet).isFaitFuire()) {

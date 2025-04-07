@@ -30,16 +30,7 @@ public class MainTest {
         maFenetre.setSize(FENETREWIDTH, FENETREHEIGHT);
         maFenetre.setLocationRelativeTo(null);
 
-
-
-
         GamePanel gamePanel = new GamePanel();
-        GameMaster gameMaster = new GameMaster();
-        AmmoManager ammo = new AmmoManager();
-        ammo.start();
-        StaminaRegenHandler.getInstance();
-        OxygenHandler.getInstance();
-
 
 
         // Configuration des limites de ressources par profondeur
@@ -49,42 +40,67 @@ public class MainTest {
         terrain.configureDepthZone(3, 0); // Profondeur 3: max 20 ressources
         terrain.configureDepthZone(4, 0); // Profondeur 4: max 40 ressources
 
-
-
-
         Base base = gamePanel.getMainBase();
         for(int i = 0; i < 1; i++)
             gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
-
         //for(int i = 0; i < 1; i++)
-           // gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
+        // gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
 
-        // Afficher la fenêtre de lancement pour paramétrer la partie
-        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
-        launchDialog.setVisible(true);
+        new SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() {
+                GameMaster gameMaster = new GameMaster();
+                AmmoManager ammo = new AmmoManager();
+                ammo.start();
+                StaminaRegenHandler.getInstance();
+                OxygenHandler.getInstance();
 
-        // Démarrer le ResourceSpawner
-        int maxResources = 500; // Nombre total de ressources à générer
-        int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
-        int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
-        int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
-        int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
-        ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
-        resourceSpawner.start();
+                // Démarrer le ResourceSpawner
+                int maxResources = 500; // Nombre total de ressources à générer
+                int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
+                int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
+                int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
+                int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
+                ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
+                SpawnManager spawnManager = new SpawnManager();
 
-
-        SpawnManager spawnManager = new SpawnManager();
-        //spawnManager.start();
-
-
+                resourceSpawner.start();
+                //spawnManager.start();
 
 
 
+//        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
+//
+                gameMaster.start();
+                ZoneMover z = new ZoneMover();
+                z.start();
+
+                gamePanel.startGame();
+
+                return null;
+            }
+            @Override
+            protected void done() {
+                SwingUtilities.invokeLater(() -> {
+                    GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
+                    launchDialog.setVisible(true);
+                });
+            }
+
+
+        }.execute();
 
         Redessine r = new Redessine();
+        r.start();
+
+
+
+
         maFenetre.add(gamePanel);
         maFenetre.pack();
+
         maFenetre.setVisible(true);
+        // Puis démarrer le système de victoire
 
         // Create and show the thread manager window
         JFrame threadManagerFrame = new JFrame("Thread Manager");
@@ -96,20 +112,6 @@ public class MainTest {
         threadManagerFrame.setVisible(true);
 
         ThreadManager.startDisplayThread();
-
-//        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
-//
-
-
-
-        gameMaster.start();
-        ZoneMover z = new ZoneMover();
-        z.start();
-
-        // Puis démarrer le système de victoire
-        gamePanel.startGame();
-
-        r.start();
 
 
     }
