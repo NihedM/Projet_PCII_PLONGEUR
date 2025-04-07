@@ -13,121 +13,112 @@ public class GameLaunchDialog extends JDialog {
     private JLabel pointsLabel;
 
     public GameLaunchDialog(JFrame parent) {
-        super(parent, "Paramétrer la partie", true);
-        setLayout(new GridBagLayout());
-        setSize(300, 180);
+        super(parent, "Menu Principal", true);
+        setLayout(new BorderLayout());
+        setSize(800, 600);
         setLocationRelativeTo(parent);
 
-        if (parent instanceof JFrame) {
-            JFrame frame = (JFrame) parent;
-            JPanel glassPane = (JPanel) frame.getGlassPane();
-            glassPane.setOpaque(true);
-            glassPane.setBackground(new Color(0, 0, 0, 128)); // noir semi-transparent
-            glassPane.setVisible(true);
-        }
+        JPanel titlePanel = new JPanel();
+        titlePanel.setBackground(new Color(30, 144, 255)); // Couleur bleu DodgerBlue
+        JLabel titleLabel = new JLabel("Bienvenue dans le Jeu !");
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        titleLabel.setForeground(Color.WHITE);
+        titlePanel.add(titleLabel);
+        add(titlePanel, BorderLayout.NORTH);
 
+        // Panneau de paramétrage au centre
+        JPanel paramPanel = new JPanel();
+        paramPanel.setLayout(new GridBagLayout());
+        paramPanel.setBackground(Color.LIGHT_GRAY);
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        JLabel timeLabel = new JLabel("Temps de la partie (minutes) :");
+        timeLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.EAST;
+        paramPanel.add(timeLabel, gbc);
+
+        timeSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 60, 1));
+        timeSpinner.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 1;
+        gbc.anchor = GridBagConstraints.WEST;
+        paramPanel.add(timeSpinner, gbc);
+
+        pointsLabel = new JLabel("Points pour gagner : 100");
+        pointsLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        gbc.gridwidth = 2;
+        gbc.anchor = GridBagConstraints.CENTER;
+        paramPanel.add(pointsLabel, gbc);
+
+        timeSpinner.addChangeListener(e -> updatePoints());
+
+        add(paramPanel, BorderLayout.CENTER);
+
+        // Panneau des boutons en bas
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(Color.DARK_GRAY);
+        JButton launchButton = new JButton("Lancer le jeu");
+        launchButton.setFont(new Font("Arial", Font.BOLD, 16));
+        launchButton.setFocusPainted(false);
+        JButton quitButton = new JButton("Quitter");
+        quitButton.setFont(new Font("Arial", Font.BOLD, 16));
+        quitButton.setFocusPainted(false);
+
+        launchButton.addActionListener(e -> startGame());
+        quitButton.addActionListener(e -> {
+            int res = JOptionPane.showConfirmDialog(this, "Voulez-vous vraiment quitter le jeu ?", "Quitter", JOptionPane.YES_NO_OPTION);
+            if (res == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+
+        buttonPanel.add(launchButton);
+        buttonPanel.add(quitButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Gestion de la fermeture de la fenêtre
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter(){
             @Override
             public void windowClosing(WindowEvent e) {
-                int res = JOptionPane.showConfirmDialog(
-                        GameLaunchDialog.this,
-                        "Voulez-vous quitter le jeu ?",
-                        "Confirmation",
-                        JOptionPane.YES_NO_OPTION
-                );
-                if (res == JOptionPane.YES_OPTION) {
-                    hideGlassPane(parent);
-                    System.exit(0); // Arrête entièrement le programme
-                }
-                // Sinon, ne rien faire
-            }
-
-            @Override
-            public void windowClosed(WindowEvent e) {
-                hideGlassPane(parent);
-            }
-        });
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
-
-        // Choix du temps de partie
-        JLabel timeLabel = new JLabel("Temps de la partie (minutes) :");
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        add(timeLabel, gbc);
-
-        timeSpinner = new JSpinner(new SpinnerNumberModel(5, 1, 60, 1));
-        gbc.gridx = 1;
-        add(timeSpinner, gbc);
-
-        // Affichage dynamique des points nécessaires
-        pointsLabel = new JLabel("Points pour gagner : 100");
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        add(pointsLabel, gbc);
-
-        // Mise à jour dynamique lors d'un changement dans le spinner
-        timeSpinner.addChangeListener(e -> updatePoints());
-
-        // Bouton de lancement de la partie
-        JButton launchButton = new JButton("Lancer la partie");
-        gbc.gridy = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        add(launchButton, gbc);
-
-        launchButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                startGame();
+                quitButton.doClick();
             }
         });
     }
 
-    // Mise à jour du label en fonction du temps choisi
     private void updatePoints() {
         int minutes = (int) timeSpinner.getValue();
         int points = calculatePoints(minutes);
         pointsLabel.setText("Points pour gagner : " + points);
     }
 
-    // Formule  points = minutes * 20
+    // TODO : Formule à modifier ou difficulté
     private int calculatePoints(int minutes) {
         return minutes * 20;
     }
 
-    // Méthode pour lancer la partie
     private void startGame() {
         int minutes = (int) timeSpinner.getValue();
         int points = calculatePoints(minutes);
 
-        // Réinitialisation des compteurs
+        // Réinitialiser les compteurs de victoire et d'argent
         Referee.getInstance().ajouterPointsVictoire(-Referee.getInstance().getPointsVictoire());
         Referee.getInstance().ajouterArgent(-Referee.getInstance().getArgentJoueur());
 
-        JOptionPane.showMessageDialog(this, "La partie va commencer ! Temps : "
-                + minutes + " min, Objectif : " + points + " points.");
+        JOptionPane.showMessageDialog(this, "La partie va commencer !\nTemps : " + minutes
+                + " min\nObjectif : " + points + " points.", "Démarrage", JOptionPane.INFORMATION_MESSAGE);
 
-        // Création du VictoryManager avec la durée et l'objectif définis
+        // Création et démarrage du VictoryManager
         long gameDuration = minutes * 60 * 1000L;
         VictoryManager vm = new VictoryManager(GamePanel.getInstance(), gameDuration, points);
         GamePanel.getInstance().setVictoryManager(vm);
         vm.startGame();
 
-        // Réafficher le GamePanel (caché lors du GameOverDialog)
         GamePanel.getInstance().setVisible(true);
-
-        dispose(); // Fermer la fenêtre de paramétrage
-    }
-
-
-    // Masquer le  glass pane
-    private void hideGlassPane(Window parent) {
-        if (parent instanceof JFrame) {
-            JFrame frame = (JFrame) parent;
-            frame.getGlassPane().setVisible(false);
-        }
+        dispose();
     }
 }

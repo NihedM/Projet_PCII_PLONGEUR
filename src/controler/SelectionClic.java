@@ -388,9 +388,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             }
             //else unite.setSelected(false);
         }
+
         if (!panel.getUnitesSelected().isEmpty()) {
             panel.showFixedInfoPanel("unit");
-            GamePanel.getInstance().getInfoPanel().updateInfo(panel.getUnitesSelected().get(0));
+            if (panel.getUnitesSelected().size() > 1) {
+                GamePanel.getInstance().getInfoPanel().updateMultipleInfo(panel.getUnitesSelected());
+            } else {
+                GamePanel.getInstance().getInfoPanel().updateInfo(panel.getUnitesSelected().get(0));
+            }
         }
     }
 

@@ -1010,6 +1010,29 @@ public class GamePanel extends JPanel {
                 baseScreenPos.y - baseUnique.getRayon(),
                 baseUnique.getRayon() * 2, baseUnique.getRayon() * 2);
 
+
+
+        // A REDEFINIR
+        java.util.List<model.objets.SousMarin> submarines = baseUnique.getSubmarines();
+        if (submarines != null && !submarines.isEmpty()) {
+            // Positionner les sous-marins à droite de la base
+            Position topRight = coints[1];
+            Point topRightScreenPos = worldToScreen(topRight.getX(), topRight.getY());
+            int offsetX = 10; // Marge à droite
+            int startX = topRightScreenPos.x + offsetX;
+            int startY = topRightScreenPos.y;
+
+            int submarineWidth = 20;
+            int submarineHeight = 10;
+            int spacing = 5; // Espace entre les sous-marins
+
+            g.setColor(Color.BLUE);
+            for (int i = 0; i < submarines.size(); i++) {
+                int x = startX + i * (submarineWidth + spacing);
+                g.fillRect(x, startY, submarineWidth, submarineHeight);
+            }
+        }
+
     }
 
     private void drawPlayerInfo(Graphics g) {

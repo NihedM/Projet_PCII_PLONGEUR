@@ -1,6 +1,11 @@
 package model.constructions;
 
 import model.objets.Position;
+import model.objets.SousMarin;
+import view.GamePanel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Base extends Construction {
 
@@ -10,6 +15,7 @@ public class Base extends Construction {
     private final int largeur, longueur;
     private final Position topLeft, topRight, bottomLeft, bottomRight;
 
+    private List<SousMarin> submarines;
 
 
     public Base(Position position, int rayon) {
@@ -21,6 +27,8 @@ public class Base extends Construction {
         this.topRight = new Position(position.getX() + largeur / 2, position.getY() - longueur / 2);
         this.bottomLeft = new Position(position.getX() - largeur / 2, position.getY() + longueur / 2);
         this.bottomRight = new Position(position.getX() + largeur / 2, position.getY() + longueur / 2);
+
+        submarines = new ArrayList<>();
 
 
     }
@@ -39,5 +47,12 @@ public class Base extends Construction {
         return new Position[]{topLeft, topRight, bottomLeft, bottomRight};
     }
 
+    public void addSubmarine(SousMarin sm) {
+        submarines.add(sm);
+        System.out.println("Sous-marin ajouté à la base. Total: " + submarines.size());
+    }
+    public List<SousMarin> getSubmarines() {
+        return submarines;
+    }
 
 }
