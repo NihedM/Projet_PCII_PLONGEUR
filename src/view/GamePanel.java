@@ -40,8 +40,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 2000;
-    public static final int TERRAIN_HEIGHT = 2000;
+    public static final int TERRAIN_WIDTH = 12000;
+    public static final int TERRAIN_HEIGHT = 12000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -211,7 +211,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN, // X: à gauche avec marge
-                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN, // Y: en bas avec marge
+                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50, // Y: en bas avec marge
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
