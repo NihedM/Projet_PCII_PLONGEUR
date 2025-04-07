@@ -1082,20 +1082,25 @@ public class GamePanel extends JPanel {
         for (int x = 0; x < TERRAIN_WIDTH; x += TileManager.TILESIZE) {
             for (int y = 0; y < TERRAIN_HEIGHT; y += TileManager.TILESIZE) {
                 int depth = terrain.getDepthAt(x, y);
+                Point screenPos = worldToScreen(x, y);
+
+                // Couleurs de base pour chaque profondeur
                 Color color;
                 switch (depth) {
-                    case 1: color = new Color(100, 100, 255, 100); break; // Bleu clair
-                    case 2: color = new Color(50, 50, 200, 100); break;   // Bleu moyen
-                    case 3: color = new Color(0, 0, 150, 100); break;     // Bleu foncé
-                    case 4: color = new Color(0, 0, 100, 100); break;     // Bleu très foncé
+                    case 1: color = new Color(100, 200, 255, 80); break;  // Bleu clair
+                    case 2: color = new Color(50, 150, 220, 100); break;  // Bleu moyen
+                    case 3: color = new Color(0, 100, 190, 120); break;   // Bleu foncé
+                    case 4: color = new Color(0, 50, 150, 140); break;    // Bleu très foncé
                     default: color = Color.BLACK;
                 }
+
                 g.setColor(color);
-                Point screenPos = worldToScreen(x, y);
-                g.fillRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
+                g.fillRect(screenPos.x, screenPos.y,
+                        TileManager.TILESIZE, TileManager.TILESIZE);
             }
         }
     }
+
     private void drawAmmo(Graphics g) {
         for (Ammo ammo : AmmoManager.getInstance().getActiveAmmo()) {
             Point screenPos = worldToScreen(ammo.getPosition().getX(), ammo.getPosition().getY());

@@ -2,6 +2,7 @@ package model.objets;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 public class Terrain {
     private final int width;
@@ -51,21 +52,28 @@ public class Terrain {
 
     private void initializeDepthMap() {
         depthMap = new int[width][height];
-        // Calcul des profondeurs (similaire à votre implémentation actuelle)
+        Random rand = new Random(12345); // Seed fixe pour un motif cohérent
+
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                float xRatio = (float)x / width;
-                float yRatio = (float)y / height;
-                float depthValue = xRatio + yRatio;
+                // Valeur diagonale de base (0 à 1)
+                double diagonalValue = (x + y) / (double)(width + height);
 
-                if (depthValue < 0.5f) {
-                    depthMap[x][y] = 1;
-                } else if (depthValue < 1.0f) {
+                // Ajouter un petit bruit aléatoire
+                double noise = rand.nextDouble() * 0.2 - 0.1; // Entre -0.1 et 0.1
+
+                // Valeur finale avec légère variation
+                double depthValue = diagonalValue + noise;
+
+                // Déterminer les zones de profondeur
+                if (depthValue < 0.25) {
+                    depthMap[x][y] = 1; // Peu profond
+                } else if (depthValue < 0.5) {
                     depthMap[x][y] = 2;
-                } else if (depthValue < 1.5f) {
+                } else if (depthValue < 0.75) {
                     depthMap[x][y] = 3;
                 } else {
-                    depthMap[x][y] = 4;
+                    depthMap[x][y] = 4; // Très profond
                 }
             }
         }
