@@ -2,7 +2,7 @@ package view;
 
 import model.gains_joueur.Referee;
 import model.objets.Position;
-import model.objets.SousMarin;
+import model.unite_controlables.SousMarin;
 
 import javax.swing.*;
 import java.awt.*;
@@ -41,7 +41,7 @@ public class BoutiqueDialog extends JDialog {
                "Sous-marin",
                "200€",
                isDepth3Unlocked(),
-               "view/images/sous-marin.png"
+               "src/view/images/sous-marin.png"
        );
        sousMarinPanel.addMouseListener(new MouseAdapter() {
            @Override

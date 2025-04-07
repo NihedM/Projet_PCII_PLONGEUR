@@ -74,7 +74,7 @@ public class MainTest {
 
 
         SpawnManager spawnManager = new SpawnManager();
-        //spawnManager.start();
+        spawnManager.start();
 
 
 

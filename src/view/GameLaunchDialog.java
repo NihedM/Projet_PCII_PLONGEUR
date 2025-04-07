@@ -96,10 +96,12 @@ public class GameLaunchDialog extends JDialog {
         pointsLabel.setText("Points pour gagner : " + points);
     }
 
-    // TODO : Formule à modifier ou difficulté
+    // TODO : Formule à modifier
     private int calculatePoints(int minutes) {
         return minutes * 20;
     }
+
+
 
     private void startGame() {
         int minutes = (int) timeSpinner.getValue();

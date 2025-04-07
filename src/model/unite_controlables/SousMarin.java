@@ -1,6 +1,8 @@
-package model.objets;
+package model.unite_controlables;
 
 
+import model.objets.Position;
+import model.objets.UniteControlable;
 
 public class SousMarin extends UniteControlable {
         public SousMarin(Position position) {

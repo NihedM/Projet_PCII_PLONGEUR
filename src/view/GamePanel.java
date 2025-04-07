@@ -7,6 +7,7 @@ import model.objets.*;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
+import model.unite_controlables.SousMarin;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
 import model.unite_non_controlables.PieuvreBebe;
@@ -16,9 +17,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -1013,7 +1012,7 @@ public class GamePanel extends JPanel {
 
 
         // A REDEFINIR
-        java.util.List<model.objets.SousMarin> submarines = baseUnique.getSubmarines();
+        java.util.List<SousMarin> submarines = baseUnique.getSubmarines();
         if (submarines != null && !submarines.isEmpty()) {
             // Positionner les sous-marins à droite de la base
             Position topRight = coints[1];

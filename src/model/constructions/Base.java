@@ -1,8 +1,7 @@
 package model.constructions;
 
 import model.objets.Position;
-import model.objets.SousMarin;
-import view.GamePanel;
+import model.unite_controlables.SousMarin;
 
 import java.util.ArrayList;
 import java.util.List;

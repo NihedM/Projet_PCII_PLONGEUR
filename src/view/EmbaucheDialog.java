@@ -29,7 +29,7 @@ public class EmbaucheDialog extends JDialog {
         ItemPanelEM plongeurPanel = new ItemPanelEM(
                 "Plongeur",
                 50,  // coût
-                "view/images/plongeurNormal.png"
+                "src/view/images/plongeurNormal.png"
         ) {
             @Override
             protected void onBuy() {   //
@@ -47,7 +47,7 @@ public class EmbaucheDialog extends JDialog {
         ItemPanelEM plongeurArmePanel = new ItemPanelEM(
                 "Plongeur Armé",
                 100,  // coût
-                "view/images/plongeurArme.png"
+                "src/view/images/plongeurArme.png"
         ) {
             @Override
             protected void onBuy() {
