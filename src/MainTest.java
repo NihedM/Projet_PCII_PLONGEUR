@@ -13,29 +13,34 @@ import view.Redessine;
 import view.debeug.ThreadManagerPanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.Random;
 
 public class MainTest {
 
-    private static final int FENETREWIDTH = 800, FENETREHEIGHT = 600;
-
-
-
 
     public static void main(String[] args) {
 
         JFrame maFenetre = new JFrame("Collisions");
         maFenetre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        maFenetre.setResizable(false);
-        maFenetre.setSize(FENETREWIDTH, FENETREHEIGHT);
-        maFenetre.setLocationRelativeTo(null);
+
+        // Activer le plein écran
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
 
-
+        // Configurer la fenêtre en plein écran
+        if (gd.isFullScreenSupported()) {
+            maFenetre.setUndecorated(true);
+            gd.setFullScreenWindow(maFenetre);
+        } else {
+            // Fallback si le plein écran n'est pas supporté
+            maFenetre.setExtendedState(JFrame.MAXIMIZED_BOTH);
+            maFenetre.setResizable(true);
+        }
 
         // Configuration des limites de ressources par profondeur
         Terrain terrain = gamePanel.getTerrain();

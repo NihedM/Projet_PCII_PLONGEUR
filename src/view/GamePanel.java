@@ -27,6 +27,27 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
+
+    public static int getPanelWidth() {
+        return Toolkit.getDefaultToolkit().getScreenSize().width;
+    }
+
+    public static int getPanelHeight() {
+        return Toolkit.getDefaultToolkit().getScreenSize().height;
+    }
+
+    public static int getViewportWidth() {
+        return (int)(getPanelWidth() * 0.75); // 75% de la largeur pour la vue de jeu
+    }
+
+    public static int getViewportHeight() {
+        return getPanelHeight();
+    }
+
+    public static int getPanelInfoWidth() {
+        return getPanelWidth() - getViewportWidth();
+    }
+
     private Barre timeProgressBar;
     private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
     public static final int PANELWIDTH = 800;
@@ -121,7 +142,7 @@ public class GamePanel extends JPanel {
     public GamePanel() {
         instance = this;
         setLayout(null);
-        setPreferredSize(new Dimension(PANELWIDTH, PANELHEIGTH));
+        setPreferredSize(new Dimension(getPanelWidth(), getPanelHeight()));
         setBackground(new Color(173, 216, 230));
 
         loadImages();
@@ -177,8 +198,8 @@ public class GamePanel extends JPanel {
 
     private void initUIComponents() {
         // Création de la barre de temps
-        timeProgressBar = new Barre(0, 100, Color.GREEN, VIEWPORT_WIDTH, 20, WARNING_THRESHOLD);
-        timeProgressBar.setBounds(0, 0, VIEWPORT_WIDTH, 20);
+        timeProgressBar = new Barre(0, 100, Color.GREEN, getViewportWidth(), 20, WARNING_THRESHOLD);
+        timeProgressBar.setBounds(0, 0, getViewportWidth(), 20);
         timeProgressBar.setShowAsTime(true); // Active le format temporel
         timeProgressBar.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
         add(timeProgressBar);
@@ -193,7 +214,7 @@ public class GamePanel extends JPanel {
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(new JPanel(), "empty");
 
-        infoContainer.setBounds(VIEWPORT_WIDTH, 0, PANEL_INFO_WIDTH, PANELHEIGTH);
+        infoContainer.setBounds(getViewportWidth(), 0, getPanelInfoWidth(), getPanelHeight());
         add(infoContainer);
 
         // Bouton Market
@@ -210,8 +231,8 @@ public class GamePanel extends JPanel {
         // Minimap
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
-                MINIMAP_MARGIN, // X: à gauche avec marge
-                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50, // Y: en bas avec marge
+                MINIMAP_MARGIN,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
