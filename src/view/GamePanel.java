@@ -29,8 +29,6 @@ import java.util.concurrent.Executors;
 public class GamePanel extends JPanel {
     private Barre timeProgressBar;
     private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
-    //public static final int PANELWIDTH = 800;
-    //public static final int PANELHEIGTH = 600;
 
     public static int getPanelWidth() {
         return Toolkit.getDefaultToolkit().getScreenSize().width;
