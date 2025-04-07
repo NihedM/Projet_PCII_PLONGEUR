@@ -13,6 +13,8 @@ import view.Redessine;
 import view.debeug.ThreadManagerPanel;
 
 import javax.swing.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.Random;
 
 public class MainTest {
@@ -31,6 +33,8 @@ public class MainTest {
         maFenetre.setLocationRelativeTo(null);
 
         GamePanel gamePanel = new GamePanel();
+        GameMaster gameMaster = new GameMaster();
+
 
 
         // Configuration des limites de ressources par profondeur
@@ -46,10 +50,10 @@ public class MainTest {
         //for(int i = 0; i < 1; i++)
         // gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
 
+
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                GameMaster gameMaster = new GameMaster();
                 AmmoManager ammo = new AmmoManager();
                 ammo.start();
                 StaminaRegenHandler.getInstance();
@@ -68,7 +72,6 @@ public class MainTest {
                 //spawnManager.start();
 
 
-
 //        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
 //
                 gameMaster.start();
@@ -79,17 +82,10 @@ public class MainTest {
 
                 return null;
             }
-            @Override
-            protected void done() {
-                SwingUtilities.invokeLater(() -> {
-                    GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
-                    launchDialog.setVisible(true);
-                });
-            }
-
 
         }.execute();
-
+        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
+        launchDialog.setVisible(true);
         Redessine r = new Redessine();
         r.start();
 
@@ -102,6 +98,7 @@ public class MainTest {
         maFenetre.setVisible(true);
         // Puis démarrer le système de victoire
 
+
         // Create and show the thread manager window
         JFrame threadManagerFrame = new JFrame("Thread Manager");
         threadManagerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -112,6 +109,8 @@ public class MainTest {
         threadManagerFrame.setVisible(true);
 
         ThreadManager.startDisplayThread();
+
+
 
 
     }

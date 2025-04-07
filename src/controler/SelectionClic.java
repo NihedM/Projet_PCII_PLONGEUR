@@ -225,10 +225,10 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 }
             }
             if (unitSelected) {
-                currentSelectionType = SelectionType.UNIT;
+                /*currentSelectionType = SelectionType.UNIT;
                 panel.showFixedInfoPanel("unit");
                 panel.hideResourceInfoPanel();
-            } else {
+            */} else {
                 boolean resourceSelected = false;
                 for (model.objets.Ressource ressource : panel.getRessourcesMap()) {
                     int rayon = ressource.getRayon();
