@@ -15,9 +15,14 @@ import java.awt.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MinimapPanel extends JPanel {
-    // Supprimer les constantes WIDTH et HEIGHT et utiliser celles de GamePanel
-    private static final float SCALE_X = GamePanel.MINIMAP_SCALE_X;
-    private static final float SCALE_Y = GamePanel.MINIMAP_SCALE_Y;
+    private static float getScaleX() {
+        return GamePanel.MINIMAP_WIDTH / (float)GamePanel.TERRAIN_WIDTH;
+    }
+
+    private static float getScaleY() {
+        return GamePanel.MINIMAP_HEIGHT / (float)GamePanel.TERRAIN_HEIGHT;
+    }
+
 
     public MinimapPanel() {
         setOpaque(false);
@@ -48,9 +53,9 @@ public class MinimapPanel extends JPanel {
 
         // Dessiner les ressources
         for (Ressource ressource : GamePanel.getInstance().getRessourcesMap()) {
-            int x = (int)(ressource.getPosition().getX() * SCALE_X);
-            int y = (int)(ressource.getPosition().getY() * SCALE_Y);
-            int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * SCALE_X));
+            int x = (int)(ressource.getPosition().getX() * getScaleX());
+            int y = (int)(ressource.getPosition().getY() * getScaleY());
+            int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * getScaleX()));
 
             if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
                 g.setColor(Color.GREEN);
@@ -62,9 +67,9 @@ public class MinimapPanel extends JPanel {
 
         // Dessiner les unités
         for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
-            int x = (int)(unite.getPosition().getX() * SCALE_X);
-            int y = (int)(unite.getPosition().getY() * SCALE_Y);
-            int size = Math.max(MIN_SIZE, (int)(unite.getRayon() * 3 * SCALE_X));
+            int x = (int)(unite.getPosition().getX() * getScaleX());
+            int y = (int)(unite.getPosition().getY() * getScaleY());
+            int size = Math.max(MIN_SIZE, (int)(unite.getRayon() * 3 * getScaleX()));
 
             g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
             g.fillOval(x, y, size, size);
@@ -72,37 +77,37 @@ public class MinimapPanel extends JPanel {
 
 
         for(Enemy enemy : GameMaster.getInstance().getEnemies()) {
-            int x = (int)(enemy.getPosition().getX() * SCALE_X);
-            int y = (int)(enemy.getPosition().getY() * SCALE_Y);
-            int size = Math.max(MIN_SIZE, (int)(enemy.getRayon() * 3 * SCALE_X));
+            int x = (int)(enemy.getPosition().getX() * getScaleX());
+            int y = (int)(enemy.getPosition().getY() * getScaleY());
+            int size = Math.max(MIN_SIZE, (int)(enemy.getRayon() * 3 * getScaleX()));
 
             g.setColor(Color.RED);
             g.fillOval(x, y, size, size);
         }
         Base base = GamePanel.getInstance().getMainBase();
-        int x = (int)(base.getPosition().getX() * SCALE_X);
-        int y = (int)(base.getPosition().getY() * SCALE_Y);
-        int size = Math.max(MIN_SIZE, (int)(base.getRayon() * 3 * SCALE_X));
+        int x = (int)(base.getPosition().getX() * getScaleX());
+        int y = (int)(base.getPosition().getY() * getScaleY());
+        int size = Math.max(MIN_SIZE, (int)(base.getRayon() * 3 * getScaleX()));
         g.setColor(Color.CYAN);
         g.fillOval(x, y, size, size);
         Position[] coints = base.getCoints();
         g.setColor(Color.CYAN);
         for(int i = 0; i < coints.length; i++){
             //topleft
-            int x1 = (int)(coints[i].getX() * SCALE_X);
-            int y1 = (int)(coints[i].getY() * SCALE_Y);
-            int x2 = (int)(coints[(i+1)%coints.length].getX() * SCALE_X);
-            int y2 = (int)(coints[(i+1)%coints.length].getY() * SCALE_Y);
+            int x1 = (int)(coints[i].getX() * getScaleX());
+            int y1 = (int)(coints[i].getY() * getScaleY());
+            int x2 = (int)(coints[(i+1)%coints.length].getX() * getScaleX());
+            int y2 = (int)(coints[(i+1)%coints.length].getY() * getScaleY());
             g.drawLine(x1, y1, x2, y2);
         }
 
 
         // Dessiner le rectangle de la vue actuelle
         g.setColor(new Color(255, 255, 255, 150));
-        int viewX = (int)(GamePanel.getInstance().getCameraX() * SCALE_X);
-        int viewY = (int)(GamePanel.getInstance().getCameraY() * SCALE_Y);
-        int viewW = (int)(GamePanel.VIEWPORT_WIDTH * SCALE_X);
-        int viewH = (int)(GamePanel.VIEWPORT_HEIGHT * SCALE_Y);
+        int viewX = (int)(GamePanel.getInstance().getCameraX() * getScaleX());
+        int viewY = (int)(GamePanel.getInstance().getCameraY() * getScaleY());
+        int viewW = (int)(GamePanel.VIEWPORT_WIDTH * getScaleX());
+        int viewH = (int)(GamePanel.VIEWPORT_HEIGHT * getScaleY());
         g.drawRect(viewX, viewY, viewW, viewH);
 
         drawZoneBorders(g);
@@ -126,10 +131,10 @@ public class MinimapPanel extends JPanel {
     }
     private void drawZoneBorder(Graphics g, ZoneEnFonctionnement zone, Color color) {
         g.setColor(color);
-        int x = (int) (zone.getMinX() * SCALE_X);
-        int y = (int) (zone.getMinY() * SCALE_Y);
-        int width = (int) ((zone.getMaxX() - zone.getMinX()) * SCALE_X);
-        int height = (int) ((zone.getMaxY() - zone.getMinY()) * SCALE_Y);
+        int x = (int) (zone.getMinX() * getScaleX());
+        int y = (int) (zone.getMinY() * getScaleY());
+        int width = (int) ((zone.getMaxX() - zone.getMinX()) * getScaleX());
+        int height = (int) ((zone.getMaxY() - zone.getMinY()) * getScaleY());
 
 
 

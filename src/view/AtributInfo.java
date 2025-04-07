@@ -24,7 +24,7 @@ public class AtributInfo extends JPanel {
         removeAll();
 
         int attributeCount = attributes.size();
-        int barHeight = Math.max(15, ((GamePanel.PANELHEIGTH/3) / attributeCount)/4);
+        int barHeight = Math.max(15, ((GamePanel.getPanelHeight()/3) / attributeCount)/4);
 
         for (Map.Entry<String, String> entry : attributes.entrySet()) {
             String key = entry.getKey();

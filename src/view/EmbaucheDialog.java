@@ -91,8 +91,8 @@ public class EmbaucheDialog extends JDialog {
     private Position generateRandomPosition() {
         Random rand = new Random();
         int margin = 25;
-        int x = rand.nextInt(GamePanel.PANELWIDTH - 2 * margin) + margin;
-        int y = rand.nextInt(GamePanel.PANELHEIGTH - 2 * margin) + margin;
+        int x = rand.nextInt(GamePanel.getPanelWidth() - 2 * margin) + margin;
+        int y = rand.nextInt(GamePanel.getPanelHeight() - 2 * margin) + margin;
         return new Position(x, y);
     }
 }

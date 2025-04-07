@@ -27,6 +27,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
+    private Barre timeProgressBar;
+    private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
+    //public static final int PANELWIDTH = 800;
+    //public static final int PANELHEIGTH = 600;
 
     public static int getPanelWidth() {
         return Toolkit.getDefaultToolkit().getScreenSize().width;
@@ -37,7 +41,7 @@ public class GamePanel extends JPanel {
     }
 
     public static int getViewportWidth() {
-        return (int)(getPanelWidth() * 0.75); // 75% de la largeur pour la vue de jeu
+        return (int)(getPanelWidth() * 0.75); // 75% de la largeur
     }
 
     public static int getViewportHeight() {
@@ -48,10 +52,7 @@ public class GamePanel extends JPanel {
         return getPanelWidth() - getViewportWidth();
     }
 
-    private Barre timeProgressBar;
-    private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
-    public static final int PANELWIDTH = 800;
-    public static final int PANELHEIGTH = 600;
+
     private static volatile GamePanel instance;
 
     // Variables pour la caméra
@@ -64,13 +65,13 @@ public class GamePanel extends JPanel {
     public static final int TERRAIN_WIDTH = 12000;
     public static final int TERRAIN_HEIGHT = 12000;
 
-    public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
-    public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
-    public static final int VIEWPORT_HEIGHT = PANELHEIGTH;
+    public static final int PANEL_INFO_WIDTH = getPanelWidth()/4;
+    public static final int VIEWPORT_WIDTH = getPanelWidth() - PANEL_INFO_WIDTH;
+    public static final int VIEWPORT_HEIGHT = getPanelHeight();
 
     // Dimensions minimap (même ratio que la carte principale)
     private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
-    public static final int MINIMAP_HEIGHT = 120; // Hauteur fixe
+    public static final int MINIMAP_HEIGHT = 200; // Hauteur fixe
     public static final int MINIMAP_WIDTH = (int)(MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
     private static final int MINIMAP_MARGIN = 10;
     public static final float MINIMAP_SCALE_X = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
@@ -641,7 +642,7 @@ public class GamePanel extends JPanel {
             public void actionPerformed(ActionEvent e) {
                 if (currentWidth < targetWidth) {
                     currentWidth += animationStep;
-                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELHEIGTH));
+                    infoContainer.setPreferredSize(new Dimension(currentWidth, getPanelHeight()));
                     infoContainer.revalidate();
                     repaint();
                 } else {
@@ -667,7 +668,7 @@ public class GamePanel extends JPanel {
                     if (currentWidth < 0) {
                         currentWidth = 0;
                     }
-                    infoContainer.setPreferredSize(new Dimension(currentWidth, PANELHEIGTH));
+                    infoContainer.setPreferredSize(new Dimension(currentWidth, getPanelHeight()));
                     infoContainer.revalidate();
                     repaint();
                 } else {
@@ -688,7 +689,7 @@ public class GamePanel extends JPanel {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
         // Définir une largeur fixe pour le panneau d'info (par exemple 200 pixels)
-        infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
+        infoContainer.setPreferredSize(new Dimension(200, getPanelHeight()));
         infoContainer.revalidate();
         repaint();
     }
@@ -696,7 +697,7 @@ public class GamePanel extends JPanel {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, panelType);
         // Définir la largeur fixe souhaitée (par exemple 200 pixels)
-        infoContainer.setPreferredSize(new Dimension(200, PANELHEIGTH));
+        infoContainer.setPreferredSize(new Dimension(200, getPanelHeight()));
         infoContainer.revalidate();
         repaint();
     }
