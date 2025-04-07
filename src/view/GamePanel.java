@@ -7,6 +7,7 @@ import model.objets.*;
 import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
+import model.unite_controlables.SousMarin;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
 import model.unite_non_controlables.PieuvreBebe;
@@ -16,9 +17,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -41,8 +40,8 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 2000;
-    public static final int TERRAIN_HEIGHT = 2000;
+    public static final int TERRAIN_WIDTH = 12000;
+    public static final int TERRAIN_HEIGHT = 12000;
 
     public static final int PANEL_INFO_WIDTH = PANELWIDTH/4;
     public static final int VIEWPORT_WIDTH = PANELWIDTH - PANEL_INFO_WIDTH;
@@ -212,7 +211,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN, // X: à gauche avec marge
-                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN, // Y: en bas avec marge
+                PANELHEIGTH - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50, // Y: en bas avec marge
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -1009,6 +1008,29 @@ public class GamePanel extends JPanel {
         g.fillOval(baseScreenPos.x- baseUnique.getRayon(),
                 baseScreenPos.y - baseUnique.getRayon(),
                 baseUnique.getRayon() * 2, baseUnique.getRayon() * 2);
+
+
+
+        // A REDEFINIR
+        java.util.List<SousMarin> submarines = baseUnique.getSubmarines();
+        if (submarines != null && !submarines.isEmpty()) {
+            // Positionner les sous-marins à droite de la base
+            Position topRight = coints[1];
+            Point topRightScreenPos = worldToScreen(topRight.getX(), topRight.getY());
+            int offsetX = 10; // Marge à droite
+            int startX = topRightScreenPos.x + offsetX;
+            int startY = topRightScreenPos.y;
+
+            int submarineWidth = 20;
+            int submarineHeight = 10;
+            int spacing = 5; // Espace entre les sous-marins
+
+            g.setColor(Color.BLUE);
+            for (int i = 0; i < submarines.size(); i++) {
+                int x = startX + i * (submarineWidth + spacing);
+                g.fillRect(x, startY, submarineWidth, submarineHeight);
+            }
+        }
 
     }
 

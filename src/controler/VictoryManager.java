@@ -34,7 +34,7 @@ public class VictoryManager {
                 checkGameStatus();
                 gamePanel.repaint(); // Rafraîchir l'affichage du temps
             }
-        }, 1000, 1000); // Vérifie chaque seconde
+        }, 0, 1000); // Vérifie chaque seconde
     }
 
     private void checkGameStatus() {
