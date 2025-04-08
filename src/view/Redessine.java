@@ -15,17 +15,25 @@ public class Redessine extends Thread {
         running = false;
     }
 
-    @Override
     public void run() {
         ThreadManager.incrementThreadCount("Redessine");
+        long targetTime = 1000 / 60; // 60 FPS
+        long startTime, elapsed, waitTime;
+
         while (running) {
+            startTime = System.nanoTime();
+
             GamePanel.getInstance().repaint();
-            //GamePanel.getInstance().getInfoPanel().repaint();
-            try {
-                Thread.sleep(DELAY);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Thread interrupted");
+
+            elapsed = (System.nanoTime() - startTime) / 1000000;
+            waitTime = targetTime - elapsed;
+
+            if (waitTime > 0) {
+                try {
+                    Thread.sleep(waitTime);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
             }
         }
         ThreadManager.decrementThreadCount("Redessine");

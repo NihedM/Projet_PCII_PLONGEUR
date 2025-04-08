@@ -20,6 +20,8 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -27,6 +29,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GamePanel extends JPanel {
+    private BufferedImage backBuffer;
+    private Graphics2D backBufferGraphics;
+
     private Barre timeProgressBar;
     private static final int WARNING_THRESHOLD = 20; // Seuil d'avertissement pour la barre de temps
 
@@ -39,7 +44,7 @@ public class GamePanel extends JPanel {
     }
 
     public static int getViewportWidth() {
-        return (int)(getPanelWidth() * 0.75); // 75% de la largeur
+        return (int) (getPanelWidth() * 0.75); // 75% de la largeur
     }
 
     public static int getViewportHeight() {
@@ -60,20 +65,20 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Dimensions du terrain
-    public static final int TERRAIN_WIDTH = 12000;
-    public static final int TERRAIN_HEIGHT = 12000;
+    public static final int TERRAIN_WIDTH = 10000;
+    public static final int TERRAIN_HEIGHT = 10000;
 
-    public static final int PANEL_INFO_WIDTH = getPanelWidth()/4;
+    public static final int PANEL_INFO_WIDTH = getPanelWidth() / 4;
     public static final int VIEWPORT_WIDTH = getPanelWidth() - PANEL_INFO_WIDTH;
     public static final int VIEWPORT_HEIGHT = getPanelHeight();
 
     // Dimensions minimap (même ratio que la carte principale)
-    private static final float MAP_RATIO = TERRAIN_WIDTH / (float)TERRAIN_HEIGHT;
+    private static final float MAP_RATIO = TERRAIN_WIDTH / (float) TERRAIN_HEIGHT;
     public static final int MINIMAP_HEIGHT = 200; // Hauteur fixe
-    public static final int MINIMAP_WIDTH = (int)(MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
+    public static final int MINIMAP_WIDTH = (int) (MINIMAP_HEIGHT * MAP_RATIO); // Largeur calculée
     private static final int MINIMAP_MARGIN = 10;
-    public static final float MINIMAP_SCALE_X = MINIMAP_WIDTH / (float)TERRAIN_WIDTH;
-    public static final float MINIMAP_SCALE_Y = MINIMAP_HEIGHT / (float)TERRAIN_HEIGHT;
+    public static final float MINIMAP_SCALE_X = MINIMAP_WIDTH / (float) TERRAIN_WIDTH;
+    public static final float MINIMAP_SCALE_Y = MINIMAP_HEIGHT / (float) TERRAIN_HEIGHT;
 
     private int grid[][] = new int[TileManager.nbTilesWidth][TileManager.nbTilesHeight];
     private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap = new ConcurrentHashMap<>();
@@ -118,9 +123,6 @@ public class GamePanel extends JPanel {
     private int viewportMaxY = cameraY + VIEWPORT_HEIGHT + VIEWPORT_BUFFER;
 
 
-
-
-
     private SelectionClic selectionClic;
     private final int INFO_PANEL_TARGET_WIDTH = 200;
     private int currentInfoPanelWidth = 0;
@@ -133,9 +135,7 @@ public class GamePanel extends JPanel {
     private VictoryManager victoryManager;
 
 
-
-
-    private BufferedImage plongeurImage,plongeurArmeImage, collierImage, pieuvreImage;
+    private BufferedImage plongeurImage, plongeurArmeImage, collierImage, pieuvreImage;
     private Image plongeurGif, enemyGif, plongeurArmeGif;
 
     public GamePanel() {
@@ -159,21 +159,40 @@ public class GamePanel extends JPanel {
         dynamicZones = new CopyOnWriteArrayList<>();
 
 
-
-
+        createBackBuffer();
         initUIComponents();
         setupListeners();
         initSystems();
+    }
+
+    private void createBackBuffer() {
+        backBuffer = new BufferedImage(getPanelWidth(), getPanelHeight(), BufferedImage.TYPE_INT_ARGB);
+        backBufferGraphics = backBuffer.createGraphics();
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        backBufferGraphics.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_SPEED);
+    }
+    private Map<String, Image> imageCache = new HashMap<>();
+
+    private Image getOptimizedImage(String key, Image original, int width, int height) {
+        String cacheKey = key + "_" + width + "x" + height;
+        if (!imageCache.containsKey(cacheKey)) {
+            Image scaled = original.getScaledInstance(width, height, Image.SCALE_SMOOTH);
+            imageCache.put(cacheKey, scaled);
+        }
+        return imageCache.get(cacheKey);
     }
 
 
     public Terrain getTerrain() {
         return terrain;
     }
-    public Base getMainBase() {return baseUnique;}
+
+    public Base getMainBase() {
+        return baseUnique;
+    }
 
 
-    private void loadImages(){
+    private void loadImages() {
         try {
             plongeurImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurNormal.png")));
             plongeurArmeImage = ImageIO.read(Objects.requireNonNull(getClass().getResource("/view/images/plongeurArme.png")));
@@ -185,8 +204,8 @@ public class GamePanel extends JPanel {
             plongeurArmeGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/plongeurArme.gif"))).getImage();
             enemyGif = new ImageIcon(Objects.requireNonNull(getClass().getResource("/view/images/enemyTest.gif"))).getImage();
 
-            if(plongeurImage == null || collierImage == null || pieuvreImage == null
-                    ||plongeurGif == null || enemyGif == null){
+            if (plongeurImage == null || collierImage == null || pieuvreImage == null
+                    || plongeurGif == null || enemyGif == null) {
                 throw new IOException("Image non trouvée");
             }
 
@@ -341,6 +360,7 @@ public class GamePanel extends JPanel {
     public void setVictoryManager(VictoryManager vm) {
         this.victoryManager = vm;
     }
+
     public void reset() {
         // Réinitialiser la caméra
         cameraX = 0;
@@ -367,6 +387,7 @@ public class GamePanel extends JPanel {
         // Repaint pour mettre à jour l'affichage
         repaint();
     }
+
     //------------------GETTERS------------------------------------------------------------------------------------------------------
     public static GamePanel getInstance() {
         return instance;
@@ -376,6 +397,7 @@ public class GamePanel extends JPanel {
     public synchronized ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<model.objets.Objet>> getObjetsMap() {
         return objetsMap;
     }
+
     public synchronized Ressource getRessourceSelectionnee() {
         return ressourceSelectionnee;
     }
@@ -391,9 +413,11 @@ public class GamePanel extends JPanel {
     public boolean isRecuperationMode() {
         return recuperationMode;
     }
+
     public boolean isDeplacementMode() {
         return deplacementMode;
     }
+
     public ArrayList<model.objets.Ressource> getCollectedResources() {
         return collectedResources;
     }
@@ -426,11 +450,10 @@ public class GamePanel extends JPanel {
     }
 
 
-
-
     public ZoneEnFonctionnement getMainZone() {
         return mainZone;
     }
+
     public CopyOnWriteArrayList<ZoneEnFonctionnement> getDynamicZones() {
         return dynamicZones;
     }
@@ -444,11 +467,6 @@ public class GamePanel extends JPanel {
     public void removeDynamicZone(ZoneEnFonctionnement zone) {
         dynamicZones.remove(zone);
     }
-
-
-
-
-
 
 
     public CopyOnWriteArrayList<model.objets.UniteControlable> getUnitesEnJeu() {
@@ -467,12 +485,12 @@ public class GamePanel extends JPanel {
         return grid;
     }
 
-    public int[][] getVoisins(int x, int y){
+    public int[][] getVoisins(int x, int y) {
         int[][] voisins = new int[8][2];
         int i = 0;
-        for(int j = -1; j <= 1; j++){
-            for(int k = -1; k <= 1; k++){
-                if(j == 0 && k == 0) continue;
+        for (int j = -1; j <= 1; j++) {
+            for (int k = -1; k <= 1; k++) {
+                if (j == 0 && k == 0) continue;
                 voisins[i][0] = x + j;
                 voisins[i][1] = y + k;
                 i++;
@@ -480,6 +498,7 @@ public class GamePanel extends JPanel {
         }
         return voisins;
     }
+
     public CopyOnWriteArrayList<Ressource> getRessourcesMap() {
         CopyOnWriteArrayList<Ressource> ressourcesList = new CopyOnWriteArrayList<>();
         for (CopyOnWriteArrayList<model.objets.Objet> listeObjets : objetsMap.values()) {
@@ -492,6 +511,7 @@ public class GamePanel extends JPanel {
         //System.out.println("getRessourcesMap() retourne " + ressourcesList.size() + " ressources.");
         return ressourcesList;
     }
+
     public ArrayList<Ressource> getRessources() {
         ArrayList<Ressource> ressources = new ArrayList<>();
         for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
@@ -509,22 +529,22 @@ public class GamePanel extends JPanel {
     public synchronized void setRessourceSelectionnee(Ressource ressource) {
         this.ressourceSelectionnee = ressource;
     }
+
     public void setRecuperationMode(boolean mode) {
         this.recuperationMode = mode;
     }
+
     public void setPaused(boolean paused) {
         this.paused = paused;
         // Vous pouvez  interrompre ou suspendre certains threads ici si nécessaire
     }
+
     public void setDeplacementMode(boolean deplacementMode) {
         this.deplacementMode = deplacementMode;
     }
 
 
-
-
     //-----------------AJOUTS------------------------------------------------------------------------------------------------------
-
 
 
     //methode pour ajouter un objet sur le jeu
@@ -534,10 +554,10 @@ public class GamePanel extends JPanel {
          * sinon on crée une nouvelle entrée dans la map avec la coordonnée de l'objet comme clé et une liste contenant l'objet comme valeur
          *
          */
-        if(objetsMap.containsKey(objet.getCoordGrid())){
+        if (objetsMap.containsKey(objet.getCoordGrid())) {
             objetsMap.get(objet.getCoordGrid()).add(objet);
 
-        }else{
+        } else {
             CopyOnWriteArrayList<Objet> objetsAtCoord = new CopyOnWriteArrayList<>();
             objetsAtCoord.add(objet);
             objetsMap.put(objet.getCoordGrid(), objetsAtCoord);
@@ -580,6 +600,7 @@ public class GamePanel extends JPanel {
             }
         }
     }
+
     public void removeCollectedResource(model.objets.Ressource r) {
         collectedResources.remove(r);
     }
@@ -590,37 +611,30 @@ public class GamePanel extends JPanel {
         removeObjet(unite);
     }*/
 
-    public void killUnite(Unite unite){
+    public void killUnite(Unite unite) {
         boolean existsInObjetsMap = objetsMap.containsKey(unite.getCoordGrid()) && objetsMap.get(unite.getCoordGrid()).contains(unite);
-        if(existsInObjetsMap) {
+        if (existsInObjetsMap) {
             removeObjet(unite, unite.getCoordGrid());
-            if(unite.getDeplacementThread() != null)
+            if (unite.getDeplacementThread() != null)
                 unite.getDeplacementThread().stopThread();
         }
-        if(unite instanceof UniteControlable){
+        if (unite instanceof UniteControlable) {
             boolean existsInUnitesEnJeu = unitesEnJeu.contains(unite);
             boolean existsInUnitesSelected = unitesSelected.contains(unite);
-            if(existsInUnitesSelected)
+            if (existsInUnitesSelected)
                 unitesSelected.remove(unite);
-            if(existsInUnitesEnJeu)
+            if (existsInUnitesEnJeu)
                 unitesEnJeu.remove(unite);
 
 
-        }else {
-            if(unite instanceof Enemy){
+        } else {
+            if (unite instanceof Enemy) {
                 GameMaster.getInstance().removeEnemy((Enemy) unite);
             }
         }
 
 
-
-
-
-
     }
-
-
-
 
 
     // Méthode pour faire glisser le panneau d'infos vers l'intérieur (slide in)
@@ -636,6 +650,7 @@ public class GamePanel extends JPanel {
         Timer timer = new Timer(delay, null);
         timer.addActionListener(new ActionListener() {
             int currentWidth = infoContainer.getPreferredSize().width;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentWidth < targetWidth) {
@@ -659,6 +674,7 @@ public class GamePanel extends JPanel {
         Timer timer = new Timer(delay, null);
         timer.addActionListener(new ActionListener() {
             int currentWidth = infoContainer.getPreferredSize().width;
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 if (currentWidth > 0) {
@@ -683,6 +699,7 @@ public class GamePanel extends JPanel {
         //  mettre à jour infoPanel avec les infos de l'unité ici (exemple : infoPanel.updateInfo(plongeur);)
         slideInInfoPanel("unit");
     }
+
     public void showEmptyInfoPanel() {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
@@ -691,6 +708,7 @@ public class GamePanel extends JPanel {
         infoContainer.revalidate();
         repaint();
     }
+
     public void showFixedInfoPanel(String panelType) {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, panelType);
@@ -699,6 +717,7 @@ public class GamePanel extends JPanel {
         infoContainer.revalidate();
         repaint();
     }
+
     public void hideMiniPanel() {
         CardLayout cl = (CardLayout) infoContainer.getLayout();
         cl.show(infoContainer, "empty");
@@ -731,7 +750,6 @@ public class GamePanel extends JPanel {
     }*/
 
 
-
     /*peindre le tile ou ce trouve l'objet*/
     public void paintTile(int tileX, int tileY, Color color, Graphics g) {
         g.setColor(color);
@@ -747,36 +765,40 @@ public class GamePanel extends JPanel {
         paintTile(tileX, tileY, color, g);
 
         int[][] voisins = getVoisins(tileX, tileY);
-        for(int i = 0; i < 8; i++){
-            if(voisins[i][0] < 0 || voisins[i][0] >= TileManager.nbTilesWidth ||
+        for (int i = 0; i < 8; i++) {
+            if (voisins[i][0] < 0 || voisins[i][0] >= TileManager.nbTilesWidth ||
                     voisins[i][1] < 0 || voisins[i][1] >= TileManager.nbTilesHeight) continue;
             paintTile(voisins[i][0], voisins[i][1], color, g);
         }
     }
 
-
     @Override
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Dessin sur le backbuffer
+        renderToBackBuffer();
 
-        drawBase(g);
+        // Copie du backbuffer à l'écran
+        g.drawImage(backBuffer, 0, 0, null);
+    }
 
-        // Dessin du terrain
-        for (int i = cameraX/TileManager.TILESIZE; i < (cameraX+VIEWPORT_WIDTH)/TileManager.TILESIZE + 1; i++) {
-            for (int j = cameraY/TileManager.TILESIZE; j < (cameraY+VIEWPORT_HEIGHT)/TileManager.TILESIZE + 1; j++) {
-                if (i >= 0 && i < TileManager.nbTilesWidth && j >= 0 && j < TileManager.nbTilesHeight) {
-                    g.setColor(Color.BLACK);
-                    Point screenPos = worldToScreen(i * TileManager.TILESIZE, j * TileManager.TILESIZE);
-                    g.drawRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
-                }
-            }
-        }
-        // Dessin des zones de profondeur
-        drawDepthZones(g);
+    private void renderToBackBuffer() {
+        // Effacer le backbuffer
+        backBufferGraphics.setColor(new Color(173, 216, 230));
+        backBufferGraphics.fillRect(0, 0, getWidth(), getHeight());
 
+        // Optimisation: ne dessiner que ce qui est visible
+        Rectangle clip = backBufferGraphics.getClipBounds();
 
-        // Dessin des objets
+        // Dessinez vos éléments ici en utilisant backBufferGraphics au lieu de g
+        drawBase(backBufferGraphics);
+        drawTerrain(backBufferGraphics, clip);
+        drawObjects(backBufferGraphics, clip);
+        drawObjet(backBufferGraphics, baseUnique, worldToScreen(baseUnique.getPosition().getX(), baseUnique.getPosition().getY()));
+    }
+
+    public void drawObjects(Graphics g, Rectangle clip) {
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
 
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
@@ -787,12 +809,12 @@ public class GamePanel extends JPanel {
                 Image image = null;
                 Graphics2D g2d = (Graphics2D) g.create();
 
-                if(objet instanceof PlongeurArme)
-                    image = ((PlongeurArme) objet).getVitesseCourante() >= 0.1  ? plongeurArmeGif : plongeurArmeImage;
+                if (objet instanceof PlongeurArme)
+                    image = ((PlongeurArme) objet).getVitesseCourante() >= 0.1 ? plongeurArmeGif : plongeurArmeImage;
 
                 else if (objet instanceof Plongeur) {
-                       image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ?  plongeurGif : plongeurImage;
-                    if (((Plongeur)objet).isFaitFuire()) {
+                    image = ((Plongeur) objet).getVitesseCourante() >= 0.1 ? plongeurGif : plongeurImage;
+                    if (((Plongeur) objet).isFaitFuire()) {
                         g2d.setColor(Color.ORANGE);
                         int rayonFuite = ((Plongeur) objet).getRayonFuite();
                         g2d.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
@@ -811,17 +833,17 @@ public class GamePanel extends JPanel {
                     int originalImgWidth = image.getWidth(null);
                     int originalImgHeight = image.getHeight(null);
 
-                // Calculate scaling factor based on hitbox radius (adjust 2.0 multiplier as needed)
+                    // Calculate scaling factor based on hitbox radius (adjust 2.0 multiplier as needed)
                     double scaleFactor;
 
                     if (unite instanceof UniteControlable) {
                         scaleFactor = (unite.getRayon() * 4.0) / Math.min(originalImgWidth, originalImgHeight);
                     } else {
-                        scaleFactor = (unite.getRayon() *3.0) / Math.min(originalImgWidth, originalImgHeight); // Adjust the factor for non-controllable units
+                        scaleFactor = (unite.getRayon() * 3.0) / Math.min(originalImgWidth, originalImgHeight); // Adjust the factor for non-controllable units
                     }
-                // Scale image dimensions
-                    int imgWidth = (int)(originalImgWidth * scaleFactor);
-                    int imgHeight = (int)(originalImgHeight * scaleFactor);
+                    // Scale image dimensions
+                    int imgWidth = (int) (originalImgWidth * scaleFactor);
+                    int imgHeight = (int) (originalImgHeight * scaleFactor);
                     int halfWidth = imgWidth / 2;
                     int halfHeight = imgHeight / 2;
 
@@ -831,7 +853,7 @@ public class GamePanel extends JPanel {
 
                         try {
                             g2d.translate(screenPos.x, screenPos.y);
-                            g2d.rotate(angle + Math.PI/2);
+                            g2d.rotate(angle + Math.PI / 2);
 
                             if (unite.getVx() > 0) {  // Fixed: Changed back to < 0 for left movement
                                 g2d.scale(-1, 1);
@@ -865,48 +887,21 @@ public class GamePanel extends JPanel {
                     g.fillOval(screenPos.x - objet.getRayon(), screenPos.y - objet.getRayon(), diametre, diametre);
                 }
             }
+        }
+    }
 
-
-            /*if (isVisibleInViewport(screenPos, objet.getRayon())) {
-                drawObjet(g, objet, screenPos);
-            }
-
-            // Draw line from Pieuvre to its target
-            if (objet instanceof Pieuvre) {
-                Pieuvre pieuvre = (Pieuvre) objet;
-                if (pieuvre.getTarget() != null) {
-                    Point targetScreenPos = worldToScreen(pieuvre.getTarget().getPosition().getX(), pieuvre.getTarget().getPosition().getY());
-                    g.setColor(Color.YELLOW);
-                    g.drawLine(screenPos.x, screenPos.y, targetScreenPos.x, targetScreenPos.y);
+    public void drawTerrain(Graphics g, Rectangle clip) {
+        for (int i = cameraX/TileManager.TILESIZE; i < (cameraX+VIEWPORT_WIDTH)/TileManager.TILESIZE + 1; i++) {
+            for (int j = cameraY/TileManager.TILESIZE; j < (cameraY+VIEWPORT_HEIGHT)/TileManager.TILESIZE + 1; j++) {
+                if (i >= 0 && i < TileManager.nbTilesWidth && j >= 0 && j < TileManager.nbTilesHeight) {
+                    g.setColor(Color.BLACK);
+                    Point screenPos = worldToScreen(i * TileManager.TILESIZE, j * TileManager.TILESIZE);
+                    g.drawRect(screenPos.x, screenPos.y, TileManager.TILESIZE, TileManager.TILESIZE);
                 }
-            }*/
-        }
-
-
-        //!!!!!! pas effacer, si besoin transformer en fonction et commenter
-
-        //dessiner les lignes de proximités pour les voisins des unités en jeu
-        for (UniteControlable unite : unitesEnJeu) {
-            //getVoisins renvoie les coordonnées des 8 voisins de l'unité
-            CopyOnWriteArrayList<Objet> voisins = proxy.getVoisins(unite);
-            for (Objet voisin : voisins) {
-
-                Point uniteScreenPos = worldToScreen(unite.getPosition().getX(), unite.getPosition().getY());
-                Point voisinScreenPos = worldToScreen(voisin.getPosition().getX(), voisin.getPosition().getY());
-                g.setColor(Color.RED);
-                g.drawLine(uniteScreenPos.x, uniteScreenPos.y, voisinScreenPos.x, voisinScreenPos.y);
-
             }
-
         }
-
-
-
-        // Dessin des éléments supplémentaires
-        drawSpawnPoints(g);
-        drawPlayerInfo(g);
-        drawAmmo(g);
-        selectionClic.paintSelection(g);
+        // Dessin des zones de profondeur
+        drawDepthZones(g);
     }
 
     public static boolean isVisibleInViewport(Point screenPos, int rayon) {
