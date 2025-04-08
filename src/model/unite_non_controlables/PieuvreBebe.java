@@ -46,7 +46,8 @@ public class PieuvreBebe extends Enemy {
             if(target instanceof Plongeur plongeur){
                 if(!plongeur.getBackPac().isEmpty()){
                     ressource =  plongeur.seFaitVoler();
-                    GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().size() == 1)
+                        GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
                     attente();
                     return true;
                 }

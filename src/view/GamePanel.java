@@ -775,12 +775,17 @@ public class GamePanel extends JPanel {
     @Override
     protected synchronized void paintComponent(Graphics g) {
         super.paintComponent(g);
+        
 
         // Dessin sur le backbuffer
         renderToBackBuffer();
 
         // Copie du backbuffer à l'écran
         g.drawImage(backBuffer, 0, 0, null);
+
+        if (selectionClic != null) {
+            selectionClic.paintSelection(g);
+        }
     }
 
     private void renderToBackBuffer() {

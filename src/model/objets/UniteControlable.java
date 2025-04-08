@@ -3,6 +3,7 @@ package model.objets;
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
+import view.ButtonAction;
 
 public class UniteControlable extends Unite {
     private final int id;
@@ -36,6 +37,14 @@ public class UniteControlable extends Unite {
         return this.movementThread;
     }
 
+    public boolean canPerformAction(String actionLabel) {
+        for (ButtonAction action : getButtonActions()) {
+            if (action.getLabel().equalsIgnoreCase(actionLabel)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
 

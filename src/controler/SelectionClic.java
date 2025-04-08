@@ -127,6 +127,10 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                         resourceFound = true;
                         if (!panel.getUnitesSelected().isEmpty()) {
                             model.objets.UniteControlable selectedUnit = panel.getUnitesSelected().get(0);
+                            if(!selectedUnit.canPerformAction("Récupérer (R)")) {
+                                panel.setRecuperationMode(false);
+                                return;
+                            }
                             if (selectedUnit instanceof model.unite_controlables.Plongeur) {
                                 model.unite_controlables.Plongeur plongeur = (model.unite_controlables.Plongeur) selectedUnit;
                                 // Affecter la ressource et activer son flag fixed (via setTargeted)
@@ -154,14 +158,12 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
                 if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
                     panel.setShootingMode(false);
-                    System.out.println("Clic en dehors du terrain");
                     return;
                 }
 
                 CoordGrid gridCoord = TileManager.transformePos_to_Coord(new Position(x, y));
                 CopyOnWriteArrayList<Objet> objetsAtCoord = panel.getObjetsMap().get(gridCoord);
                 if (objetsAtCoord != null) {
-                    System.out.println("nb objets à la coordonnée : " + objetsAtCoord.size());
 
                     for (Objet objet : objetsAtCoord) {
                         System.out.println("Objet trouvé : " + objet);
@@ -181,7 +183,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                                 System.out.println("Enemy selected: " + objet);
                                 // Trouvé un ennemi à attaquer
                                 for (UniteControlable unite : panel.getUnitesSelected()) {
-                                    if (unite instanceof PlongeurArme) {
+                                    if (unite instanceof PlongeurArme ) {
                                         ((PlongeurArme)unite).attack(enemy);
                                     }
                                 }
@@ -220,15 +222,16 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     panel.getUnitesSelected().add(unite);
                     unite.setSelected(true);
                     unitSelected = true;
-                    GamePanel.getInstance().getInfoPanel().updateInfo(unite);
+                    if(GamePanel.getInstance().getUnitesSelected().size() == 1)
+                        GamePanel.getInstance().getInfoPanel().updateInfo(unite);
                     break;
                 }
             }
-            if (unitSelected) {
-                /*currentSelectionType = SelectionType.UNIT;
+            if (unitSelected && GamePanel.getInstance().getUnitesSelected().size() == 1){
+                currentSelectionType = SelectionType.UNIT;
                 panel.showFixedInfoPanel("unit");
                 panel.hideResourceInfoPanel();
-            */} else {
+            } else {
                 boolean resourceSelected = false;
                 for (model.objets.Ressource ressource : panel.getRessourcesMap()) {
                     int rayon = ressource.getRayon();
