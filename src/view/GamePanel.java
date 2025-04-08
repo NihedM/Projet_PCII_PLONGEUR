@@ -796,6 +796,8 @@ public class GamePanel extends JPanel {
         drawTerrain(backBufferGraphics, clip);
         drawObjects(backBufferGraphics, clip);
         drawObjet(backBufferGraphics, baseUnique, worldToScreen(baseUnique.getPosition().getX(), baseUnique.getPosition().getY()));
+        drawPlayerInfo(backBufferGraphics);
+        drawAmmo(backBufferGraphics);
     }
 
     public void drawObjects(Graphics g, Rectangle clip) {
