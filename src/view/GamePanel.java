@@ -243,7 +243,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN,
-                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
