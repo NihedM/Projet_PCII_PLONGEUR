@@ -10,11 +10,17 @@ public class Terrain {
     private int[][] depthMap; // Carte des profondeurs
     private Map<Integer, DepthZone> depthZones; // Configuration des zones de profondeur
 
+    private int[][] backgroundDepthMap;
+    private int cubeWidth;
+    private int cubeHeight;
+
+
     public Terrain(int width, int height) {
         this.width = width;
         this.height = height;
         initializeDepthZones(); // Initialise les configurations de zones
         initializeDepthMap();   // Initialise la carte des profondeurs
+        initializeBackground(this, 10, 10); // Initialise la carte de fond
     }
 
     private void initializeDepthZones() {
@@ -57,7 +63,7 @@ public class Terrain {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 // Valeur diagonale de base (0 à 1)
-                double diagonalValue = (x + y) / (double)(width + height);
+                double diagonalValue = (x + y) / (double) (width + height);
 
                 // Ajouter un petit bruit aléatoire
                 double noise = rand.nextDouble() * 0.2 - 0.1; // Entre -0.1 et 0.1
@@ -152,4 +158,46 @@ public class Terrain {
         DepthZone zone = depthZones.get(depthLevel);
         return zone != null ? zone.currentResources : 0;
     }
+
+
+    private void initializeBackground(Terrain terrain, int numCubesX, int numCubesY) {
+        cubeWidth = terrain.getWidth() / numCubesX;
+        cubeHeight = terrain.getHeight() / numCubesY;
+        backgroundDepthMap = new int[numCubesX][numCubesY];
+
+        for (int i = 0; i < numCubesX; i++) {
+            for (int j = 0; j < numCubesY; j++) {
+                int startX = i * cubeWidth;
+                int startY = j * cubeHeight;
+                backgroundDepthMap[i][j] = calculateAverageDepth(terrain, startX, startY, cubeWidth, cubeHeight);
+            }
+        }
+    }
+
+    private int calculateAverageDepth(Terrain terrain, int startX, int startY, int width, int height) {
+        int totalDepth = 0;
+        int count = 0;
+
+        for (int x = startX; x < startX + width && x < terrain.getWidth(); x++) {
+            for (int y = startY; y < startY + height && y < terrain.getHeight(); y++) {
+                totalDepth += terrain.getDepthAt(x, y);
+                count++;
+            }
+        }
+
+        return count > 0 ? totalDepth / count : 0;
+    }
+
+    public int[][] getBackgroundDepthMap() {
+        return backgroundDepthMap;
+    }
+
+    public int getCubeWidth() {
+        return cubeWidth;
+    }
+    public int getCubeHeight() {
+        return cubeHeight;
+    }
+
 }
+

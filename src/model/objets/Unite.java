@@ -4,11 +4,14 @@ import view.ButtonAction;
 import view.GamePanel;
 import view.Redessine;
 
+import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.awt.geom.AffineTransform;
+import java.io.IOException;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Unite extends Objet {
 
@@ -21,6 +24,11 @@ public class Unite extends Objet {
     private double acceleration = 0.1; //acceleration de l'unité
     private int heat_points;    //vie de l'unité
 
+    private Image currentImage;
+    private Image movingImage;
+    private ImageIcon unitIcon;
+
+
 
     public Unite(Position position, int rayon, double vitesse, int heat_points) {
         super(position, rayon);
@@ -30,6 +38,15 @@ public class Unite extends Objet {
         this.vx = 0;
         this.vy = 0;
         this.heat_points = heat_points;
+
+        this.currentImage = getImage();
+        setScalingFactor(2.0);
+        scaleFactor = (targetDiameter / Math.max(originalImgWidth, originalImgHeight)) * getScalingFactor();
+        this.imgWidth = (int) (originalImgWidth * scaleFactor);
+        this.imgHeight = (int) (originalImgHeight * scaleFactor);
+        this.halfWidth = imgWidth / 2;
+        this.halfHeight = imgHeight / 2;
+
     }
 
 
@@ -52,7 +69,11 @@ public class Unite extends Objet {
 
     public double getVitesseCourante() {return vitesseCourante;}
 
-    public void setVitesseCourante(double vitesse) {this.vitesseCourante = vitesse;}
+    public void setVitesseCourante(double vitesse) {
+        this.vitesseCourante = vitesse;
+        this.currentImage = vitesse > 0 ? movingImage : image;
+
+    }
 
     public double getVitesseMax() {return vitesseMax;}
     public void setVitesseMax(double vitesseMax) {this.vitesseMax = vitesseMax;}
@@ -100,10 +121,10 @@ public class Unite extends Objet {
         return "HP: " + get_Hp() + ", Vitesse: " + getVitesseCourante();
     }
 
-    public Color getColorForKey(String key) {return new Color(50, 150, 50);}// Default green color
-    public int getMaxValueForKey(String key) {return heat_points;} //Max HP
-    public Map<String, String> getAttributes() {
-        Map<String, String> attributes = new HashMap<>();
+    public synchronized Color getColorForKey(String key) {return new Color(50, 150, 50);}// Default green color
+    public synchronized int getMaxValueForKey(String key) {return heat_points;} //Max HP
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
         attributes.put("HP", String.valueOf(get_Hp()));
         return attributes;
     }
@@ -120,23 +141,72 @@ public class Unite extends Objet {
         if (deplacementThread != null) {
             deplacementThread.stopThread();
         }
+        setVitesseCourante(0);
+        setAcceleration(0.1);
+        setVx(0);
+        setVy(0);
     }
 
-    public List<ButtonAction> getButtonActions() {
-        List<ButtonAction> actions = new ArrayList<>();
+    //----------------------------------------affichage--------------------------
 
-        actions.add(new ButtonAction("Se déplacer (D)", e -> {
-            GamePanel gamePanel = GamePanel.getInstance();
-            if (gamePanel != null) {
-                gamePanel.setDeplacementMode(true);
+    public void setMovingImage(String imgPath) {
+        Image cachedImage = GamePanel.getCachedImage(imgPath);
+        if (cachedImage != null) {
+            this.movingImage = cachedImage;
+        } else {
+            System.err.println("Failed to load moving image: " + imgPath);
+        }
+    }
+    @Override
+    protected void setImage(String img) {
+        super.setImage(img); // Call the parent class's setImage method
+        this.currentImage = this.image; // Update currentImage to reflect the new image
+    }
+    public ImageIcon getUnitIcon() {
+        return unitIcon;
+    }
+
+    public void setUnitIcon(ImageIcon unitIcon) {
+        this.unitIcon = unitIcon;
+    }
+
+    @Override
+    public void draw(Graphics2D g2d, Point screenPos) {
+        if (image == null) {
+            return; // No image to draw
+        }
+
+        if (vitesseCourante > 0) {
+            //on calcule l'angle de rotation
+            double angle = Math.atan2(vy, vx);
+            AffineTransform originalTransform = g2d.getTransform();
+
+
+            try {
+                g2d.translate(screenPos.x, screenPos.y);
+                g2d.rotate(angle + Math.PI / 2);
+
+                // Flip l'image si on tourne à droite
+                if (vx > 0) {
+                    g2d.scale(-1, 1);
+                }
+
+                g2d.drawImage(currentImage,
+                                -halfWidth,
+                                -halfHeight,
+                                imgWidth,
+                                imgHeight, GamePanel.getInstance());
+
+            } finally {
+                g2d.setTransform(originalTransform);
+
             }
-        }));
+        } else {
+            g2d.drawImage(currentImage, screenPos.x - halfWidth, screenPos.y - halfHeight, imgWidth, imgHeight, GamePanel.getInstance());
+        }
 
-        actions.add(new ButtonAction(("Stop (S)"), e -> {
-            stopAction();
-        }));
-
-        return actions;
     }
+
+
 }
 

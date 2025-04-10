@@ -32,6 +32,8 @@ public class Ressource extends Objet {
         this.position = new Position((int) (Math.random() * 800), (int) (Math.random() * 600));
         this.id = ++compteur; // Incrémenter le compteur et attribuer l'ID
         this.nom = "collier" + id; // Générer le nom unique
+
+        setScalingFactor(1.0);
     }
 
     public String getNom() {

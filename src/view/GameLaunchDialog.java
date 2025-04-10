@@ -13,7 +13,7 @@ public class GameLaunchDialog extends JDialog {
     private JLabel pointsLabel;
 
     public GameLaunchDialog(JFrame parent) {
-        super(parent, "Menu Principal", true);
+        super(parent, "Menu Principal", ModalityType.APPLICATION_MODAL);
         setLayout(new BorderLayout());
         setSize(800, 600);
         setLocationRelativeTo(parent);

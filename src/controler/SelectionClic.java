@@ -19,6 +19,8 @@ import java.awt.event.MouseListener;
 import java.awt.geom.Ellipse2D;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static view.GamePanel.MAX_SELECTED_UNITS;
+
 public class SelectionClic extends MouseAdapter implements MouseListener {
     private GamePanel panel;
     private KeyboardController keyboardController;
@@ -99,17 +101,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             );
             return;
         }
-
-
-
-
-
         // Si le mode déplacement est actif, on ne fait rien ici
         if (panel.isDeplacementMode()) {
             return;
         }
 
         if (e.getButton() == MouseEvent.BUTTON1) {
+
+
             // Si le mode récupération est activé, on recherche une ressource
             if (panel.isRecuperationMode()) {
                 boolean resourceFound = false;
@@ -386,6 +385,10 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
         for (UniteControlable unite : panel.getUnitesEnJeu()) {
             if (selectionRect.contains(unite.getPosition().getX(), unite.getPosition().getY())) {
+                if (panel.getUnitesSelected().size() >= MAX_SELECTED_UNITS) {
+                    System.out.println("Cannot select more units. Maximum limit reached: " + MAX_SELECTED_UNITS);
+                    break;
+                }
                 panel.getUnitesSelected().add(unite);
                 unite.setSelected(true);
             }

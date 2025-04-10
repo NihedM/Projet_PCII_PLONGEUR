@@ -29,7 +29,7 @@ public class EmbaucheDialog extends JDialog {
         ItemPanelEM plongeurPanel = new ItemPanelEM(
                 "Plongeur",
                 50,  // coût
-                "src/view/images/plongeurNormal.png"
+                "src/view/images/plongeur.png"
         ) {
             @Override
             protected void onBuy() {   //
@@ -80,7 +80,7 @@ public class EmbaucheDialog extends JDialog {
 
 
     private void addUnitToGame(UniteControlable unit, int cost, int points) {
-        GamePanel.getInstance().addUniteControlable(unit);
+        GamePanel.getInstance().recrute(unit);
         Referee.getInstance().retirerArgent(cost);
         Referee.getInstance().ajouterPointsVictoire(points);
         GamePanel.getInstance().repaint();

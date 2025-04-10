@@ -27,6 +27,9 @@ public class PieuvreBebe extends Enemy {
         this.parent = parent;
         this.target = parent.getTarget();
         setEtat(Etat.ATTENTE);
+
+        setImage("pieuvre.png");
+        setMovingImage("pieuvre.png");
     }
 
     public void setTarget(UniteControlable target) {
@@ -46,8 +49,10 @@ public class PieuvreBebe extends Enemy {
             if(target instanceof Plongeur plongeur){
                 if(!plongeur.getBackPac().isEmpty()){
                     ressource =  plongeur.seFaitVoler();
-                    if (GamePanel.getInstance().getUnitesSelected().size() == 1)
-                        GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().size() == 1) {
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
+                    }
                     attente();
                     return true;
                 }

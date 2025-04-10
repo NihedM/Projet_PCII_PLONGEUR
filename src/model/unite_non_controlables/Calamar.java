@@ -18,6 +18,9 @@ public class Calamar extends Enemy {
     public Calamar(Position position) {
         super(position,10, 50, 10);
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
+
+        setImage("calamar.png");
+        setImage("calamar.png");
     }
 
     public void setRessourcesDisponibles(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
