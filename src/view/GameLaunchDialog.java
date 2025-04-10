@@ -16,7 +16,7 @@ public class GameLaunchDialog extends JDialog {
 
     public GameLaunchDialog(JFrame parent) {
         super(parent, "Menu Principal", true);
-        setSize(1800, 1000);
+        setSize(1200, 800);
         setLocationRelativeTo(parent);
         setUndecorated(false);
 

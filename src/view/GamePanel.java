@@ -243,7 +243,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN,
-                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -379,8 +379,8 @@ public class GamePanel extends JPanel {
     public void startGame() {victoryManager.startGame();}
 
     //---------------------------------------getters constantes------------------------------------------------
-    public static int getPanelWidth() {return Toolkit.getDefaultToolkit().getScreenSize().width;}
-    public static int getPanelHeight() {return Toolkit.getDefaultToolkit().getScreenSize().height;}
+    public static int getPanelWidth() {return 1200;}
+    public static int getPanelHeight() {return 800;}
     public static int getViewportWidth() {return (int) (getPanelWidth() * 0.75);} // 75% de la largeur
     public static int getViewportHeight() {return getPanelHeight();}
     public static int getPanelInfoWidth() {return getPanelWidth() - getViewportWidth();}
