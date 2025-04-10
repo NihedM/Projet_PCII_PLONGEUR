@@ -35,8 +35,10 @@ public class OxygenHandler extends Thread {
 
 
                     }
-                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
-                        GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)
+                    && GamePanel.getInstance().getUnitesSelected().size() == 1) {
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
+                        //GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
                     }
                 }
                 Thread.sleep(DELAY);

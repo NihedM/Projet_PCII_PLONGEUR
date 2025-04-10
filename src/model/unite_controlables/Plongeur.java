@@ -14,7 +14,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Plongeur extends UniteControlable {
     private HashMap<model.objets.Ressource, Integer> sac; // Sac pour stocker les ressources et leurs quantités
@@ -35,6 +35,12 @@ public class Plongeur extends UniteControlable {
         this.oxygen = MAX_OXYGEN;
         this.stamina = MAX_STAMINA;
         this.backpack = new ArrayList<>();
+
+        setImage("plongeur.png");
+        setMovingImage("plongeur.gif");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("plongeurIcon.png")));
+
+
 
     }
 
@@ -63,8 +69,8 @@ public class Plongeur extends UniteControlable {
     }
 
     @Override
-    public Map<String, String> getAttributes() {
-        Map<String, String> attributes = super.getAttributes();
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes = super.getAttributes();
         attributes.put("Oxygen", String.valueOf(getCurrentOxygen()));
         attributes.put("Stamina", String.valueOf(getCurrentStamina()));
         attributes.put("Backpack", String.valueOf(backpack.size()));
@@ -72,7 +78,7 @@ public class Plongeur extends UniteControlable {
     }
 
     @Override
-    public Color getColorForKey(String key) {
+    public synchronized Color getColorForKey(String key) {
         return switch (key.toLowerCase()) {
             case "oxygen" -> new Color(0, 100, 200); // Bleu profond
             case "stamina" -> new Color(255, 165, 0); // Orange vif
@@ -81,7 +87,7 @@ public class Plongeur extends UniteControlable {
         };
     }
     @Override
-    public int getMaxValueForKey(String key) {
+    public synchronized int  getMaxValueForKey(String key) {
         return switch (key.toLowerCase()) {
             case "oxygen" -> MAX_OXYGEN;
             case "stamina" -> MAX_STAMINA;

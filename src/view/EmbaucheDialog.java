@@ -2,6 +2,7 @@ package view;
 
 import model.gains_joueur.Referee;
 import model.objets.Position;
+import model.objets.Terrain;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import model.objets.UniteControlable;
@@ -11,6 +12,7 @@ import java.util.Random;
 
 public class EmbaucheDialog extends JDialog {
 
+    private Random rand = new Random();
     public EmbaucheDialog(JDialog parent) {
         super(parent, "Embaucher une unité", true);
         setSize(600, 300);
@@ -38,7 +40,7 @@ public class EmbaucheDialog extends JDialog {
                 Position pos = generateRandomPosition();
                 // Créer et ajouter un Plongeur
                 Plongeur newUnit = new Plongeur(3, pos);
-                addUnitToGame(newUnit, 50, 20); // 20 points de victoire
+                addUnitToGame(newUnit, 50, 10);
             }
         };
         itemsPanel.add(plongeurPanel);
@@ -56,7 +58,7 @@ public class EmbaucheDialog extends JDialog {
                 Position pos = generateRandomPosition();
                 // Créer et ajouter un PlongeurArme
                 PlongeurArme newUnit = new PlongeurArme(3, pos);
-                addUnitToGame(newUnit, 100, 30); // 30 points de victoire
+                addUnitToGame(newUnit, 100, 10); // 30 points de victoire
             }
         };
         itemsPanel.add(plongeurArmePanel);
@@ -89,12 +91,17 @@ public class EmbaucheDialog extends JDialog {
 
 
     private Position generateRandomPosition() {
-        Random rand = new Random();
-        int margin = 25;
-        int x = rand.nextInt(GamePanel.getPanelWidth() - 2 * margin) + margin;
-        int y = rand.nextInt(GamePanel.getPanelHeight() - 2 * margin) + margin;
+        Terrain terrain = GamePanel.getInstance().getTerrain();
+        int width = terrain.getWidth();
+        int height = terrain.getHeight();
+        int x, y;
+        do {
+            x = rand.nextInt(width);
+            y = rand.nextInt(height);
+        } while (terrain.getDepthAt(x, y) != 1);
         return new Position(x, y);
     }
+
 }
 
 

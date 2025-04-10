@@ -1,6 +1,7 @@
 package controler;
 
 import model.objets.UniteControlable;
+import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
 import java.awt.event.KeyAdapter;
@@ -46,6 +47,11 @@ public class KeyboardController extends KeyAdapter {
                 break;
             case KeyEvent.VK_R:
                 panel.setRecuperationMode(true);
+                break;
+            case KeyEvent.VK_F:
+                UniteControlable unite = unitesSelectionnees.get(0);
+                if(unite instanceof Plongeur)
+                    ((Plongeur) unite).setFaitFuire(true);
                 break;
         }
     }

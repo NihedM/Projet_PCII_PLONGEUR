@@ -29,6 +29,7 @@ public class Base extends Construction {
 
         submarines = new ArrayList<>();
 
+        setImage("base.png");
 
     }
 

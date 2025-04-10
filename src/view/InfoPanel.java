@@ -1,5 +1,7 @@
 package view;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Enemy;
@@ -9,41 +11,58 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
+import java.util.Map;
 
 public class InfoPanel extends JPanel {
 
 
-    private AtributInfo atributInfo;
-    private JPanel buttonPanel;
+    private volatile AtributInfo atributInfo;
+    private volatile BackgroundPanel buttonPanel;
+    private volatile BackgroundPanel emptyPanel;
+
 
 
 
     public InfoPanel() {
 
         setLayout(new GridLayout(3, 1));
-        setBackground(new Color(220, 220, 220));
+        //setBackground(new Color(220, 220, 220));
         setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
 
         // Panneau central pour empiler les boutons verticalement et les centrer
-        buttonPanel = new JPanel(new GridBagLayout());
-        buttonPanel.setBackground(Color.CYAN);
+        buttonPanel = new BackgroundPanel();
+        buttonPanel.setLayout(new GridBagLayout());
+        //buttonPanel.setBackground(Color.CYAN);
+        buttonPanel.setOpaque(false); // Make it transparent
         add(buttonPanel, BorderLayout.CENTER);
 
-
-        JPanel emptyPanel = new JPanel();
-        emptyPanel.setBackground(Color.LIGHT_GRAY);
+        emptyPanel = new BackgroundPanel();
+        //emptyPanel.setBackground(Color.LIGHT_GRAY);
+        emptyPanel.setOpaque(false); // Make it transparent
         add(emptyPanel);
+
+
+    }
+
+    public synchronized AtributInfo getAtributInfo() {
+        return atributInfo;
     }
 
 
-    public void updateInfo(UniteControlable unite) {
+    public synchronized void updateInfo(UniteControlable unite) {
         removeAll();
-        setLayout(new BorderLayout());
+
+        setLayout(new GridLayout(3, 1));
+        //setBackground(new Color(220, 220, 220));
+        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+
+
 
         atributInfo = new AtributInfo(unite);
         add(atributInfo, BorderLayout.NORTH);
         atributInfo.updateInfo(unite.getAttributes());
 
+        buttonPanel.setBackgroundImage("actionsBackground.png"); // Set the background image
         buttonPanel.removeAll();
         List<ButtonAction> actions = unite.getButtonActions();
         GridBagConstraints gbc = new GridBagConstraints();
@@ -54,12 +73,28 @@ public class InfoPanel extends JPanel {
 
         for (ButtonAction action : actions) {
             JButton button = new JButton(action.getLabel());
+            button.setFont(GamePanel.CUSTOM_FONT.deriveFont(16f));
             button.addActionListener(action.getAction());
             buttonPanel.add(button, gbc);
             gbc.gridy++;
         }
 
         add(buttonPanel, BorderLayout.CENTER);
+
+
+        //emptyPanel.setBackground(Color.LIGHT_GRAY);
+        emptyPanel.setBackgroundImage("unitIconBackground.png");
+        emptyPanel.removeAll();
+        if (unite.getUnitIcon() != null) {
+            ImageIcon originalIcon = unite.getUnitIcon();
+            Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+            JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
+            iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            iconLabel.setVerticalAlignment(SwingConstants.CENTER);
+            emptyPanel.add(iconLabel);
+        }
+        add(emptyPanel);
+
 
         revalidate();
         repaint();
@@ -83,63 +118,90 @@ public class InfoPanel extends JPanel {
     }
 
     public void updateMultipleInfo(List<UniteControlable> units) {
-        removeAll();
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        removeAll(); // Clear the panel
+        setLayout(new BorderLayout()); // Set layout for two sections
+        setBackground(new Color(220, 220, 220));
 
-        JPanel imagesPanel = new JPanel(new GridLayout(0, 4, 10, 10));
-        imagesPanel.setBackground(new Color(220, 220, 220));
-        imagesPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        // Top Section: Grid of 10 cubes for each unit
+        JPanel topPanel = new JPanel(new GridLayout(5, 2, 10, 10)); // 5 rows, 2 columns
+        topPanel.setBackground(Color.BLACK);
 
-        int imageWidth = 50;
-        int imageHeight = 50;
+
+
+        Map<Class<? extends UniteControlable>, ImageIcon> scaledIcons = new HashMap<>();
         for (UniteControlable unit : units) {
-            JLabel imageLabel;
-            ImageIcon icon = null;
-            if (unit instanceof model.unite_controlables.PlongeurArme) {
-                icon = new ImageIcon(getClass().getResource("/view/images/plongeurArme.png"));
-            } else if (unit instanceof model.unite_controlables.Plongeur) {
-                icon = new ImageIcon(getClass().getResource("/view/images/plongeurNormal.png"));
-            }
-            if (icon != null) {
-                Image scaledImage = icon.getImage().getScaledInstance(imageWidth, imageHeight, Image.SCALE_SMOOTH);
-                icon = new ImageIcon(scaledImage);
-                imageLabel = new JLabel(icon);
-            } else {
-                imageLabel = new JLabel("Unité " + unit.getId());
-            }
-            imageLabel.setHorizontalAlignment(JLabel.CENTER);
-            imagesPanel.add(imageLabel);
-        }
-        add(imagesPanel);
-
-        // Panneau des actions
-        JPanel actionsPanel = new JPanel(new GridBagLayout());
-        actionsPanel.setBackground(Color.CYAN);
-        actionsPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
-
-        if (!units.isEmpty()) {
-            UniteControlable firstUnit = units.get(0);
-            if (firstUnit instanceof model.unite_controlables.Plongeur) {
-                List<ButtonAction> actions = ((model.unite_controlables.Plongeur) firstUnit).getButtonActions();
-                GridBagConstraints gbc = new GridBagConstraints();
-                gbc.gridx = 0;
-                gbc.gridy = 0;
-                gbc.anchor = GridBagConstraints.CENTER;
-                gbc.insets = new Insets(10, 10, 10, 10);
-                for (ButtonAction action : actions) {
-                    JButton button = new JButton(action.getLabel());
-                    button.addActionListener(action.getAction());
-                    actionsPanel.add(button, gbc);
-                    gbc.gridy++;
+            if (!scaledIcons.containsKey(unit.getClass())) {
+                ImageIcon unitIcon = unit.getUnitIcon();
+                if (unitIcon != null) {
+                    Image scaledImage = unitIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+                    scaledIcons.put(unit.getClass(), new ImageIcon(scaledImage));
                 }
             }
         }
-        add(actionsPanel);
 
-        revalidate();
+        ImageIcon emptyIcon = new ImageIcon(GamePanel.getCachedImage("emptyUnitSlotIcon.png"));
+        ImageIcon scaledEmptyIcon = null;
+        if (emptyIcon != null) {
+            Image scaledImage = emptyIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
+            scaledEmptyIcon = new ImageIcon(scaledImage);
+        }
+
+        List<JLabel> cubes = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            JLabel cube = new JLabel();
+            cube.setPreferredSize(new Dimension(50, 50)); // Set cube size
+            cube.setHorizontalAlignment(SwingConstants.CENTER);
+            cube.setVerticalAlignment(SwingConstants.CENTER);
+
+            if (i < units.size() && units.get(i).isSelected()) {
+                Class<? extends UniteControlable> unitClass = units.get(i).getClass();
+                ImageIcon scaledIcon = scaledIcons.get(unitClass);
+                if (scaledIcon != null) {
+                    cube.setIcon(scaledIcon);
+                } else {
+                    cube.setBackground(Color.GREEN); // Fallback if no icon is available
+                    cube.setOpaque(true);
+                }
+            } else {
+                cube.setIcon(scaledEmptyIcon);
+            }
+            cubes.add(cube);
+        }
+        topPanel.removeAll(); // Clear the panel before adding new components
+        for (JLabel cube : cubes) {
+            topPanel.add(cube);
+        }
+
+        // Repaint the panel after all components are added
+        topPanel.revalidate();
+        topPanel.repaint();
+
+        add(topPanel, BorderLayout.CENTER); // Add top section
+
+        BackgroundPanel bottomPanel = new BackgroundPanel();
+        bottomPanel.setBackgroundImage("actionsBackground.png"); // Set the background image
+        bottomPanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.anchor = GridBagConstraints.CENTER;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+
+        for (ButtonAction action : units.get(0).getButtonActionsForMultipleSelection()) {
+            JButton button = new JButton(action.getLabel());
+            button.setFont(GamePanel.CUSTOM_FONT.deriveFont(16f));
+            button.addActionListener(action.getAction());
+            bottomPanel.add(button, gbc);
+            gbc.gridy++;
+        }
+
+        add(bottomPanel, BorderLayout.SOUTH); // Add bottom section
+
+        revalidate(); // Refresh the panel
         repaint();
-    }
 
+    }
 
 
 

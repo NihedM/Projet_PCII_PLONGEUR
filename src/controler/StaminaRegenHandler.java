@@ -28,8 +28,10 @@ public class StaminaRegenHandler extends Thread {
                     Plongeur plongeur = (Plongeur) unite;
                     updateStamina(plongeur);
 
-                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
-                        GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)
+                            && GamePanel.getInstance().getUnitesSelected().size() == 1) {
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
+                        //GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
                     }
                 }
 
@@ -53,8 +55,10 @@ public class StaminaRegenHandler extends Thread {
             plongeur.setCurrentStamina(plongeur.getCurrentStamina() - STAMINA_DECREMENT);
         }
 
-        if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)) {
-            GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+        if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)
+                && GamePanel.getInstance().getUnitesSelected().size() == 1) {
+            GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
+            //GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
         }
     }
 

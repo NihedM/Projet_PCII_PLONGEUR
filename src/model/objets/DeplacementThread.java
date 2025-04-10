@@ -96,7 +96,7 @@ public class DeplacementThread extends Thread {
                 double vitesseCourante = unite.getVitesseCourante();
                 double accel = unite.getAcceleration();
 
-                if (distance > unite.getRayon()) {
+                if (distance > (double)(unite.getRayon()/2) ){
 
                     // Phase d'accélération ou de maintien
                     if (vitesseCourante < unite.getVitesseMax()) {
@@ -161,14 +161,14 @@ public class DeplacementThread extends Thread {
                     GamePanel.getInstance().repaint();
 */
                     // Si la distance est très faible, fixer la position directement à la destination
-                    unite.getPosition().setX(destination.getX());
+                    /*unite.getPosition().setX(destination.getX());
                     unite.getPosition().setY(destination.getY());
                     unite.setVx(0);
                     unite.setVy(0);
                     unite.setVitesseCourante(0);
                     unite.setAcceleration(0.1);
                     unite.setDestination(null);
-                    GamePanel.getInstance().repaint();
+                    GamePanel.getInstance().repaint();*/
 
 
                     if (unite instanceof model.unite_controlables.Plongeur) {

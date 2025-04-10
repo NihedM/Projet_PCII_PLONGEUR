@@ -27,6 +27,9 @@ public class Pieuvre extends Enemy {
         super(position, 20, 120, VITESSE_VADROUILLE);
         this.targetsDisponibles = new CopyOnWriteArrayList<>();
         setEtat(Etat.ATTENTE);
+
+        setImage("pieuvre.png");
+        setMovingImage("pieuvre.png");
     }
 
     public void setTargetsDisponibles(CopyOnWriteArrayList<UniteControlable> targetsDisponibles){
@@ -68,7 +71,10 @@ public class Pieuvre extends Enemy {
             if(target instanceof Plongeur plongeur){
                 if(!plongeur.getBackPac().isEmpty()){
                     sac.add(plongeur.seFaitVoler());
-                    GamePanel.getInstance().getInfoPanel().updateInfo(plongeur);
+                    if (GamePanel.getInstance().getUnitesSelected().size() == 1) {
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
+                        GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
+                    }
                     attente();
                     return true;
                 }

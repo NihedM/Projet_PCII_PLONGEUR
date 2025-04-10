@@ -1,14 +1,14 @@
 package model.unite_controlables;
 
-import controler.GestionCollisions;
 import model.objets.*;
 import model.unite_non_controlables.Enemy;
 import view.ButtonAction;
 import view.GamePanel;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlongeurArme extends Plongeur {
 
@@ -25,6 +25,10 @@ public class PlongeurArme extends Plongeur {
         super(id, position);
         this.ammo = MAX_AMMO;
         this.hasWeapon = true;
+
+        setImage("plongeurArme.png");
+        setMovingImage("plongeurArme.gif");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("plongeurArmeIcon.png")));
     }
     public int getAmmo(){return ammo;}
     public void reload(int amount){ammo = Math.min(ammo + amount, MAX_AMMO);}
@@ -42,13 +46,13 @@ public class PlongeurArme extends Plongeur {
     public String getInfo() {return super.getInfo() + ", Munitions: " + getAmmo();}
 
     @Override
-    public Map<String, String> getAttributes() {
-        Map<String, String> attributes = super.getAttributes();
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes = super.getAttributes();
         attributes.put("Ammo", String.valueOf(getAmmo()));
         return attributes;
     }
     @Override
-    public Color getColorForKey(String key) {
+    public synchronized Color getColorForKey(String key) {
         if (key.equalsIgnoreCase("Ammo")) {
             return new Color(255, 0, 0); // Rouge
         }
@@ -57,7 +61,7 @@ public class PlongeurArme extends Plongeur {
 
 
     @Override
-    public int getMaxValueForKey(String key) {
+    public synchronized int getMaxValueForKey(String key) {
         if (key.equalsIgnoreCase("Ammo")) {
             return MAX_AMMO;
         }

@@ -23,24 +23,18 @@ public class MainTest {
 
     public static void main(String[] args) {
 
-        JFrame maFenetre = new JFrame("Collisions");
+        JFrame maFenetre = new JFrame("Jeu");
         maFenetre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         // Activer le plein écran
-        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        //JWindow fullScreenWindow = new JWindow();
+
+
 
         GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
 
-        // Configurer la fenêtre en plein écran
-        if (gd.isFullScreenSupported()) {
-            maFenetre.setUndecorated(true);
-            gd.setFullScreenWindow(maFenetre);
-        } else {
-            // Fallback si le plein écran n'est pas supporté
-            maFenetre.setExtendedState(JFrame.MAXIMIZED_BOTH);
-            maFenetre.setResizable(true);
-        }
 
         // Configuration des limites de ressources par profondeur
         Terrain terrain = gamePanel.getTerrain();
@@ -51,61 +45,85 @@ public class MainTest {
 
         Base base = gamePanel.getMainBase();
         for(int i = 0; i < 1; i++)
-            gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
-        //for(int i = 0; i < 1; i++)
-        // gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY())));
+            gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY()+100)));
+        for(int i = 0; i < 2; i++)
+         gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur()+i*100, base.getPosition().getY())));
+
+        AmmoManager ammo = new AmmoManager();
+
+        // Démarrer le ResourceSpawner
+        int maxResources = 500; // Nombre total de ressources à générer
+        int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
+        int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
+        int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
+        int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
+        ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
+        SpawnManager spawnManager = new SpawnManager();
+
+        ZoneMover z = new ZoneMover();
+
+        StaminaRegenHandler.getInstance();
+        OxygenHandler.getInstance();
+
+
 
 
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                AmmoManager ammo = new AmmoManager();
                 ammo.start();
-                StaminaRegenHandler.getInstance();
-                OxygenHandler.getInstance();
 
-                // Démarrer le ResourceSpawner
-                int maxResources = 500; // Nombre total de ressources à générer
-                int spawnIntervalMin = 2000; // Délai minimum entre chaque apparition (1 seconde)
-                int spawnIntervalMax = 3000; // Délai maximum entre chaque apparition (3 secondes)
-                int spawnCountMin = 1; // Nombre minimum de ressources à générer à chaque intervalle
-                int spawnCountMax = 5; // Nombre maximum de ressources à générer à chaque intervalle
-                ResourceSpawner resourceSpawner = new ResourceSpawner(gamePanel, maxResources, spawnIntervalMin, spawnIntervalMax, spawnCountMin, spawnCountMax);
-                SpawnManager spawnManager = new SpawnManager();
 
                 resourceSpawner.start();
                 //spawnManager.start();
 
-
 //        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
 //
                 gameMaster.start();
-                ZoneMover z = new ZoneMover();
                 z.start();
-
                 gamePanel.startGame();
 
+                Redessine r = new Redessine();
+                r.start();
                 return null;
             }
-
         }.execute();
-        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
-        launchDialog.setVisible(true);
-        Redessine r = new Redessine();
-        r.start();
 
 
+        //-----------------------------------------------------------------------------------------------------------
 
 
         maFenetre.add(gamePanel);
         maFenetre.pack();
 
+        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
+        launchDialog.setVisible(true);
+
+
+       /* fullScreenWindow.getContentPane().add(gamePanel);
+        fullScreenWindow.pack();
+
+        // Get the default screen device and enable full-screen mode
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+        if (gd.isFullScreenSupported()) {
+            // Set the window as full-screen
+            gd.setFullScreenWindow(fullScreenWindow);
+        } else {
+            // Fall back to maximized window mode (may reveal taskbar)
+            fullScreenWindow.setBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
+            fullScreenWindow.setVisible(true);
+        }
+
+        // Force focus and layout validation to avoid layout issues
+        fullScreenWindow.requestFocus();
+        fullScreenWindow.validate();*/
+
         maFenetre.setVisible(true);
-        // Puis démarrer le système de victoire
+
 
 
         // Create and show the thread manager window
-        JFrame threadManagerFrame = new JFrame("Thread Manager");
+  /*      JFrame threadManagerFrame = new JFrame("Thread Manager");
         threadManagerFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         threadManagerFrame.setSize(400, 300);
         ThreadManagerPanel threadManagerPanel = new ThreadManagerPanel();
@@ -114,7 +132,7 @@ public class MainTest {
         threadManagerFrame.setVisible(true);
 
         ThreadManager.startDisplayThread();
-
+*/
 
 
 
