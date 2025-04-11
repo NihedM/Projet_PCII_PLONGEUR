@@ -72,8 +72,8 @@ public class EnemySpawnPoint extends Objet implements Runnable {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
                 //generate random number of children
                 int nbChildren = (int) (Math.random() * 5) + 1;
-                //for (int i = 0; i < nbChildren; i++)
-                 // ((Pieuvre)enemy).addChild();
+                for (int i = 0; i < nbChildren; i++)
+                    ((Pieuvre)enemy).addChild();
             }
             else{
                 //throw genereic error

@@ -169,8 +169,7 @@ public class ProximityChecker extends Thread{
                                 }else if (voisin instanceof Pieuvre) {
                                     ((Pieuvre) voisin).repaireTarget(unite);
                                 } else if (voisin instanceof PieuvreBebe) {
-                                    ((Enemy)voisin).vadrouille();
-                                    ((PieuvreBebe) voisin).setTarget(unite);
+                                    ((PieuvreBebe) voisin).repaireTarget(unite);
                                     ((PieuvreBebe) voisin).passTargetToSiblings();
 
 

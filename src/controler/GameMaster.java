@@ -22,7 +22,7 @@ public class GameMaster extends Thread{
     private volatile static GameMaster instance;
     private final ExecutorService enemyExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
-    public static final int CELL_SIZE = 1000;
+    public static final int CELL_SIZE = 2000;
     public static final int GRID_WIDTH = GamePanel.TERRAIN_WIDTH / CELL_SIZE;
     public static final int GRID_HEIGHT = GamePanel.TERRAIN_HEIGHT / CELL_SIZE;
 
@@ -211,12 +211,12 @@ public class GameMaster extends Thread{
                             return;
                         }
 
-                        if (!enemy.isInsideZone()) {
+                       /* if (!enemy.isInsideZone()) {
                             enemy.setInsideZone(true);
                             enemy.attente(); // Switch to "attente" state
                             //System.out.println("Reactivating enemy: " + enemy);
 
-                        }
+                        }*/
 
 
                         enemy.action();
@@ -226,30 +226,23 @@ public class GameMaster extends Thread{
 
             for (ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()) {
                 for (Enemy enemy : getEnemiesInZone(zone)) {
-                    if (!processedEnemies.contains(enemy)) {
+
+                    //if (!processedEnemies.contains(enemy)) {
                         processedEnemies.add(enemy);
                         enemyExecutor.submit(() -> {
+                            if(enemy instanceof Calamar)
+                             ((Calamar) enemy).setRessourcesDisponibles(ressources);
 
-                            //si l'enenmie dehors terrain le tuer
-                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
-                                GamePanel.getInstance().killUnite(enemy);
-                                return;
-                            }
-
-
-                            if (!enemy.isInsideZone()) {
-                                enemy.setInsideZone(true);
-                                enemy.attente(); // Switch to "attente" state
-                            }
-
-                            ((Calamar) enemy).setRessourcesDisponibles(ressources);
+                            enemy.vadrouille();
                             enemy.action();
 
-                            //System.out.println("Reactivating enemy: " + enemy);
+                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                                GamePanel.getInstance().killUnite(enemy);
 
+                            }
 
                         });
-                    }
+
                 }
             }
 

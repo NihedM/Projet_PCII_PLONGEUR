@@ -83,7 +83,7 @@ public class GamePanel extends JPanel {
 
     //pour les zones de fonctionnement
     public static final int VIEWPORT_BUFFER = 500;
-    public static final int UNIT_BUFFER = 500;
+    public static final int UNIT_BUFFER = 1000;
 
     //Limite d'unités pour le joueur
     public static final int MAX_UNITS_IN_GAME = 100; // Maximum number of units in the game

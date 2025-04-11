@@ -13,18 +13,13 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class PieuvreBebe extends Enemy {
-    public static final int VITESSE_VADROUILLE = 7;
-    private UniteControlable target;
+public class PieuvreBebe extends Cefalopode{
+
     private Pieuvre parent;
     private Ressource ressource;
-    private static final double STALKING_DISTANCE = TileManager.TILESIZE * 2;
-    private static final double MAX_DISTANCE = TileManager.TILESIZE * 4;
-    private static final int ATTENTE_RANGE = TileManager.TILESIZE;
-
 
     public PieuvreBebe(Position position, Pieuvre parent) {
-        super(position, 10, 120, VITESSE_VADROUILLE);
+        super(position, 10, VITESSE_VADROUILLE);
         this.parent = parent;
         this.target = parent.getTarget();
         setEtat(Etat.ATTENTE);
@@ -37,14 +32,6 @@ public class PieuvreBebe extends Enemy {
         ConcurrentHashMap<String, String> attributes =super.getAttributes();
         attributes.put("loot", String.valueOf(ressource));
         return attributes;
-    }
-
-    public void setTarget(UniteControlable target) {
-        this.target = target;
-    }
-
-    public UniteControlable getTarget() {
-        return target;
     }
 
     public Pieuvre getParent() {
@@ -71,31 +58,7 @@ public class PieuvreBebe extends Enemy {
 
 
 
-    @Override
-    public void attente(){
-        if(parent != null){
 
-            if(getDestination() != null)return;
-
-            int offsetX, offsetY;
-            double distance;
-            Random random = getRandom();
-
-            do {
-                offsetX = (random.nextInt(4 * ATTENTE_RANGE) - 2 * ATTENTE_RANGE);
-                offsetY = (random.nextInt(4 * ATTENTE_RANGE) - 2 * ATTENTE_RANGE);
-
-                distance = Math.sqrt(offsetX * offsetX + offsetY * offsetY);
-            } while (distance < TileManager.TILESIZE / 2.0 || distance > 2 * TileManager.TILESIZE);
-
-
-            Position newPosition = new Position(parent.getPosition().getX() + offsetX, parent.getPosition().getY() + offsetY);
-            setDestination(newPosition);
-            return;
-        }
-        super.attente();
-
-    }
 
     public void passTargetToSiblings() {
         if (parent != null && target != null) {
@@ -110,41 +73,37 @@ public class PieuvreBebe extends Enemy {
 
     @Override
     public void action() {
-        if(parent == null){
-            setEtat(Etat.ATTENTE);
-            return;
-        }
-        if(target == null)
-            target = parent.getTarget();
 
-        if(getEtat().equals(Etat.ATTENTE)){
+        System.out.println(target);
+        if(parent == null || getEtat().equals(Etat.ATTENTE) || target == null){
             attente();
-
-            if (this.distance(parent) > TileManager.TILESIZE*1.5) {
-                setVitesseCourante(getVitesseMax());
-            }else
-                setVitesseCourante(VITESSE_ATTENTE);
             return;
         }
 
-        if(target == null)
-            return;
+
+
         double distance = this.distance(target);
         if(distance >= MAX_DISTANCE) {
+            //targetsDisponibles.remove(target);
             target = null;
             setEtat(Etat.ATTENTE);
             return;
         }
 
-        if (getEtat().equals(Etat.VADROUILLE)) {
-            if (ressource == null) {
-                if(target instanceof Plongeur){
 
+        if (getEtat().equals(Etat.VADROUILLE)) {
+
+            System.out.println("action pieuvreBebe");
+
+            if (ressource == null) {
+
+                selectTargetPlusProche(targetsDisponibles);
+                if(target instanceof Plongeur){
                     Plongeur plongeur = (Plongeur) target;
                     if(plongeur.getBackPac().isEmpty()) {
 
-                        if (distance < STALKING_DISTANCE) return;
-                        setDestination(target.getPosition());
+                        if (distance >STALKING_DISTANCE)
+                            setDestination(getStalkingPosition());
                     }else {
                         if(getDestination() != target.getPosition())
                             setDestination(target.getPosition());
@@ -155,9 +114,11 @@ public class PieuvreBebe extends Enemy {
 
                     }
                 }
+
+
             }else {//on amene la ressource au parent
                 setDestination(parent.getPosition());
-                if (this.distance(parent) < TileManager.TILESIZE / 2.0) {
+                if (this.distance(parent) < TileManager.TILESIZE / 4.0) {
                     parent.getSac().add(ressource);
                     ressource = null;
                     setEtat(Etat.ATTENTE);
