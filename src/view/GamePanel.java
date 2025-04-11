@@ -243,7 +243,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN,
-                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -461,9 +461,7 @@ public class GamePanel extends JPanel {
         int x = position.getX();
         int y = position.getY();
         boolean withinTerrain = x > TERRAIN_MIN_X && x < TERRAIN_MAX_X && y > TERRAIN_MIN_Y && y < TERRAIN_MAX_Y;
-        boolean withinTiles = x >= 0 && x < TileManager.nbTilesWidth * TileManager.TILESIZE &&
-                y >= 0 && y < TileManager.nbTilesHeight * TileManager.TILESIZE;
-        return withinTerrain && withinTiles;
+        return withinTerrain ;
     }
 
     public static boolean isVisibleInViewport(Point screenPos, int rayon) {
