@@ -46,8 +46,8 @@ public class SpawnManager extends Thread{
 
 
     public void generateRandomSpawnPoint(int maxEnemies) {
-        int randomX = random.nextInt(TileManager.nbTilesWidth);
-        int randomY = random.nextInt(TileManager.nbTilesHeight);
+        int randomX = random.nextInt(GameMaster.GRID_WIDTH);
+        int randomY = random.nextInt(GameMaster.GRID_HEIGHT);
         CoordGrid randomTile = new CoordGrid(randomX, randomY);
         Position randomPosition = EnemySpawnPoint.generateRandomPositionInTile(randomTile);
         if (ZoneMover.isInsideAnyZone(randomPosition)) {
@@ -68,12 +68,13 @@ public class SpawnManager extends Thread{
         ThreadManager.incrementThreadCount("SpawnManager");
 
         while (true) {
-            //if(cpt == 0){
-                generateRandomSpawnPoint(1);
+            if(cpt == 0){
+                generateRandomSpawnPoint(10);
+                System.out.println("SpawnManager: Spawned a new enemy spawn point");
                 cpt++;
-            //}
+            }
             try {
-                Thread.sleep(getRandomInterval(1000, 2000));
+                Thread.sleep(getRandomInterval(10, 20));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

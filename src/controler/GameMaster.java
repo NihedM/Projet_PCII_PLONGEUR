@@ -1,10 +1,7 @@
 package controler;
 
 import model.constructions.Base;
-import model.objets.CoordGrid;
-import model.objets.Objet;
-import model.objets.Ressource;
-import model.objets.UniteNonControlableInterface;
+import model.objets.*;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
@@ -13,38 +10,100 @@ import view.GamePanel;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
+import java.util.HashSet;
+import java.util.List;
 public class GameMaster extends Thread{
-
     private volatile static GameMaster instance;
-    private CopyOnWriteArrayList<Ressource> ressources;
+    private final ExecutorService enemyExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+    public static final int CELL_SIZE = 1000;
+    public static final int GRID_WIDTH = GamePanel.TERRAIN_WIDTH / CELL_SIZE;
+    public static final int GRID_HEIGHT = GamePanel.TERRAIN_HEIGHT / CELL_SIZE;
+
+    private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Enemy>> enemiesGrid;
     private CopyOnWriteArrayList<Enemy> enemies;
-    private ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Objet>> objetsMap ;
+    private CopyOnWriteArrayList<Ressource> ressources;
+
+    private static final CoordGrid[][] Grid = new CoordGrid[GRID_WIDTH][GRID_HEIGHT];
+    static {
+        for (int x = 0; x < GRID_WIDTH; x++) {
+            for (int y = 0; y < GRID_HEIGHT; y++) {
+                Grid[x][y] = new CoordGrid(x, y);
+            }
+        }
+    }
+
 
 
     public GameMaster() {
-        this.objetsMap = GamePanel.getInstance().getObjetsMap();
+        this.enemiesGrid = new ConcurrentHashMap<>();
         ressources = new CopyOnWriteArrayList<Ressource>();
         enemies = new CopyOnWriteArrayList<Enemy>();
         instance = this;
-        updateLists();
+
+        updateGrid();
+
     }
 
-    public void updateLists() {
-        ressources.clear();
-        enemies.clear();
-        for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
-            for (Objet objet : objets) {
-                if (objet instanceof Ressource) {
-                    ressources.add((Ressource) objet);
-                } else if (objet instanceof Enemy) {
-                    enemies.add((Enemy) objet);
+
+    //----------------------------------------------manip du grid--------------------------------------------------//
+    private static CoordGrid getSpatialCell(int x, int y) {
+        if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
+            return Grid[x][y];
+        }
+        throw new IllegalArgumentException("Invalid grid coordinates: (" + x + ", " + y + ")");
+    }
+    private void updateGrid() {
+        enemiesGrid.clear();
+        for (Enemy enemy : enemies) {
+            if (!enemy.isAlive()) {
+                continue; // sécurité
+            }
+            CoordGrid cell = getCellForPosition(enemy.getPosition());
+
+            if (enemiesGrid.containsKey(cell) ){
+                enemiesGrid.get(cell).add(enemy);
+
+            } else {
+                CopyOnWriteArrayList<Enemy> objetsAtCoord = new CopyOnWriteArrayList<>();
+                objetsAtCoord.add(enemy);
+                enemiesGrid.put(cell, objetsAtCoord);
+            }
+
+        }
+    }
+    private CoordGrid getCellForPosition(Position position) {
+        int cellX = position.getX() / CELL_SIZE;
+        int cellY = position.getY() / CELL_SIZE;
+        return getSpatialCell(cellX, cellY);
+    }
+    private CopyOnWriteArrayList<Enemy> getEnemiesInZone(ZoneEnFonctionnement zone) {
+        CopyOnWriteArrayList<Enemy> enemiesInZone = new CopyOnWriteArrayList<>();
+        int minCellX = zone.getMinX() / CELL_SIZE;
+        int maxCellX = zone.getMaxX() / CELL_SIZE;
+        int minCellY = zone.getMinY() / CELL_SIZE;
+        int maxCellY = zone.getMaxY() / CELL_SIZE;
+
+        for (int x = minCellX; x <= maxCellX; x++) {
+            for (int y = minCellY; y <= maxCellY; y++) {
+
+                CoordGrid cell = getSpatialCell(x, y);
+                if (enemiesGrid.containsKey(cell)) {
+                    enemiesInZone.addAll(enemiesGrid.get(cell));
                 }
             }
         }
+
+        return enemiesInZone;
+    }
+    public ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Enemy>> getEnemiesGrid() {
+        return enemiesGrid;
     }
 
 
@@ -53,10 +112,11 @@ public class GameMaster extends Thread{
     public static GameMaster getInstance() {
         return instance;
     }
+
     public CopyOnWriteArrayList<Ressource> getRessources() {
         return ressources;
     }
-
+    public void addResource(Ressource ressource) {ressources.add(ressource);}
     public void setRessourcesVisibilesJoueur(CopyOnWriteArrayList<Ressource> ressources) {
         this.ressources = ressources;
     }
@@ -64,24 +124,27 @@ public class GameMaster extends Thread{
     public CopyOnWriteArrayList<Enemy> getEnemies() {
         return enemies;
     }
-
-
-
-    public void setEnemies(CopyOnWriteArrayList<Enemy> enemies) {
-        this.enemies = enemies;
-    }
-
     public void addEnemy(Enemy enemy, CopyOnWriteArrayList<Objet> targets) {
         synchronized (enemies) {
             this.enemies.add(enemy);
+            updateTargets();
+
         }
 
         enemy.setup(targets);
         GamePanel.getInstance().addObjet(enemy);
     }
-
-
     public void removeEnemy(Enemy enemy) {
+        CoordGrid cell = getCellForPosition(enemy.getPosition());
+        if (enemiesGrid.containsKey(cell)) {
+            enemiesGrid.get(cell).remove(enemy);
+
+            // If the cell is now empty, you can optionally remove it from the grid
+            if (enemiesGrid.get(cell).isEmpty()) {
+                enemiesGrid.remove(cell);
+            }
+        }
+
         if(enemies.contains(enemy))
             enemies.remove(enemy);
         else
@@ -89,98 +152,109 @@ public class GameMaster extends Thread{
     }
 
 
-    /*
-
-    // temporaire tant que les bordures ne sont pas définies
-            if (unite instanceof Enemy && (unite.getPosition().getX() <= 5 || unite.getPosition().getY() <= 5 )) {
-                panel.removeObjet(unite, unite.getCoordGrid());
-            }
-
-     */
-
     public void updateTargets(){
-        for (Enemy enemy : enemies) {
+        ZoneEnFonctionnement mainZone = GamePanel.getInstance().getMainZone();
+        List<ZoneEnFonctionnement> dynamicZones = GamePanel.getInstance().getDynamicZones();
+
+        // Collect all enemies in active zones
+        Set<Enemy> activeEnemies = new HashSet<>();
+        activeEnemies.addAll(getEnemiesInZone(mainZone));
+        for (ZoneEnFonctionnement zone : dynamicZones) {
+            activeEnemies.addAll(getEnemiesInZone(zone));
+        }
+
+        // Update targets for active enemies
+        for (Enemy enemy : activeEnemies) {
             if (enemy instanceof Calamar) {
+                // Update available resources for Calamar
                 ((Calamar) enemy).setRessourcesDisponibles(ressources);
-            }else if(enemy instanceof Pieuvre || enemy instanceof PieuvreBebe) {
-                continue;
+            } else if (enemy instanceof Pieuvre || enemy instanceof PieuvreBebe) {
+                // Update available targets for Pieuvre and PieuvreBebe
+                CopyOnWriteArrayList<UniteControlable> availableTargets = new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu());
+                if (enemy instanceof Pieuvre) {
+                    ((Pieuvre) enemy).setTargetsDisponibles(availableTargets);
+                } else if (enemy instanceof PieuvreBebe) {
+                    Pieuvre parent = ((PieuvreBebe) enemy).getParent();
+                    if (parent != null) {
+                        ((PieuvreBebe) enemy).setTarget(parent.getTarget());
+                    }
+                }
             }
-
-
-
-            else{
-                throw new UnsupportedOperationException("Enemy type not supported: "+enemy.getClass());
-
-            }
-
         }
     }
     public void reset() {
         ressources.clear();
-        updateLists();
+
     }
 
 
     @Override
     public void run() {
         ThreadManager.incrementThreadCount("GameMaster");
-        updateLists();
 
         while(true) {
-            if(enemies != null) {
-                //on filtre les ennemis qui sont dans de les zones de jeu
-                CopyOnWriteArrayList<Enemy> copy  = enemies.stream()
-                        //.filter(enemy -> GamePanel.getInstance().getMainZone().isInside(enemy.getPosition()))
-                        .collect(Collectors.toCollection(CopyOnWriteArrayList::new));
 
+            updateGrid();
 
-                for (Enemy enemy : copy) {
+            // Track processed enemies to avoid redundant checks
+            Set<Enemy> processedEnemies = new HashSet<>();
 
+            for (Enemy enemy : getEnemiesInZone(GamePanel.getInstance().getMainZone())) {
+                if (!processedEnemies.contains(enemy)) {
+                    processedEnemies.add(enemy);
+                    enemyExecutor.submit(() -> {
+                        if (!enemy.isInsideZone()) {
+                            enemy.setInsideZone(true);
+                            enemy.attente(); // Switch to "attente" state
+                            System.out.println("Reactivating enemy: " + enemy);
 
-
-
-                    //System.out.println("Enemy: " + enemy.getClass().getSimpleName() + " Position: " + enemy.getPosition());
-                    /*if (!GamePanel.getInstance().getMainZone().isInside(enemy.getPosition())) {
-                        enemy.stopAllThreads();
-
-                        continue;
-                    }
-                    for(ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()){
-                        if(!zone.isInside(enemy.getPosition())){
-                            enemy.stopAllThreads();
-                            continue;
                         }
-                    }*/
 
-                    boolean insideAnyZone = false;
 
-                    if (GamePanel.getInstance().getMainZone().isInsideMain(enemy.getPosition())) {
-                        insideAnyZone = true;
-                    }else {
-                        for (ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()) {
-                            if (zone.isInsideDynamic(enemy.getPosition())) {
-                                insideAnyZone = true;
-                                break;
+                        enemy.action();
+                    });
+                }
+            }
+
+            for (ZoneEnFonctionnement zone : GamePanel.getInstance().getDynamicZones()) {
+                for (Enemy enemy : getEnemiesInZone(zone)) {
+                    if (!processedEnemies.contains(enemy)) {
+                        processedEnemies.add(enemy);
+                        enemyExecutor.submit(() -> {
+                            if (!enemy.isInsideZone()) {
+                                enemy.setInsideZone(true);
+                                enemy.attente(); // Switch to "attente" state
                             }
-                        }
-
+                            enemy.action();
+                        });
                     }
+                }
+            }
 
 
-                    if (insideAnyZone) {
-                        enemy.setInsideZone(true);
-                    } else {
+            for (Enemy enemy : enemies) {
+                if (!processedEnemies.contains(enemy)) {
+                    System.out.println("Enemy outside active zones: " + enemy + ", InsideZone: " + enemy.isInsideZone());
+
+                    if (enemy.isInsideZone()) {
                         enemy.stopAllThreads();
                         enemy.setInsideZone(false);
-                        continue;
                     }
+                }
+            }
 
 
-                    enemy.action();
-
-
-                    // Gestion du hors terrain
-                    if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+            try {
+                Thread.sleep(30);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                break;
+            }
+        }
+        ThreadManager.decrementThreadCount("GameMaster");
+    }
+}
+/* if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
                         GamePanel.getInstance().killUnite(enemy);
                     }
                     Base base = GamePanel.getInstance().getMainBase();
@@ -189,21 +263,4 @@ public class GameMaster extends Thread{
                             ((PieuvreBebe) enemy).getParent().removeChild((PieuvreBebe) enemy);
                         }
                         GamePanel.getInstance().killUnite(enemy);
-                    }
-                }
-
-                updateTargets();
-            }
-            try {
-                Thread.sleep(30);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                break;
-            }
-
-        }
-        ThreadManager.decrementThreadCount("GameMaster");
-
-
-    }
-}
+                    }*/

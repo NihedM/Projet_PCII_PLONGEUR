@@ -546,6 +546,12 @@ public class GamePanel extends JPanel {
             objetsAtCoord.add(objet);
             objetsMap.put(objet.getCoordGrid(), objetsAtCoord);
         }
+
+        if(objet instanceof Ressource) {
+            GameMaster.getInstance().addResource((Ressource) objet);
+            GameMaster.getInstance().updateTargets();
+        }
+
     }
     public void addUniteControlable(UniteControlable unite) {
         if (unitesEnJeu.size() >= MAX_UNITS_IN_GAME) {
@@ -575,6 +581,7 @@ public class GamePanel extends JPanel {
                     objetsMap.remove(coord);
                 }
             }
+            GameMaster.getInstance().updateTargets();
         }
     }
     public void removeCollectedResource(model.objets.Ressource r) {
@@ -734,6 +741,8 @@ public class GamePanel extends JPanel {
 
         //drawTerrainTest(g, getBounds());
         drawPronfondeur(g);
+        drawTiles(g);
+        drawEnemiesGrid(g);
         drawBaseTest(g);
         drawObjectsTest(g, getBounds(), colorMap, groupedObjects);
         drawAmmoTest(g);
@@ -868,6 +877,47 @@ public class GamePanel extends JPanel {
         }
 
     }
+    private void drawTiles(Graphics g) {
+        g.setColor(Color.BLACK);
+
+        for (int x = 0; x < TileManager.nbTilesWidth; x++) {
+            for (int y = 0; y < TileManager.nbTilesHeight; y++) {
+                int tileX = x * TileManager.TILESIZE;
+                int tileY = y * TileManager.TILESIZE;
+
+                int screenX = tileX - cameraX;
+                int screenY = tileY - cameraY;
+
+                if (screenX + TileManager.TILESIZE >= 0 && screenX <= VIEWPORT_WIDTH &&
+                        screenY + TileManager.TILESIZE >= 0 && screenY <= VIEWPORT_HEIGHT) {
+                    g.drawRect(screenX, screenY, TileManager.TILESIZE, TileManager.TILESIZE);
+
+
+                }
+            }
+        }
+    }
+    private void drawEnemiesGrid(Graphics g) {
+        g.setColor(Color.RED);
+
+        // Dessiner les lignes verticales
+        for (int x = 0; x <= TERRAIN_WIDTH; x += GameMaster.CELL_SIZE) {
+            int screenX = x - cameraX;
+            if (screenX >= 0 && screenX <= VIEWPORT_WIDTH) {
+                g.drawLine(screenX, 0, screenX, VIEWPORT_HEIGHT);
+            }
+        }
+
+        // Dessiner les lignes horizontales
+        for (int y = 0; y <= TERRAIN_HEIGHT; y += GameMaster.CELL_SIZE) {
+            int screenY = y - cameraY;
+            if (screenY >= 0 && screenY <= VIEWPORT_HEIGHT) {
+                g.drawLine(0, screenY, VIEWPORT_WIDTH, screenY);
+            }
+        }
+
+
+    }
 
 
     //------------------------------methodes de dessin JEU-------------------------------------------------------------
@@ -998,8 +1048,8 @@ public class GamePanel extends JPanel {
 
 
 
-        //affichageTest(g);
-        affichageJeu(g);
+        affichageTest(g);
+        //affichageJeu(g);
 
         if (selectionClic != null) {
             selectionClic.paintSelection(g);

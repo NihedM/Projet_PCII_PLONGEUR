@@ -41,7 +41,7 @@ public class BoutiqueDialog extends JDialog {
                 "Sous-marin",
                 "400€",
                 isDepth3Unlocked(),
-                "src/view/images/sous-marin.png"
+                "/view/images/sous-marin.png"
         );
         sousMarinPanel.addMouseListener(new MouseAdapter() {
             @Override

@@ -82,6 +82,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
     public void stopAllThreads() {
         if (getDeplacementThread() != null) {
             getDeplacementThread().stopThread();
+            setDestination(null);
         }
         stopTimer();
     }

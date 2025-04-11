@@ -54,7 +54,6 @@ public class ResourceSpawner extends Thread {
                         gestionRessource.start();
 
                         resourcesSpawned++;
-                        GameMaster.getInstance().updateLists();
                     }
                 }
 

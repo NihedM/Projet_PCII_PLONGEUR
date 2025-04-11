@@ -31,9 +31,9 @@ public class MainTest {
         //JWindow fullScreenWindow = new JWindow();
 
 
-
-        GamePanel gamePanel = new GamePanel();
         GameMaster gameMaster = new GameMaster();
+        GamePanel gamePanel = new GamePanel();
+
 
 
         // Configuration des limites de ressources par profondeur
@@ -71,18 +71,17 @@ public class MainTest {
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
+                gameMaster.start();
+
                 ammo.start();
 
-
                 resourceSpawner.start();
-                //spawnManager.start();
+                spawnManager.start();
 
 //        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
 //
-                gameMaster.start();
                 z.start();
                 gamePanel.startGame();
-
                 Redessine r = new Redessine();
                 r.start();
                 return null;
