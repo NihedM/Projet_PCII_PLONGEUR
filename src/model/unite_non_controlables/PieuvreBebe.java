@@ -73,8 +73,6 @@ public class PieuvreBebe extends Cefalopode{
 
     @Override
     public void action() {
-
-        System.out.println(target);
         if(parent == null || getEtat().equals(Etat.ATTENTE) || target == null){
             attente();
             return;
@@ -92,8 +90,6 @@ public class PieuvreBebe extends Cefalopode{
 
 
         if (getEtat().equals(Etat.VADROUILLE)) {
-
-            System.out.println("action pieuvreBebe");
 
             if (ressource == null) {
 

@@ -174,16 +174,7 @@ public class DeplacementThread extends Thread {
                     if (unite instanceof model.unite_controlables.Plongeur) {
                         model.unite_controlables.Plongeur p = (model.unite_controlables.Plongeur) unite;
                         if (p.getTargetResource() != null) {
-                            if(GestionCollisions.collisionCC(p, p.getTargetResource()) > -1){
-                                if(p.getTargetResource().estRecoltable()) {
-                                    boolean collected = p.recolter(p.getTargetResource());
-                                    if (collected) {
-                                        // Une fois collectée, on réinitialise la cible et désactive le flag targeted
-                                        p.getTargetResource().setTargeted(false);
-                                        p.setTargetResource(null);
-                                    }
-                                }
-                            }
+
                         }
 
                     }

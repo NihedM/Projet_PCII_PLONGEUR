@@ -26,8 +26,6 @@ public class TileManager {
     }
 
     public static CoordGrid transformePos_to_Coord(Position pos) {
-
-
         return coordTiles[transformeP_to_grid(pos.getX())][transformeP_to_grid(pos.getY())];
     }
 

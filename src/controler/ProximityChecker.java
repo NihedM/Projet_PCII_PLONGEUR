@@ -157,11 +157,23 @@ public class ProximityChecker extends Thread{
                         CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
                         for (Objet voisin : voisins) {
 
-                            if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
-                                GestionCollisions.preventOverlap(unite, voisin);
-                            }
+
 
                             if (unite instanceof Plongeur) {
+
+                                if (voisin.equals(((Plongeur)unite).getTargetResource())){
+                                    if(GestionCollisions.collisionCC(unite, voisin) > -1){
+                                        if(((Ressource)voisin).estRecoltable()) {
+                                            boolean collected = ((Plongeur)unite).recolter((Ressource) voisin);
+                                            if (collected) {
+                                                // Une fois collectée, on réinitialise la cible et désactive le flag targeted
+                                                ((Plongeur)unite).getTargetResource().setTargeted(false);
+                                                ((Plongeur)unite).setTargetResource(null);
+                                            }
+                                        }
+                                    }
+                                }
+
                                 if (voisin instanceof Calamar) {
                                     if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
                                         ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
@@ -175,7 +187,6 @@ public class ProximityChecker extends Thread{
 
 
 
-
                                 }else if(voisin instanceof Base){
                                     Position[] coins = ((Base) voisin).getCoints();
                                     if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){
@@ -184,6 +195,11 @@ public class ProximityChecker extends Thread{
                                         plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
                                     }
 
+
+                                }
+
+                                if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                                    GestionCollisions.preventOverlap(unite, voisin);
                                 }
                             }
                         }

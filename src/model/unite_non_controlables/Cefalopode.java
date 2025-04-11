@@ -18,7 +18,7 @@ public class Cefalopode extends Enemy{
     private final int id;
 
     protected UniteControlable target;
-    protected static final double STALKING_DISTANCE = TileManager.TILESIZE *0.5 ;
+    protected static final double STALKING_DISTANCE = TileManager.TILESIZE *1.0 ;
     protected static final double SAFE_STALKING_DISTANCE = TileManager.TILESIZE *2.0 ;
     protected static final int MAX_DISTANCE = TileManager.TILESIZE * 6;
 
@@ -60,8 +60,8 @@ public class Cefalopode extends Enemy{
     protected Position getStalkingPosition(){
         Random random = new Random(id);
         int minDistance = (int)SAFE_STALKING_DISTANCE;
-        int offsetX = random.nextInt(MAX_DISTANCE/2 - minDistance) - TileManager.TILESIZE/2;
-        int offsetY = random.nextInt(MAX_DISTANCE/2 - minDistance) - TileManager.TILESIZE/2;
+        int offsetX = random.nextInt(MAX_DISTANCE/2 - minDistance) - TileManager.TILESIZE;
+        int offsetY = random.nextInt(MAX_DISTANCE/2 - minDistance) - TileManager.TILESIZE;
         return new Position(target.getPosition().getX() + offsetX, target.getPosition().getY() + offsetY);
     }
 
