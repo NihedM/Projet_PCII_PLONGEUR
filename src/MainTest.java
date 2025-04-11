@@ -67,6 +67,15 @@ public class MainTest {
 
 
 
+        maFenetre.add(gamePanel);
+        maFenetre.pack();
+
+        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
+        launchDialog.setVisible(true);
+
+        maFenetre.setVisible(true);
+
+
 
         new SwingWorker<Void, Void>() {
             @Override
@@ -92,11 +101,6 @@ public class MainTest {
         //-----------------------------------------------------------------------------------------------------------
 
 
-        maFenetre.add(gamePanel);
-        maFenetre.pack();
-
-        GameLaunchDialog launchDialog = new GameLaunchDialog(maFenetre);
-        launchDialog.setVisible(true);
 
 
        /* fullScreenWindow.getContentPane().add(gamePanel);
@@ -117,7 +121,6 @@ public class MainTest {
         fullScreenWindow.requestFocus();
         fullScreenWindow.validate();*/
 
-        maFenetre.setVisible(true);
 
 
 

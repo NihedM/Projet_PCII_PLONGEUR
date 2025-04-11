@@ -172,6 +172,11 @@ public class ProximityChecker extends Thread{
                                     ((Enemy)voisin).vadrouille();
                                     ((PieuvreBebe) voisin).setTarget(unite);
                                     ((PieuvreBebe) voisin).passTargetToSiblings();
+
+
+
+
+
                                 }else if(voisin instanceof Base){
                                     Position[] coins = ((Base) voisin).getCoints();
                                     if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){

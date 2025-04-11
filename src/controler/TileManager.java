@@ -7,7 +7,7 @@ import view.GamePanel;
 public class TileManager {
 
 
-    public static final int TILESIZE = 100; // Taille d'une tile constante
+    public static final int TILESIZE = 200; // Taille d'une tile constante
     public static final int nbTilesWidth = GamePanel.TERRAIN_WIDTH / TILESIZE;
     public static final int nbTilesHeight = GamePanel.TERRAIN_HEIGHT / TILESIZE;
 

@@ -17,23 +17,30 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
     private int maxEnemies;
     private int spawnedEnemies;
+    private static final int RAYON =200;
 
     private Class<? extends Enemy> enemyType;
 
 
     public EnemySpawnPoint(CoordGrid tile, int maxEnemies) {
-        super(generateRandomPositionInTile(tile), 20);
+        super(generateRandomPositionInTile(tile), RAYON);
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
         this.enemyType = Calamar.class; // Default
     }
     public static Position generateRandomPositionInTile(CoordGrid tile) {
-        int tileSize = TileManager.TILESIZE;
-        int x = tile.getX() * tileSize + (int) (Math.random() * tileSize);
-        int y = tile.getY() * tileSize + (int) (Math.random() * tileSize);
+        int cellSize = GameMaster.CELL_SIZE;
+        int x = tile.getX() * cellSize + (int) (Math.random() * cellSize);
+        int y = tile.getY() * cellSize + (int) (Math.random() * cellSize);
         return new Position(x, y);
     }
 
+    public Position generateRandomPositionInsideSpawnPoint(){
+        //generate a random position inside the spawn point of rayon 200
+        int x = (int) (Math.random() * (2 * RAYON)) - RAYON;
+        int y = (int) (Math.random() * (2 * RAYON)) - RAYON;
+        return new Position(getPosition().getX() + x, getPosition().getY() + y);
+    }
 
     public boolean canSpawn() {
         return spawnedEnemies < maxEnemies;
@@ -50,9 +57,11 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     private void spawnEnemy() {
         incrementSpawnedEnemies();
         //generate random position in tile
-        Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
+        //Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
 
-        if ( !ZoneMover.isInsideAnyZone(position)) return;
+        Position position = generateRandomPositionInsideSpawnPoint();
+
+        //if ( !ZoneMover.isInsideAnyZone(position)) return;
 
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);
@@ -63,12 +72,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
                 //generate random number of children
                 int nbChildren = (int) (Math.random() * 5) + 1;
-                for (int i = 0; i < nbChildren; i++)
-                  ((Pieuvre)enemy).addChild();
+                //for (int i = 0; i < nbChildren; i++)
+                 // ((Pieuvre)enemy).addChild();
             }
-
-
-
             else{
                 //throw genereic error
                 throw new UnsupportedOperationException("Enemy type not supported");
@@ -87,8 +93,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
         while (canSpawn()) {
             spawnEnemy();
+
             try {
-                Thread.sleep(SpawnManager.getRandomInterval(100,500)); // Random interval between 1 and 5 seconds
+                Thread.sleep(SpawnManager.getRandomInterval(1000,5000)); // Random interval between 1 and 5 seconds
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

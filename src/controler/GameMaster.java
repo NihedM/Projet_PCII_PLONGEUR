@@ -53,7 +53,7 @@ public class GameMaster extends Thread{
 
 
     //----------------------------------------------manip du grid--------------------------------------------------//
-    private static CoordGrid getSpatialCell(int x, int y) {
+    public static CoordGrid getSpatialCell(int x, int y) {
         if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
             return Grid[x][y];
         }
@@ -81,14 +81,15 @@ public class GameMaster extends Thread{
     private CoordGrid getCellForPosition(Position position) {
         int cellX = position.getX() / CELL_SIZE;
         int cellY = position.getY() / CELL_SIZE;
+
         return getSpatialCell(cellX, cellY);
     }
     private CopyOnWriteArrayList<Enemy> getEnemiesInZone(ZoneEnFonctionnement zone) {
         CopyOnWriteArrayList<Enemy> enemiesInZone = new CopyOnWriteArrayList<>();
-        int minCellX = zone.getMinX() / CELL_SIZE;
-        int maxCellX = zone.getMaxX() / CELL_SIZE;
-        int minCellY = zone.getMinY() / CELL_SIZE;
-        int maxCellY = zone.getMaxY() / CELL_SIZE;
+        int minCellX = Math.max(0, zone.getMinX() / CELL_SIZE);
+        int maxCellX = Math.min(GRID_WIDTH - 1, zone.getMaxX() / CELL_SIZE);
+        int minCellY = Math.max(0, zone.getMinY() / CELL_SIZE);
+        int maxCellY = Math.min(GRID_HEIGHT - 1, zone.getMaxY() / CELL_SIZE);
 
         for (int x = minCellX; x <= maxCellX; x++) {
             for (int y = minCellY; y <= maxCellY; y++) {
@@ -105,6 +106,7 @@ public class GameMaster extends Thread{
     public ConcurrentHashMap<CoordGrid, CopyOnWriteArrayList<Enemy>> getEnemiesGrid() {
         return enemiesGrid;
     }
+
 
 
     //-------------------GETTERS-------------------//
@@ -203,10 +205,16 @@ public class GameMaster extends Thread{
                 if (!processedEnemies.contains(enemy)) {
                     processedEnemies.add(enemy);
                     enemyExecutor.submit(() -> {
+
+                        if(!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                            GamePanel.getInstance().killUnite(enemy);
+                            return;
+                        }
+
                         if (!enemy.isInsideZone()) {
                             enemy.setInsideZone(true);
                             enemy.attente(); // Switch to "attente" state
-                            System.out.println("Reactivating enemy: " + enemy);
+                            //System.out.println("Reactivating enemy: " + enemy);
 
                         }
 
@@ -221,11 +229,25 @@ public class GameMaster extends Thread{
                     if (!processedEnemies.contains(enemy)) {
                         processedEnemies.add(enemy);
                         enemyExecutor.submit(() -> {
+
+                            //si l'enenmie dehors terrain le tuer
+                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                                GamePanel.getInstance().killUnite(enemy);
+                                return;
+                            }
+
+
                             if (!enemy.isInsideZone()) {
                                 enemy.setInsideZone(true);
                                 enemy.attente(); // Switch to "attente" state
                             }
+
+                            ((Calamar) enemy).setRessourcesDisponibles(ressources);
                             enemy.action();
+
+                            //System.out.println("Reactivating enemy: " + enemy);
+
+
                         });
                     }
                 }
@@ -234,7 +256,7 @@ public class GameMaster extends Thread{
 
             for (Enemy enemy : enemies) {
                 if (!processedEnemies.contains(enemy)) {
-                    System.out.println("Enemy outside active zones: " + enemy + ", InsideZone: " + enemy.isInsideZone());
+                    //System.out.println("Enemy outside active zones: " + enemy + ", InsideZone: " + enemy.isInsideZone());
 
                     if (enemy.isInsideZone()) {
                         enemy.stopAllThreads();

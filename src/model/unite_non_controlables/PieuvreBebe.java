@@ -10,6 +10,7 @@ import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PieuvreBebe extends Enemy {
@@ -30,6 +31,12 @@ public class PieuvreBebe extends Enemy {
 
         setImage("pieuvre.png");
         setMovingImage("pieuvre.png");
+    }
+
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes =super.getAttributes();
+        attributes.put("loot", String.valueOf(ressource));
+        return attributes;
     }
 
     public void setTarget(UniteControlable target) {

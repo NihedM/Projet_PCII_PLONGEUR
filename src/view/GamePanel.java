@@ -741,12 +741,13 @@ public class GamePanel extends JPanel {
         drawPronfondeur(g);
         drawTiles(g);
         drawEnemiesGrid(g);
+        drawSpawnPoints(g);
         drawBaseTest(g);
         drawObjectsTest(g, getBounds(), colorMap, groupedObjects);
         drawAmmoTest(g);
-        drawSpawnPoints(g);
         drawPlayerInfoTest(g);
         drawDetectionProximite(g);
+
     }
 
 

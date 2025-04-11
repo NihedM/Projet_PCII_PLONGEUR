@@ -7,6 +7,7 @@ import model.objets.*;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Pieuvre extends Enemy {
@@ -21,19 +22,22 @@ public class Pieuvre extends Enemy {
 
 
 
-
-
     public Pieuvre(Position position) {
         super(position, 20, 120, VITESSE_VADROUILLE);
-        this.targetsDisponibles = new CopyOnWriteArrayList<>();
+        this.targetsDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu());
         setEtat(Etat.ATTENTE);
-
         setImage("pieuvre.png");
         setMovingImage("pieuvre.png");
     }
 
     public void setTargetsDisponibles(CopyOnWriteArrayList<UniteControlable> targetsDisponibles){
         this.targetsDisponibles = targetsDisponibles;
+    }
+
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes =super.getAttributes();
+        attributes.put("loot", String.valueOf(sac.size()));
+        return attributes;
     }
 
     public void selectTargetPlusProche(CopyOnWriteArrayList<UniteControlable> targets){
@@ -63,6 +67,7 @@ public class Pieuvre extends Enemy {
                enfants.get(0).passTargetToSiblings();
             }
         }
+        this.target = target;
     }
 
 
@@ -98,9 +103,6 @@ public class Pieuvre extends Enemy {
 
     @Override
     public void action() {
-
-
-
         if(getEtat().equals(Etat.ATTENTE) || target == null){
             attente();
             return;
@@ -108,7 +110,7 @@ public class Pieuvre extends Enemy {
 
         double distance = this.distance(target);
         if(distance >= MAX_DISTANCE) {
-            targetsDisponibles.remove(target);
+            //targetsDisponibles.remove(target);
             target = null;
             setEtat(Etat.ATTENTE);
             return;
@@ -119,14 +121,13 @@ public class Pieuvre extends Enemy {
                 setEtat(Etat.ATTENTE);
             }else{
                 if(target instanceof Plongeur){
-
                     Plongeur plongeur = (Plongeur) target;
                     if(plongeur.getBackPac().isEmpty()) {
                         //stalk, la cible se mantient près du plongeu
-                        // r
 
                         if (distance < STALKING_DISTANCE) return;
                         setDestination(target.getPosition());
+                        
                     }else {
                         if(getDestination() != target.getPosition())
                             setDestination(target.getPosition());
@@ -137,8 +138,6 @@ public class Pieuvre extends Enemy {
                         }
 
                     }
-
-
                 }
 
 
