@@ -73,8 +73,13 @@ public class VictoryManager {
 
             JOptionPane.showMessageDialog(gamePanel, message, "Fin de partie", JOptionPane.INFORMATION_MESSAGE);
             // Au lieu de fermer le jeu, on affiche le menu de fin de partie
-            GameOverDialog gameOverDialog = new GameOverDialog(SwingUtilities.getWindowAncestor(gamePanel));
-            gameOverDialog.setVisible(true);
+           // GameOverDialog gameOverDialog = new GameOverDialog(SwingUtilities.getWindowAncestor(gamePanel));
+           // gameOverDialog.setVisible(true);
+
+          System.exit(0);
+
+
+
         });
     }
 }
