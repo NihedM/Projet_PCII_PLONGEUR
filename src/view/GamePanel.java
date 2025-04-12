@@ -5,6 +5,7 @@ import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
 import model.ressources.Bague;
+import model.ressources.Coffre;
 import model.ressources.Collier;
 import model.ressources.Tresor;
 import model.unite_controlables.Plongeur;
@@ -378,6 +379,10 @@ public class GamePanel extends JPanel {
     public synchronized void setRessourceSelectionnee(Ressource ressource) {this.ressourceSelectionnee = ressource;}
 
     public void setVictoryManager(VictoryManager vm) {this.victoryManager = vm;}
+    // Méthode pour accéder à l'instance de VictoryManager
+    public VictoryManager getVictoryManager() {
+        return victoryManager;
+    }
     public void startGame() {victoryManager.startGame();}
 
     //---------------------------------------getters constantes------------------------------------------------
@@ -731,7 +736,8 @@ public class GamePanel extends JPanel {
                 Pieuvre.class, Color.MAGENTA,
                 PieuvreBebe.class, Color.PINK,
                 Bague.class, Color.CYAN,
-                Tresor.class, Color.ORANGE
+                Tresor.class, Color.ORANGE,
+                Coffre.class, Color.GRAY
         );
 
         Map<Class<? extends Objet>, ArrayList<Objet>> groupedObjects = new HashMap<>();

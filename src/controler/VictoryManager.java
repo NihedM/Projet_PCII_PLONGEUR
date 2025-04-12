@@ -82,4 +82,9 @@ public class VictoryManager {
 
         });
     }
+
+    public void triggerVictory() {
+        endGame(true);
+    }
+
 }

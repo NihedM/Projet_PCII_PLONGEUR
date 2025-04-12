@@ -2,12 +2,15 @@ package model.objets;
 
 import controler.GameMaster;
 import controler.ThreadManager;
+import controler.VictoryManager;
 import controler.ZoneMover;
 import model.objets.Position;
 import model.objets.GestionRessource;
 import model.ressources.Bague;
+import model.ressources.Coffre;
 import model.ressources.Collier;
 import model.ressources.Tresor;
+import view.GameOverDialog;
 import view.GamePanel;
 
 import java.util.Random;
@@ -43,19 +46,15 @@ public class ResourceSpawner extends Thread {
         try {
             while (running && resourcesSpawned < maxResources) {
                 int spawnCount = spawnCountMin + random.nextInt(spawnCountMax - spawnCountMin + 1);
-
                 for (int i = 0; i < spawnCount && resourcesSpawned < maxResources; i++) {
                     Position randomPos = generateValidPosition();
                     if (randomPos != null) {
                         // Récupération de la profondeur à la position générée
                         int depth = gamePanel.getTerrain().getDepthAt(randomPos.getX(), randomPos.getY());
                         Ressource ressource;
-
-                        // Choix de la ressource en fonction de la profondeur
                         switch (depth) {
                             case 1:
-                            case 4:
-                                // Profondeur 1 et 4 : uniquement Collier
+                                // Profondeur 1 : uniquement Collier
                                 ressource = new Collier(randomPos);
                                 break;
                             case 2:
@@ -66,16 +65,24 @@ public class ResourceSpawner extends Thread {
                                 // Profondeur 3 : aléatoirement Bague ou Tresor
                                 ressource = random.nextBoolean() ? new Bague(randomPos) : new Tresor(randomPos);
                                 break;
+                            case 4:
+                                // Profondeur 4 : 3 % de chance de générer un Coffre,
+                                // sinon aléatoirement Tresor ou Bague
+                                double chestRoll = random.nextDouble();
+                                if (chestRoll < 0.03) {
+                                    ressource = new Coffre(randomPos);
+                                } else {
+                                    ressource = random.nextBoolean() ? new Tresor(randomPos) : new Bague(randomPos);
+                                }
+                                break;
                             default:
                                 // Cas de sécurité (idéalement jamais atteint)
                                 ressource = new Collier(randomPos);
                                 break;
                         }
 
-                        // Ajout de la ressource dans le jeu et démarrage de la gestion de sa croissance
                         gamePanel.addObjet(ressource);
                         gamePanel.getTerrain().incrementResourcesAt(randomPos.getX(), randomPos.getY());
-
                         GestionRessource gestionRessource = new GestionRessource(ressource, 200);
                         gestionRessource.addListener(gamePanel.getInfoPanelUNC());
                         gestionRessource.start();
@@ -83,7 +90,6 @@ public class ResourceSpawner extends Thread {
                         resourcesSpawned++;
                     }
                 }
-
                 int delay = spawnIntervalMin + random.nextInt(spawnIntervalMax - spawnIntervalMin);
                 Thread.sleep(delay);
             }
@@ -93,6 +99,7 @@ public class ResourceSpawner extends Thread {
             ThreadManager.decrementThreadCount("RessourceSpawner");
         }
     }
+
 
 
     private Position generateValidPosition() {

@@ -203,6 +203,13 @@ public class Plongeur extends UniteControlable {
         double distance = Math.sqrt(dx * dx + dy * dy);
         if(distance <= this.getRayon() + ressource.getRayon()) {
             if(backpack.size() < BACKPACK_CAPACITY) {
+                // Si la ressource est un Coffre, on arrête le jeu et on déclare la victoire
+                if (ressource instanceof model.ressources.Coffre) {
+                    System.out.println("Coffre recolté ! Vous avez gagné !");
+                    GamePanel.getInstance().removeObjet(ressource, ressource.getCoordGrid());
+                    GamePanel.getInstance().getVictoryManager().triggerVictory();
+                    return true;
+                }
                 backpack.add(ressource);
                 // Retirer la ressource du jeu
                 GamePanel.getInstance().removeObjet(ressource, ressource.getCoordGrid());
@@ -216,6 +223,9 @@ public class Plongeur extends UniteControlable {
         }
         return false;
     }
+
+
+
 
 
     public Ressource seFaitVoler(){
