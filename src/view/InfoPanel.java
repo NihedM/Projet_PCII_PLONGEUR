@@ -108,8 +108,23 @@ public class InfoPanel extends JPanel {
         atributInfo.updateInfo(enemy.getAttributes());
 
         buttonPanel.removeAll(); // No action buttons for enemies
+        buttonPanel.setBackgroundImage("unitIconBackground.png");
 
         add(buttonPanel, BorderLayout.CENTER);
+        emptyPanel.setBackgroundImage("unitIconBackground.png");
+        emptyPanel.removeAll();
+        if (enemy.getUnitIcon() != null) {
+            ImageIcon originalIcon = enemy.getUnitIcon();
+            Image scaledImage = originalIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH);
+            JLabel iconLabel = new JLabel(new ImageIcon(scaledImage));
+            iconLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            iconLabel.setVerticalAlignment(SwingConstants.CENTER);
+            emptyPanel.add(iconLabel);
+        }
+        add(emptyPanel);
+
+
+
 
         buttonPanel.revalidate();
         buttonPanel.repaint();

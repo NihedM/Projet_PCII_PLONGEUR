@@ -57,6 +57,8 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             unite.setSelected(false);
         }
         panel.getUnitesSelected().clear();
+        panel.hideResourceInfoPanel();
+        panel.showEmptyInfoPanel();
     }
 
 
@@ -408,8 +410,11 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                     System.out.println("Cannot select more units. Maximum limit reached: " + MAX_SELECTED_UNITS);
                     break;
                 }
-                panel.getUnitesSelected().add(unite);
-                unite.setSelected(true);
+                if(!panel.getUnitesSelected().contains(unite)) {
+
+                    panel.getUnitesSelected().add(unite);
+                    unite.setSelected(true);
+                }
             }
             //else unite.setSelected(false);
         }

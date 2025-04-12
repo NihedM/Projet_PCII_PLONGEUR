@@ -8,6 +8,7 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
+import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -117,7 +118,13 @@ public class Cefalopode extends Enemy{
         }
 
     }
-
+    @Override
+    public synchronized Color getColorForKey(String key) {
+        if (key.equalsIgnoreCase("loot")) {
+            return Color.GREEN ;
+        }
+        return super.getColorForKey(key);
+    }
 
 
 

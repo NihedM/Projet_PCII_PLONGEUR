@@ -9,6 +9,8 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
+import javax.swing.*;
+import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -26,14 +28,27 @@ public class PieuvreBebe extends Cefalopode{
 
         setImage("pieuvre.png");
         setMovingImage("pieuvre.png");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("pieuvreIcon.png")));
     }
 
     public ConcurrentHashMap<String, String> getAttributes() {
         ConcurrentHashMap<String, String> attributes =super.getAttributes();
-        attributes.put("loot", String.valueOf(ressource));
+        attributes.put("loot", String.valueOf(hasResource()?1:0));
         return attributes;
     }
 
+
+    @Override
+    public synchronized int getMaxValueForKey(String key) {
+        if (key.equalsIgnoreCase("loot")) {
+            return 1;
+        }
+        return super.getMaxValueForKey(key);
+    }
+
+    public boolean hasResource() {
+        return ressource != null;
+    }
     public Pieuvre getParent() {
         return parent;
     }

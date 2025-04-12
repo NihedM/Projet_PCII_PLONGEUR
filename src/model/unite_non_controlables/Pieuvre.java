@@ -7,6 +7,7 @@ import model.objets.*;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
+import javax.swing.*;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,6 +23,8 @@ public class Pieuvre extends Cefalopode{
         super(position, 20, 5);
         setImage("pieuvre.png");
         setMovingImage("pieuvre.png");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("pieuvreIcon.png")));
+
     }
 
 
