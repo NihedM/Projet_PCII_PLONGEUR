@@ -5,7 +5,9 @@ import controler.ThreadManager;
 import controler.ZoneMover;
 import model.objets.Position;
 import model.objets.GestionRessource;
+import model.ressources.Bague;
 import model.ressources.Collier;
+import model.ressources.Tresor;
 import view.GamePanel;
 
 import java.util.Random;
@@ -45,11 +47,36 @@ public class ResourceSpawner extends Thread {
                 for (int i = 0; i < spawnCount && resourcesSpawned < maxResources; i++) {
                     Position randomPos = generateValidPosition();
                     if (randomPos != null) {
-                        Collier collier = new Collier(randomPos);
-                        gamePanel.addObjet(collier);
+                        // Récupération de la profondeur à la position générée
+                        int depth = gamePanel.getTerrain().getDepthAt(randomPos.getX(), randomPos.getY());
+                        Ressource ressource;
+
+                        // Choix de la ressource en fonction de la profondeur
+                        switch (depth) {
+                            case 1:
+                            case 4:
+                                // Profondeur 1 et 4 : uniquement Collier
+                                ressource = new Collier(randomPos);
+                                break;
+                            case 2:
+                                // Profondeur 2 : aléatoirement Collier ou Bague
+                                ressource = random.nextBoolean() ? new Collier(randomPos) : new Bague(randomPos);
+                                break;
+                            case 3:
+                                // Profondeur 3 : aléatoirement Bague ou Tresor
+                                ressource = random.nextBoolean() ? new Bague(randomPos) : new Tresor(randomPos);
+                                break;
+                            default:
+                                // Cas de sécurité (idéalement jamais atteint)
+                                ressource = new Collier(randomPos);
+                                break;
+                        }
+
+                        // Ajout de la ressource dans le jeu et démarrage de la gestion de sa croissance
+                        gamePanel.addObjet(ressource);
                         gamePanel.getTerrain().incrementResourcesAt(randomPos.getX(), randomPos.getY());
 
-                        GestionRessource gestionRessource = new GestionRessource(collier, 200);
+                        GestionRessource gestionRessource = new GestionRessource(ressource, 200);
                         gestionRessource.addListener(gamePanel.getInfoPanelUNC());
                         gestionRessource.start();
 
@@ -66,6 +93,7 @@ public class ResourceSpawner extends Thread {
             ThreadManager.decrementThreadCount("RessourceSpawner");
         }
     }
+
 
     private Position generateValidPosition() {
         int attempts = 0;

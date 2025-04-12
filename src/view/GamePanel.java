@@ -4,7 +4,9 @@ import controler.*;
 import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
+import model.ressources.Bague;
 import model.ressources.Collier;
+import model.ressources.Tresor;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import model.unite_controlables.SousMarin;
@@ -727,7 +729,9 @@ public class GamePanel extends JPanel {
                 PlongeurArme.class, Color.RED,
                 SousMarin.class, Color.GREEN,
                 Pieuvre.class, Color.MAGENTA,
-                PieuvreBebe.class, Color.PINK
+                PieuvreBebe.class, Color.PINK,
+                Bague.class, Color.CYAN,
+                Tresor.class, Color.ORANGE
         );
 
         Map<Class<? extends Objet>, ArrayList<Objet>> groupedObjects = new HashMap<>();
