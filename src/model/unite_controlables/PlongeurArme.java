@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class PlongeurArme extends Plongeur {
 
-    private static final int MAX_AMMO = 0;
+    private static final int MAX_AMMO = 10;
     private static final int DAMAGE = 100;
     private static final int SHOOTING_RANGE = 1000;
     private final int bayonetRange = getRayon()*2 + getRayon()/2;

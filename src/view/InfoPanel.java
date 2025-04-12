@@ -179,21 +179,19 @@ public class InfoPanel extends JPanel {
         add(topPanel, BorderLayout.CENTER); // Add top section
 
         BackgroundPanel bottomPanel = new BackgroundPanel();
-        bottomPanel.setBackgroundImage("actionsBackground.png"); // Set the background image
-        bottomPanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(10, 10, 10, 10);
+        bottomPanel.setBackground(Color.BLACK);
+
+        List<ButtonAction> commonActions = UniteControlable.getCommonActions(units);
+        int rows = (int) Math.ceil(commonActions.size() / 2.0);
+        bottomPanel.setLayout(new GridLayout(rows, 2, 10, 10));
 
 
-        for (ButtonAction action : units.get(0).getButtonActionsForMultipleSelection()) {
+
+        for (ButtonAction action : commonActions) {
             JButton button = new JButton(action.getLabel());
             button.setFont(GamePanel.CUSTOM_FONT.deriveFont(16f));
             button.addActionListener(action.getAction());
-            bottomPanel.add(button, gbc);
-            gbc.gridy++;
+            bottomPanel.add(button);
         }
 
         add(bottomPanel, BorderLayout.SOUTH); // Add bottom section

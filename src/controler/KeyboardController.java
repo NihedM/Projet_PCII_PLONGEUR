@@ -41,7 +41,7 @@ public class KeyboardController extends KeyAdapter {
 
         if (unitesSelectionnees.isEmpty()) return;
 
-        switch (e.getKeyCode()) {
+        /*switch (e.getKeyCode()) {
             case KeyEvent.VK_D:
                 panel.setDeplacementMode(true);
                 break;
@@ -53,6 +53,40 @@ public class KeyboardController extends KeyAdapter {
                 if(unite instanceof Plongeur)
                     ((Plongeur) unite).setFaitFuire(true);
                 break;
+        }*/
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_D -> handleMoveAction();
+            case KeyEvent.VK_R -> handleRecoverAction();
+            case KeyEvent.VK_A -> handleAttackAction();
+            case KeyEvent.VK_F -> handleFleeAction();
+            case KeyEvent.VK_S -> handleStopAction();
+        }
+    }
+
+
+    private void handleMoveAction() {
+        panel.setDeplacementMode(true);
+    }
+
+    private void handleRecoverAction() {
+        panel.setRecuperationMode(true);
+    }
+
+    private void handleAttackAction() {
+        panel.setShootingMode(true);
+    }
+
+    private void handleFleeAction() {
+        for (UniteControlable unit : unitesSelectionnees) {
+            if (unit instanceof Plongeur) {
+                ((Plongeur) unit).setFaitFuire(true);
+            }
+        }
+    }
+
+    private void handleStopAction() {
+        for (UniteControlable unit : unitesSelectionnees) {
+            unit.stopAction();
         }
     }
 }

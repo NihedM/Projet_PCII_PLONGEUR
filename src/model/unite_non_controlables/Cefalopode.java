@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Cefalopode extends Enemy{
-    public static final int VITESSE_VADROUILLE = 6;
+    public final int VITESSE_VADROUILLE;
     private static final AtomicInteger nextId = new AtomicInteger(1);
     private final int id;
 
@@ -22,10 +22,11 @@ public class Cefalopode extends Enemy{
     protected static final double SAFE_STALKING_DISTANCE = TileManager.TILESIZE *2.0 ;
     protected static final int MAX_DISTANCE = TileManager.TILESIZE * 6;
 
-    protected CopyOnWriteArrayList<UniteControlable> targetsDisponibles = new CopyOnWriteArrayList<>();
+    protected CopyOnWriteArrayList<UniteControlable> targetsDisponibles;
 
     public Cefalopode(Position position, int rayon, int vitesse_vadrouille) {
-        super(position, rayon, 120, VITESSE_VADROUILLE);
+        super(position, rayon, 120, vitesse_vadrouille);
+        VITESSE_VADROUILLE = vitesse_vadrouille;
         this.id = nextId.getAndIncrement();
 
         this.targetsDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu());

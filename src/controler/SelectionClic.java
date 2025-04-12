@@ -20,6 +20,8 @@ import java.awt.geom.Ellipse2D;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static view.GamePanel.MAX_SELECTED_UNITS;
+import model.objets.Ressource;
+import java.util.ArrayList;
 
 public class SelectionClic extends MouseAdapter implements MouseListener {
     private GamePanel panel;
@@ -32,6 +34,8 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private int startXView, startYView, endXView, endYView;
     private int startXWorld, startYWorld, endXWorld, endYWorld;
 
+    private Ressource ressourceRecuperationModetarget;
+    private Enemy enemyShootingModetarget;
     private boolean isSelecting = false;
 
 
@@ -78,234 +82,249 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
         startYView = endYView;
 
 
-        // Vérifier si le clic est sur la minimap
-        MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
-        if (minimap != null &&
-                point.x >= minimap.getX() &&
-                point.x <= minimap.getX() + minimap.getWidth() &&
-                point.y >= minimap.getY() &&
-                point.y <= minimap.getY() + minimap.getHeight()) {
 
-            // Calculer les coordonnées dans le monde
-            double minimapX = point.x - minimap.getX();
-            double minimapY = point.y - minimap.getY();
-
-            // Convertir en coordonnées monde
-            double worldX = minimapX / GamePanel.MINIMAP_SCALE_X;
-            double worldY = minimapY / GamePanel.MINIMAP_SCALE_Y;
-
-            // Centrer la caméra sur ce point
-            GamePanel.getInstance().moveCamera(
-                    (int)(worldX - GamePanel.VIEWPORT_WIDTH / 2) - GamePanel.getInstance().getCameraX(),
-                    (int)(worldY - GamePanel.VIEWPORT_HEIGHT / 2) - GamePanel.getInstance().getCameraY()
-            );
+        if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
+            System.out.println("Clic en dehors du terrain");
             return;
         }
-        // Si le mode déplacement est actif, on ne fait rien ici
-        if (panel.isDeplacementMode()) {
-            return;
-        }
+
+
+
+        if (handleMinimapClick(point)) return;
+
 
         if (e.getButton() == MouseEvent.BUTTON1) {
-
-
-            // Si le mode récupération est activé, on recherche une ressource
-            if (panel.isRecuperationMode()) {
-                boolean resourceFound = false;
-                for (model.objets.Ressource ressource : panel.getRessourcesMap()) {
-                    int rayon = ressource.getRayon();
-                    int resX = ressource.getPosition().getX();
-                    int resY = ressource.getPosition().getY();
-                    Ellipse2D.Double cercleRessource = new Ellipse2D.Double(
-                            resX - rayon,
-                            resY - rayon,
-                            rayon * 2,
-                            rayon * 2
-                    );
-                    if (cercleRessource.contains(x, y)) {
-                        resourceFound = true;
-                        if (!panel.getUnitesSelected().isEmpty()) {
-                            model.objets.UniteControlable selectedUnit = panel.getUnitesSelected().get(0);
-                            if(!selectedUnit.canPerformAction("Récupérer (R)")) {
-                                panel.setRecuperationMode(false);
-                                return;
-                            }
-                            if (selectedUnit instanceof model.unite_controlables.Plongeur) {
-                                model.unite_controlables.Plongeur plongeur = (model.unite_controlables.Plongeur) selectedUnit;
-                                // Affecter la ressource et activer son flag fixed (via setTargeted)
-                                plongeur.setTargetResource(ressource);
-                                ressource.setTargeted(true);  // ou setFixed(true)
-                                plongeur.setDestination(new Position(resX, resY));
-                            }
-                        }
-                        panel.repaint();
-                        break;
-                    }
-                }
-                panel.setRecuperationMode(false);
-                if (!resourceFound) {
-                    JOptionPane.showMessageDialog(panel, "Aucune ressource détectée.");
-                }
-                return;
+            handleSelection(e, x, y);
+            if(panel.isRecuperationMode()){
+                handleRecuperationMode(x, y);
+            }else if(panel.isShootingMode()){
+                handleShootingMode(x, y);
+            }else if(panel.isDeplacementMode()){
+                handleDeplacementMode(x, y);
             }
 
-
-            if (panel.isShootingMode()){
-                worldPos = panel.screenToWorld(e.getPoint());
-                x = worldPos.x;
-                y = worldPos.y;
-
-                if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
-                    panel.setShootingMode(false);
-                    return;
-                }
-
-                CoordGrid gridCoord = TileManager.transformePos_to_Coord(new Position(x, y));
-                CopyOnWriteArrayList<Objet> objetsAtCoord = panel.getObjetsMap().get(gridCoord);
-                if (objetsAtCoord != null) {
-
-                    for (Objet objet : objetsAtCoord) {
-                        System.out.println("Objet trouvé : " + objet);
-
-
-
-                        if (objet instanceof Enemy) {
-                            Enemy enemy = (Enemy) objet;
-                            Ellipse2D.Double enemyArea = new Ellipse2D.Double(
-                                    enemy.getPosition().getX() - enemy.getRayon(),
-                                    enemy.getPosition().getY() - enemy.getRayon(),
-                                    enemy.getRayon() * 2,
-                                    enemy.getRayon() * 2
-                            );
-
-                            if (enemyArea.contains(x, y)) {
-                                System.out.println("Enemy selected: " + objet);
-                                // Trouvé un ennemi à attaquer
-                                for (UniteControlable unite : panel.getUnitesSelected()) {
-                                    if (unite instanceof PlongeurArme ) {
-                                        ((PlongeurArme)unite).attack(enemy);
-                                    }
-                                }
-                                return;
-                            }
-
-
-                        }
-                    }
-                }
-                panel.setShootingMode(false);
-                panel.repaint();
-                return;
-
-            }
-
-
-
-            // ----------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-            // Si on n'est pas en mode récupération, on effectue la sélection d'une unité ou d'une ressource classique
-            dropUnitesSelectionnees();
-            boolean unitSelected = false;
-            isSelecting = true;
-            for (model.objets.UniteControlable unite : panel.getUnitesEnJeu()) {
-                Ellipse2D.Double cercle = new Ellipse2D.Double(
-                        unite.getPosition().getX() - unite.getRayon(),
-                        unite.getPosition().getY() - unite.getRayon(),
-                        unite.getRayon() * 2,
-                        unite.getRayon() * 2
-                );
-                if (cercle.contains(x, y)) {
-                    panel.getUnitesSelected().add(unite);
-                    unite.setSelected(true);
-                    unitSelected = true;
-                    if(GamePanel.getInstance().getUnitesSelected().size() == 1)
-                        GamePanel.getInstance().getInfoPanel().updateInfo(unite);
-                    break;
-                }
-            }
-            if (unitSelected && GamePanel.getInstance().getUnitesSelected().size() == 1){
-                currentSelectionType = SelectionType.UNIT;
-                panel.showFixedInfoPanel("unit");
-                panel.hideResourceInfoPanel();
-            } else {
-                boolean resourceSelected = false;
-                for (model.objets.Ressource ressource : panel.getRessourcesMap()) {
-                    int rayon = ressource.getRayon();
-                    int resX = ressource.getPosition().getX();
-                    int resY = ressource.getPosition().getY();
-                    Ellipse2D.Double cercleRessource = new Ellipse2D.Double(
-                            resX - rayon,
-                            resY - rayon,
-                            rayon * 2,
-                            rayon * 2
-                    );
-                    if (cercleRessource.contains(x, y)) {
-                        currentSelectionType = SelectionType.RESOURCE;
-                        panel.showResourceInfoPanel(ressource); // Appeler showResourceInfoPanel pour afficher les informations
-                        resourceSelected = true;
-                        break;
-                    }
-                }
-                if (!resourceSelected) {
-                    currentSelectionType = SelectionType.NONE;
-                    panel.setRessourceSelectionnee(null); // Aucune ressource sélectionnée
-                    panel.showEmptyInfoPanel();
-                    panel.getUnitesSelected().clear();
-                }
-            }
-
-
-
-            if(!GamePanel.getInstance().isWithinTerrainBounds(new Position(x, y))){
-                System.out.println("Clic en dehors du terrain");
-                return;
-            }
-
-            CoordGrid gridCoord = TileManager.transformePos_to_Coord(new Position(x, y));
-            CopyOnWriteArrayList<Objet> objetsAtCoord = panel.getObjetsMap().get(gridCoord);
-            if(objetsAtCoord == null) return;
-
-            for(Objet objet: objetsAtCoord) {
-                if (objet instanceof Enemy) {
-                    Enemy enemy = (Enemy) objet;
-                    Ellipse2D.Double enemyArea = new Ellipse2D.Double(
-                            enemy.getPosition().getX() - enemy.getRayon(),
-                            enemy.getPosition().getY() - enemy.getRayon(),
-                            enemy.getRayon() * 2,
-                            enemy.getRayon() * 2
-                    );
-
-                    if (enemyArea.contains(x, y)) {
-                        panel.getInfoPanel().updateEnemyInfo(enemy);
-                        panel.showFixedInfoPanel("unit");
-                        return;
-                    }
-                }
-            }
         }
 
         if (e.getButton() == MouseEvent.BUTTON3) {          // on a le droit d'utliser l'action deplacer ou clic droit pour deplacer
-            if (!panel.getUnitesSelected().isEmpty() && !panel.isDeplacementMode() && !panel.isRecuperationMode()) {
-                for (UniteControlable unite : panel.getUnitesSelected()) {
-                    unite.setDestination(new Position(worldPos.x, worldPos.y));
-                }
-                panel.showFixedInfoPanel("unit");
-
-            }
+            handleRightClickOrder(x, y);
         }
 
 
 
 
     }
+    //------------------------------------------------------------------------------------------------------------------------
 
+    public int getNeighbourPos(int rest, int x){
+        if (rest < 20 && x > 0) {
+            x -=  TileManager.TILESIZE;
+        }else if (rest > TileManager.TILESIZE - 20 && x < GamePanel.TERRAIN_WIDTH) {
+            x += TileManager.TILESIZE;
+        }
+        return x;
+    }
+
+
+    private void handleSelection(MouseEvent e, int x, int y) {
+        if(!panel.isRecuperationMode() && !panel.isShootingMode() && !panel.isDeplacementMode()) {
+            dropUnitesSelectionnees();
+        }
+
+        isSelecting = true;
+
+        int restX = x % TileManager.TILESIZE;
+        int restY = y % TileManager.TILESIZE;
+
+        CoordGrid clickedCell = TileManager.transformePos_to_Coord(new Position(x, y));
+        CopyOnWriteArrayList<Objet> objectsInCell = new CopyOnWriteArrayList<>();
+
+        CopyOnWriteArrayList<Objet> primaryObjects = panel.getObjetsMap().get(clickedCell);
+        if (primaryObjects != null) {
+            objectsInCell.addAll(primaryObjects);
+        }
+
+        //on se retrouve trop près d'un bord de la tile
+        boolean nearLeftOrRightEdge = restX < 20 || restX > TileManager.TILESIZE - 20;
+        boolean nearTopOrBottomEdge = restY < 20 || restY > TileManager.TILESIZE - 20;
+        ArrayList<CoordGrid> neighbors = new ArrayList<>();
+        int neighbourX = getNeighbourPos(restX, x);
+        int neighbourY = getNeighbourPos(restY, y);
+
+        // il sa'git d'un coin
+        if (nearLeftOrRightEdge && nearTopOrBottomEdge) {
+            neighbors.add(TileManager.transformePos_to_Coord(new Position(neighbourX, y))); // Horizontal neighbor
+            neighbors.add(TileManager.transformePos_to_Coord(new Position(x, neighbourY))); // Vertical neighbor
+            neighbors.add(TileManager.transformePos_to_Coord(new Position(neighbourX, neighbourY))); // Diagonal neighbor
+            for (CoordGrid corner : neighbors) {
+                CopyOnWriteArrayList<Objet> cornerObjects = panel.getObjetsMap().get(corner);
+                if (cornerObjects != null) {
+                    objectsInCell.addAll(cornerObjects);
+                }
+            }
+        }else if(nearLeftOrRightEdge || nearTopOrBottomEdge) {
+            CoordGrid neighbourCoord = TileManager.transformePos_to_Coord(new Position(neighbourX, neighbourY));
+            if (neighbourCoord != null) {
+                CopyOnWriteArrayList<Objet> neighborObjects = panel.getObjetsMap().get(neighbourCoord);
+                if (neighborObjects != null) {
+                    objectsInCell.addAll(neighborObjects);
+                }
+            }
+        }
+
+
+
+
+
+        if (objectsInCell != null) {
+            for (Objet objet : objectsInCell) {
+                Ellipse2D.Double objectBounds = new Ellipse2D.Double(
+                        objet.getPosition().getX() - objet.getRayon(),
+                        objet.getPosition().getY() - objet.getRayon(),
+                        objet.getRayon() * 2,
+                        objet.getRayon() * 2
+                );
+                if (objectBounds.contains(x, y)) {
+                    if (objet instanceof UniteControlable && ! panel.isDeplacementMode()) {
+                        if(panel.isShootingMode() || panel.isRecuperationMode() )
+                            dropUnitesSelectionnees();
+                        UniteControlable unite = (UniteControlable) objet;
+                        panel.getUnitesSelected().add(unite);
+                        unite.setSelected(true);
+                        currentSelectionType = SelectionType.UNIT;
+                        panel.hideResourceInfoPanel();
+                        panel.showFixedInfoPanel("unit");
+                        if(GamePanel.getInstance().getUnitesSelected().size() == 1)
+                            GamePanel.getInstance().getInfoPanel().updateInfo(unite);
+
+                    } else if (objet instanceof Ressource) {
+                        Ressource ressource = (Ressource) objet;
+                        currentSelectionType = SelectionType.RESOURCE;
+
+                        if(panel.isRecuperationMode()){
+                            ressourceRecuperationModetarget = ressource;
+                            panel.hideResourceInfoPanel();
+                        }else
+                            panel.showResourceInfoPanel(ressource);
+
+                    } else if (objet instanceof Enemy) {
+                        Enemy enemy = (Enemy) objet;
+                        panel.hideResourceInfoPanel();
+                        panel.showFixedInfoPanel("unit");
+                        if(panel.isShootingMode()) {
+                            enemyShootingModetarget = enemy;
+                            System.out.println("Enemy selected: " + enemy);
+                        }else
+                            GamePanel.getInstance().getInfoPanel().updateEnemyInfo(enemy);
+
+
+                    }
+                    return;
+                }
+            }
+        }
+
+        // si le clic est à l'intérieur du viewport
+        if (x >= 0 && x <= GamePanel.VIEWPORT_WIDTH && y >= 0 && y <= GamePanel.VIEWPORT_HEIGHT) {
+            currentSelectionType = SelectionType.NONE;
+            panel.setRessourceSelectionnee(null); // Aucune ressource sélectionnée
+            panel.hideResourceInfoPanel();
+            panel.showEmptyInfoPanel();
+            panel.setRecuperationMode(false);
+            panel.setShootingMode(false);
+        }
+
+    }
+
+
+
+
+
+    private void handleRecuperationMode(int x, int y) {
+        if (ressourceRecuperationModetarget == null) {
+            panel.setRecuperationMode(false);
+            return;
+        }
+
+        for (UniteControlable selectedUnit : panel.getUnitesSelected()) {
+            if (selectedUnit instanceof Plongeur && (!(selectedUnit instanceof PlongeurArme))) {
+                if(!selectedUnit.canPerformAction("Récupérer (R)")) {
+                    panel.setRecuperationMode(false);
+                    return;
+                }
+                if (ressourceRecuperationModetarget != null) {
+                    ressourceRecuperationModetarget.setTargeted(true);
+                    ((Plongeur) selectedUnit).setTargetResource(ressourceRecuperationModetarget);
+                    ((Plongeur) selectedUnit).setDestination(ressourceRecuperationModetarget.getPosition());
+                    ressourceRecuperationModetarget = null;
+                }
+                panel.setRecuperationMode(false);
+
+            }
+
+        }
+
+    }
+
+
+    private void handleShootingMode(int x, int y) {
+        if (enemyShootingModetarget == null) {
+            panel.setShootingMode(false);
+            return;
+        }
+        for (UniteControlable selectedUnit : panel.getUnitesSelected()) {
+            if (selectedUnit instanceof PlongeurArme) {
+                PlongeurArme plongeurArme = (PlongeurArme) selectedUnit;
+                plongeurArme.attack(enemyShootingModetarget);
+
+
+            }
+        }
+        enemyShootingModetarget = null;
+        panel.setShootingMode(false);
+    }
+
+
+
+
+
+    private void handleDeplacementMode(int x, int y) {
+        Position destination = new Position(x, y);
+        for (UniteControlable unite : panel.getUnitesSelected()) {
+            if (unite.getMovementThread() != null) {
+                unite.getMovementThread().stopThread();
+            }
+            unite.setDestination(destination);
+        }
+        panel.setDeplacementMode(false);
+        //panel.showFixedInfoPanel("unit");
+    }
+
+
+    private void handleRightClickOrder(int x, int y) {
+        Position destination = new Position(x, y);
+
+        panel.setDeplacementMode(true);
+
+        if (!panel.getUnitesSelected().isEmpty() && !panel.isRecuperationMode()) {
+            for (UniteControlable unite : panel.getUnitesSelected()) {
+                if (unite.getMovementThread() != null) {
+                    unite.getMovementThread().stopThread();
+                }
+                unite.setDestination(destination);
+
+            }
+            panel.showFixedInfoPanel("unit");
+
+        }
+        panel.setDeplacementMode(false);
+
+    }
+
+    //------------------------------------------------------------------------------------------------------------------------
 
     @Override
     public synchronized void mouseClicked(MouseEvent e) {
-        Point worldPos = panel.screenToWorld(e.getPoint());
+        /*Point worldPos = panel.screenToWorld(e.getPoint());
         int x = worldPos.x;
         int y = worldPos.y;
         //System.out.println("mouseClicked reçu, deplacementMode = " + panel.isDeplacementMode());
@@ -344,7 +363,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
         } else {
                 //TOUCHER PAS ICI SANS CONSULTER
-            }
+            }*/
         }
 
 
@@ -417,7 +436,39 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
 
-    @Override
+
+    private boolean handleMinimapClick(Point point) {
+        // Vérifier si le clic est sur la minimap
+        MinimapPanel minimap = GamePanel.getInstance().getMinimapPanel();
+        if (minimap != null &&
+                point.x >= minimap.getX() &&
+                point.x <= minimap.getX() + minimap.getWidth() &&
+                point.y >= minimap.getY() &&
+                point.y <= minimap.getY() + minimap.getHeight()) {
+
+            // Calculer les coordonnées dans le monde
+            double minimapX = point.x - minimap.getX();
+            double minimapY = point.y - minimap.getY();
+
+            // Convertir en coordonnées monde
+            double worldX = minimapX / GamePanel.MINIMAP_SCALE_X;
+            double worldY = minimapY / GamePanel.MINIMAP_SCALE_Y;
+
+            // Centrer la caméra sur ce point
+            GamePanel.getInstance().moveCamera(
+                    (int)(worldX - GamePanel.VIEWPORT_WIDTH / 2) - GamePanel.getInstance().getCameraX(),
+                    (int)(worldY - GamePanel.VIEWPORT_HEIGHT / 2) - GamePanel.getInstance().getCameraY()
+            );
+            return true ;
+        }
+        return false;
+    }
+
+
+
+
+
+        @Override
     public void mouseEntered (MouseEvent e){
     }
     @Override

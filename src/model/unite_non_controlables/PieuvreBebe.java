@@ -19,7 +19,7 @@ public class PieuvreBebe extends Cefalopode{
     private Ressource ressource;
 
     public PieuvreBebe(Position position, Pieuvre parent) {
-        super(position, 10, VITESSE_VADROUILLE);
+        super(position, 10,7);
         this.parent = parent;
         this.target = parent.getTarget();
         setEtat(Etat.ATTENTE);

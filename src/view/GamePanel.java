@@ -690,6 +690,7 @@ public class GamePanel extends JPanel {
         setRessourceSelectionnee(ressource); // Mettre à jour la ressource sélectionnée
         slideInInfoPanel("resource");
         infoPanelUNC.updateInfo(ressource); // Mettre à jour les informations de la ressource
+        infoPanelUNC.setVisible(true);
     }
     public void hideResourceInfoPanel() {
         infoPanelUNC.setVisible(false);

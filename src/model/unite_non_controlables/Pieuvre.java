@@ -19,7 +19,7 @@ public class Pieuvre extends Cefalopode{
 
 
     public Pieuvre(Position position) {
-        super(position, 20, VITESSE_VADROUILLE);
+        super(position, 20, 5);
         setImage("pieuvre.png");
         setMovingImage("pieuvre.png");
     }

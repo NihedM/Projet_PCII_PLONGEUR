@@ -93,7 +93,20 @@ public class UniteControlable extends Unite {
         return actions;
     }
 
+    //renvoie les actions communes à un groupe d'unités
+    public static List<ButtonAction> getCommonActions(List<UniteControlable> units) {
+        if (units.isEmpty()) return new ArrayList<>();
 
+        List<ButtonAction> commonActions = new ArrayList<>(units.get(0).getButtonActions());
+
+        for (UniteControlable unit : units) {
+            List<ButtonAction> unitActions = unit.getButtonActions();
+            commonActions.removeIf(action -> unitActions.stream()
+                    .noneMatch(a -> a.getLabel().equalsIgnoreCase(action.getLabel())));
+        }
+
+        return commonActions;
+    }
 
 
 
