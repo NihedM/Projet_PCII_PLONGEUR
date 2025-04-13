@@ -134,10 +134,12 @@ public class GamePanel extends JPanel {
     private boolean recuperationMode = false;
     private boolean isAttackingMode = false;
 
+    private boolean pendingShootAction = false;
+
     private boolean boardingMode = false;
     private SousMarin targetSubmarine = null;
 
-    private boolean pendingShootAction = false;
+
 
 
 
@@ -450,6 +452,8 @@ public class GamePanel extends JPanel {
             setCursor(Cursor.getDefaultCursor());
         }
     }
+
+
 
 
     //--------------------------------------------autres getters et setters--------------------------------
@@ -892,6 +896,14 @@ public class GamePanel extends JPanel {
                         g.setColor(Color.ORANGE);
                         int rayonFuite = ((Plongeur) objet).getRayonFuite();
                         g.drawOval(screenPos.x - rayonFuite, screenPos.y - rayonFuite, rayonFuite * 2, rayonFuite * 2);
+                    }
+                    if (objet instanceof PlongeurArme plongeurArme && plongeurArme.isDefending()){
+                        g.setColor(Color.GREEN);
+                        Position center = plongeurArme.getDefendCircleCenter();
+                        int radius = plongeurArme.getDefendCircleRadius();
+
+                        g.setColor(Color.BLUE);
+                        g.drawOval(screenPos.x - radius, screenPos.y - radius, radius * 2, radius * 2);
                     }
 
                 }

@@ -103,6 +103,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 return;
             }
 
+
             handleSelection(e, x, y);
             if(panel.isRecuperationMode()){
                 handleRecuperationMode(x, y);
@@ -309,7 +310,6 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             }
         }
     }
-
 
     private void handleDeplacementMode(int x, int y) {
         Position destination = new Position(x, y);

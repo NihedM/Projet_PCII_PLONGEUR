@@ -76,6 +76,7 @@ public class AmmoManager extends Thread{
         for (Ammo bullet : activeBullets) {
             if (bullet.reachedDestination()) {
                 activeBullets.remove(bullet);
+                GamePanel.getInstance().repaint();
             } else {
                 bullet.deplacementAmmo();
                 CopyOnWriteArrayList<Objet> voisins = getVoisins(bullet);
@@ -89,6 +90,11 @@ public class AmmoManager extends Thread{
                         break; // Stop checking after a collision
                     }
                 }
+            }
+
+            if(bullet.getVitesse() == 0) {
+                activeBullets.remove(bullet);
+                GamePanel.getInstance().repaint();
             }
         }
     }
