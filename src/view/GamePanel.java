@@ -1162,8 +1162,8 @@ public class GamePanel extends JPanel {
 
 
 
-        affichageTest(g);
-        //affichageJeu(g);
+        //affichageTest(g);
+        affichageJeu(g);
 
         if (selectionClic != null) {
             selectionClic.paintSelection(g);

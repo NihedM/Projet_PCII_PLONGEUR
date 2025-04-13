@@ -6,6 +6,7 @@ import model.objets.UniteControlable;
 import view.ButtonAction;
 import view.GamePanel;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,6 +26,10 @@ public class SousMarin extends UniteControlable {
     public SousMarin(Position position) {
         super(5, position, 10, 40, 100);    //à modifier
         this.fuel = MAX_FUEL; // Carburant initial
+        setImage("sous-marin.png");
+        setMovingImage("sous-marinMove.png");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("sous-marin.png")));
+
     }
 
 
