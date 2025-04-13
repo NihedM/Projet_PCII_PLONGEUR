@@ -59,6 +59,8 @@ public class BoutiqueDialog extends JDialog {
                     // Ajout du sous-marin à la base
                     GamePanel.getInstance().addUniteControlable(sousMarin);
 
+
+
                     Referee.getInstance().retirerArgent(400);
                     Referee.getInstance().ajouterPointsVictoire(30); // 50 points de victoire
                     JOptionPane.showMessageDialog(BoutiqueDialog.this, "Sous-marin acheté et ajouté à la base !");
@@ -119,6 +121,6 @@ public class BoutiqueDialog extends JDialog {
                 return true;
             }
         }
-        return false;
+        return true;
     }
 }

@@ -173,6 +173,17 @@ public class DeplacementThread extends Thread {
 
                     if (unite instanceof model.unite_controlables.Plongeur) {
                         model.unite_controlables.Plongeur p = (model.unite_controlables.Plongeur) unite;
+                        for (model.objets.UniteControlable uc : GamePanel.getInstance().getUnitesEnJeu()) {
+                            if (uc instanceof model.unite_controlables.SousMarin) {
+                                model.unite_controlables.SousMarin sub = (model.unite_controlables.SousMarin) uc;
+                                int collisionResult = GestionCollisions.collisionCC(p, sub);
+                                if (collisionResult >=-3 ) { // collision détectée
+                                    sub.boardDiver(p); // le plongeur entre dans le sous-marin
+                                    GamePanel.getInstance().killUnite(p); // on le retire du terrain
+                                    break;
+                                }
+                            }
+                        }
                         if (p.getTargetResource() != null) {
 
                         }

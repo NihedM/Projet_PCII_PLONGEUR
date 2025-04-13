@@ -134,6 +134,9 @@ public class GamePanel extends JPanel {
     private boolean recuperationMode = false;
     private boolean isAttackingMode = false;
 
+    private boolean boardingMode = false;
+    private SousMarin targetSubmarine = null;
+
 
 
     public GamePanel() {
@@ -581,7 +584,21 @@ public class GamePanel extends JPanel {
             }
         }
     }
+    public boolean isBoardingMode() {
+        return boardingMode;
+    }
 
+    public void setBoardingMode(boolean boardingMode) {
+        this.boardingMode = boardingMode;
+    }
+
+    public SousMarin getTargetSubmarine() {
+        return targetSubmarine;
+    }
+
+    public void setTargetSubmarine(SousMarin targetSubmarine) {
+        this.targetSubmarine = targetSubmarine;
+    }
 
     //-----------------------suppression d'objets
     public synchronized void removeObjet(Objet objet, CoordGrid coord) {
@@ -948,15 +965,20 @@ public class GamePanel extends JPanel {
         for (model.objets.UniteControlable unite : getUnitesEnJeu()) {
             // Si l'unité est un SousMarin, la dessiner comme un carré
             if (unite instanceof model.unite_controlables.SousMarin) {
-                int squareSize = 20; // Taille du carré (modifiable selon vos besoins)
+                int squareSize = 90; // Taille du carré (modifiable selon vos besoins)
                 int x = (int)unite.getPosition().getX();
                 int y = (int)unite.getPosition().getY();
-                // Choix d'une couleur pour le sous-marin (ici, bleu)
+                Point screenPos = worldToScreen(x, y);
                 g.setColor(Color.ORANGE);
-                g.fillRect(x, y, squareSize, squareSize);
+
+                g.fillRect(screenPos.x, screenPos.y, 20, 20);
+
+                g.setColor(Color.ORANGE);
+
             }
         }
     }
+
 
     //------------------------------methodes de dessin JEU-------------------------------------------------------------
 

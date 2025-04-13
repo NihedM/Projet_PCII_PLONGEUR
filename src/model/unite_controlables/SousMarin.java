@@ -3,7 +3,10 @@ package model.unite_controlables;
 
 import model.objets.Position;
 import model.objets.UniteControlable;
+import view.ButtonAction;
+import view.GamePanel;
 
+import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SousMarin extends UniteControlable {
@@ -19,19 +22,35 @@ public class SousMarin extends UniteControlable {
 
     // Indique si le sous-marin est en mode déplacement accéléré (lorsqu'un plongeur est à bord)
     private boolean isBoosted = false;
-        public SousMarin(Position position) {
-            super(5, position, 10, 40, 100);    //à modifier
-            this.fuel = MAX_FUEL; // Carburant initial
-        }
+    public SousMarin(Position position) {
+        super(5, position, 10, 40, 100);    //à modifier
+        this.fuel = MAX_FUEL; // Carburant initial
+    }
 
 
 
-        @Override
-        public ConcurrentHashMap<String, String> getAttributes() {
-            ConcurrentHashMap<String, String> attributes = super.getAttributes();
-            attributes.put("Type", "Sous-marin");   // à modifier ?
-            return attributes;
-        }
+    @Override
+    public ConcurrentHashMap<String, String> getAttributes() {
+        ConcurrentHashMap<String, String> attributes = super.getAttributes();
+        attributes.put("Type", "Sous-marin");   // Attribut existant
+        // Ajout de l'attribut Fuel avec sa valeur actuelle
+        attributes.put("Fuel", String.valueOf(fuel));
+        return attributes;
+    }
+
+    @Override
+    public Color getColorForKey(String key) {
+        if(key.equalsIgnoreCase("fuel"))
+            return new Color(0, 128, 0); // Couleur verte pour le fuel
+        return super.getColorForKey(key);
+    }
+
+    @Override
+    public int getMaxValueForKey(String key) {
+        if(key.equalsIgnoreCase("fuel"))
+            return MAX_FUEL;  // MAX_FUEL est déjà défini (ici 100)
+        return super.getMaxValueForKey(key);
+    }
 
 
     public void boardDiver(Plongeur diver) {
@@ -39,7 +58,6 @@ public class SousMarin extends UniteControlable {
             boardedDiver = diver;
             // Rendre le plongeur invisible pour qu'il ne soit plus dessiné
             diver.setVisible(false);
-            // Passer en mode boosté et augmenter la vitesse
             setVitesseMax(BOOST_SPEED);
             isBoosted = true;
             // Démarrer la consommation de carburant
@@ -50,7 +68,7 @@ public class SousMarin extends UniteControlable {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    fuel -= 10; // Consommation par seconde (ajustez si nécessaire)
+                    fuel --;
                 }
                 // Dès que le carburant est épuisé, débarquer le plongeur
                 deboardDiver();
@@ -60,28 +78,29 @@ public class SousMarin extends UniteControlable {
 
 
 
-
     public void deboardDiver() {
-        // Arrête le mode boosté et fixe la vitesse à 0 pour bloquer le déplacement
         isBoosted = false;
-        setVitesseMax(0); // La vitesse est maintenant nulle : le sous-marin ne bougera plus
-        setDestination(getPosition()); // On fixe la destination à sa position actuelle
+        setVitesseMax(0); // Sous-marin ne peut plus bouger
+        setDestination(getPosition()); // On fige sa position
 
-        // Si un plongeur est à bord, le débarrer et le rendre visible
         if (boardedDiver != null) {
             Position submarinePos = this.getPosition();
-            // Exemple : placer le plongeur avec un léger décalage par rapport au sous-marin
-            Position newDiverPos = new Position(submarinePos.getX() + 10, submarinePos.getY());
+
+            // Nouvelle position du plongeur : à côté du sous-marin
+            Position newDiverPos = new Position(submarinePos.getX() + 20, submarinePos.getY());
+
             boardedDiver.setPosition(newDiverPos);
             boardedDiver.setVisible(true);
+            boardedDiver.setDestination(null);
+
+            // Très important : remettre le plongeur dans le jeu
+            GamePanel.getInstance().addUniteControlable(boardedDiver);
+
             boardedDiver = null;
         }
     }
 
 
 
+
 }
-
-
-
-
