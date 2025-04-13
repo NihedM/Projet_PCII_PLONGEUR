@@ -80,7 +80,7 @@ public class MainTest {
         new SwingWorker<Void, Void>() {
             @Override
             protected Void doInBackground() {
-                //gameMaster.start();
+                gameMaster.start();
 
                 ammo.start();
 

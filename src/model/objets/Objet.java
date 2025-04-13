@@ -59,7 +59,11 @@ public class Objet {
         int dy = position.getY() - other.getPosition().getY();
         return Math.sqrt(dx * dx + dy * dy);
     }
-
+    public double distance(Position other) {
+        int dx = position.getX() - other.getX();
+        int dy = position.getY() - other.getY();
+        return Math.sqrt(dx * dx + dy * dy);
+    }
     public synchronized void updatePosition() {
         coordGrid = TileManager.transformePos_to_Coord(position);
     }

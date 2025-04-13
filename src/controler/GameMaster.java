@@ -206,7 +206,7 @@ public class GameMaster extends Thread{
                     processedEnemies.add(enemy);
                     enemyExecutor.submit(() -> {
 
-                        if(!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                        if(!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition()) || enemy.get_Hp() <= 0) {
                             GamePanel.getInstance().killUnite(enemy);
                             return;
                         }
@@ -236,7 +236,7 @@ public class GameMaster extends Thread{
                             enemy.vadrouille();
                             enemy.action();
 
-                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
+                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())|| enemy.get_Hp() <= 0) {
                                 GamePanel.getInstance().killUnite(enemy);
 
                             }

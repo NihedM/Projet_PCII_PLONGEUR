@@ -23,6 +23,7 @@ public class Unite extends Objet {
     private double vitesseMax; //vitesse de l'unité
     private double acceleration = 0.1; //acceleration de l'unité
     private int heat_points;    //vie de l'unité
+    private final int MAX_HP;
 
     private Image currentImage;
     private Image movingImage;
@@ -38,6 +39,7 @@ public class Unite extends Objet {
         this.vx = 0;
         this.vy = 0;
         this.heat_points = heat_points;
+        this.MAX_HP = heat_points;
 
         this.currentImage = getImage();
         setScalingFactor(2.0);
@@ -57,12 +59,9 @@ public class Unite extends Objet {
     public void set_Hp(int hp) {this.heat_points = hp;}
     public void takeDamage(int damage) {
         this.heat_points -= damage;
+
         if (this.heat_points <= 0) {
-            // L'unité est détruite
-            this.setDestination(null);
-            if (deplacementThread != null) {
-                deplacementThread.stopThread();
-            }
+            GamePanel.getInstance().killUnite(this);
         }
     }
     public boolean isAlive() {return this.heat_points > 0;}
@@ -122,7 +121,7 @@ public class Unite extends Objet {
     }
 
     public synchronized Color getColorForKey(String key) {return new Color(50, 150, 50);}// Default green color
-    public synchronized int getMaxValueForKey(String key) {return heat_points;} //Max HP
+    public synchronized int getMaxValueForKey(String key) {return MAX_HP;} //Max HP
     public ConcurrentHashMap<String, String> getAttributes() {
         ConcurrentHashMap<String, String> attributes = new ConcurrentHashMap<>();
         attributes.put("HP", String.valueOf(get_Hp()));

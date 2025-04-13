@@ -13,9 +13,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlongeurArme extends Plongeur {
 
     private static final int MAX_AMMO = 10;
-    private static final int DAMAGE = 100;
+    public final int DAMAGE = 10, DAMAGEATTTACK = 2;
     private static final int SHOOTING_RANGE = 1000;
-    private final int bayonetRange = getRayon()*2 + getRayon()/2;
+    private Unite target;
 
 
     private int ammo;
@@ -32,8 +32,8 @@ public class PlongeurArme extends Plongeur {
     }
     public int getAmmo(){return ammo;}
     public void reload(int amount){ammo = Math.min(ammo + amount, MAX_AMMO);}
-    public boolean shoot(Unite target){
-        if (ammo > 0) {
+    public boolean shoot(Position target){
+        if (ammo > 0 && this.distance(target) <= SHOOTING_RANGE) {
             ammo--;
             // Créer une nouvelle instance de la balle
             Ammo ammoInstance = new Ammo(new Position(getPosition().getX(),getPosition().getY() ), 5, target, DAMAGE, 10);
@@ -71,38 +71,25 @@ public class PlongeurArme extends Plongeur {
     //-------------------------------------------------------------------------------
 
 
+    public void setTarget(Unite target) {
+        this.target = target;
+    }
 
+    public Unite getTarget() {
+        return target;
+    }
+
+    //attaque au corps à corps
     public void attack(Enemy enemy) {
-        if (ammo > 0) {
-            if (this.distance(enemy) <= SHOOTING_RANGE) {
-                if (shoot(enemy)) {
-                    //enemy.takeDamage(DAMAGE);
-                    System.out.println("Ennemi touché ! Munitions restantes: " + ammo);
-
-                    if (!enemy.isAlive()) {
-                        System.out.println("Ennemi éliminé !");
-                        GamePanel.getInstance().killUnite(enemy);
-                    }
-                }
-            } else {
-                System.out.println("Ennemi trop loin !");
-            }
-        }else{
-            //attaque au corps à corps
-            setDestination(enemy.getPosition());
-            if(this.distance(enemy) <= bayonetRange*2 ){
-                enemy.takeDamage(DAMAGE*2);
-                if (!enemy.isAlive())
-                    GamePanel.getInstance().killUnite(enemy);
-            }
-        }
+        setTarget(enemy);
+        setDestination(enemy.getPosition());
 
     }
 
     @Override
     public void stopAction() {
         super.stopAction();
-        GamePanel.getInstance().setShootingMode(false);
+        GamePanel.getInstance().setAttackinggMode(false);
     }
     @Override
     public List<ButtonAction> getButtonActions() {
@@ -111,7 +98,7 @@ public class PlongeurArme extends Plongeur {
         actions.removeIf(a -> a.getLabel().contains("Récupérer"));
 
         actions.add(new ButtonAction("Attack (A)", e -> {
-            GamePanel.getInstance().setShootingMode(true);
+            GamePanel.getInstance().setAttackinggMode(true);
 
         }));
 

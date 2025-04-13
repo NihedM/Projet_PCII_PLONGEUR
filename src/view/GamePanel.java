@@ -132,7 +132,7 @@ public class GamePanel extends JPanel {
     private boolean isSliding = false;
     private boolean deplacementMode = false;
     private boolean recuperationMode = false;
-    private boolean isShootingMode = false;
+    private boolean isAttackingMode = false;
 
 
 
@@ -422,10 +422,10 @@ public class GamePanel extends JPanel {
     public boolean isRecuperationMode() {return recuperationMode;}public void setRecuperationMode(boolean mode) {this.recuperationMode = mode;}
     public boolean isDeplacementMode() {return deplacementMode;}
     public void setDeplacementMode(boolean deplacementMode) {this.deplacementMode = deplacementMode;}
-    public boolean isShootingMode() {return isShootingMode;}
-    public void setShootingMode(boolean shootingMode) {
-        this.isShootingMode = shootingMode;
-        if (shootingMode) {
+    public boolean isAttackingMode() {return isAttackingMode;}
+    public void setAttackinggMode(boolean attackingMode) {
+        this. isAttackingMode = attackingMode;
+        if (attackingMode) {
             setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
         } else {
             setCursor(Cursor.getDefaultCursor());
@@ -626,6 +626,7 @@ public class GamePanel extends JPanel {
             }
         }
 
+        repaint();
 
     }
 

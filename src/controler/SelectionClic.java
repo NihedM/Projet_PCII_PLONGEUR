@@ -35,7 +35,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     private int startXWorld, startYWorld, endXWorld, endYWorld;
 
     private Ressource ressourceRecuperationModetarget;
-    private Enemy enemyShootingModetarget;
+    private Enemy enemyAttackModetarget;
     private boolean isSelecting = false;
 
 
@@ -99,8 +99,8 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             handleSelection(e, x, y);
             if(panel.isRecuperationMode()){
                 handleRecuperationMode(x, y);
-            }else if(panel.isShootingMode()){
-                handleShootingMode(x, y);
+            }else if(panel.isAttackingMode()){
+                handleAttackingMode(x, y);
             }else if(panel.isDeplacementMode()){
                 handleDeplacementMode(x, y);
             }
@@ -128,7 +128,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
     private void handleSelection(MouseEvent e, int x, int y) {
-        if(!panel.isRecuperationMode() && !panel.isShootingMode() && !panel.isDeplacementMode()) {
+        if(!panel.isRecuperationMode() && !panel.isAttackingMode() && !panel.isDeplacementMode()) {
             dropUnitesSelectionnees();
         }
 
@@ -187,7 +187,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 );
                 if (objectBounds.contains(x, y)) {
                     if (objet instanceof UniteControlable && ! panel.isDeplacementMode()) {
-                        if(panel.isShootingMode() || panel.isRecuperationMode() )
+                        if(panel.isAttackingMode() || panel.isRecuperationMode() )
                             dropUnitesSelectionnees();
                         UniteControlable unite = (UniteControlable) objet;
                         panel.getUnitesSelected().add(unite);
@@ -212,11 +212,11 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                         Enemy enemy = (Enemy) objet;
                         panel.hideResourceInfoPanel();
                         panel.showFixedInfoPanel("unit");
-                        if(panel.isShootingMode()) {
-                            enemyShootingModetarget = enemy;
+                        if(panel.isAttackingMode()) {
+                            enemyAttackModetarget = enemy;
                             System.out.println("Enemy selected: " + enemy);
                         }else
-                            GamePanel.getInstance().getInfoPanel().updateEnemyInfo(enemy);
+                            panel.getInfoPanel().updateEnemyInfo(enemy);
 
 
                     }
@@ -232,7 +232,7 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
             panel.hideResourceInfoPanel();
             panel.showEmptyInfoPanel();
             panel.setRecuperationMode(false);
-            panel.setShootingMode(false);
+            panel.setAttackinggMode(false);
         }
 
     }
@@ -268,21 +268,20 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     }
 
 
-    private void handleShootingMode(int x, int y) {
-        if (enemyShootingModetarget == null) {
-            panel.setShootingMode(false);
+    private void handleAttackingMode(int x, int y) {
+        if (enemyAttackModetarget == null) {
+            panel.setAttackinggMode(false);
             return;
         }
         for (UniteControlable selectedUnit : panel.getUnitesSelected()) {
             if (selectedUnit instanceof PlongeurArme) {
                 PlongeurArme plongeurArme = (PlongeurArme) selectedUnit;
-                plongeurArme.attack(enemyShootingModetarget);
+                plongeurArme.attack(enemyAttackModetarget);
 
 
             }
         }
-        enemyShootingModetarget = null;
-        panel.setShootingMode(false);
+        enemyAttackModetarget = null;
     }
 
 

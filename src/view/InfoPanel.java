@@ -103,6 +103,9 @@ public class InfoPanel extends JPanel {
 
     public void updateEnemyInfo(Enemy enemy) {
         removeAll();
+        setLayout(new GridLayout(3, 1));
+        setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 2));
+
         atributInfo = new AtributInfo(enemy);
         atributInfo.updateInfo(enemy.getAttributes());
         add(atributInfo);

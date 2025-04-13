@@ -6,15 +6,15 @@ import view.GamePanel;
 
 public class Ammo extends Objet {
     private DeplacementThread deplacementThread;
-    private Unite target;
+    private Position target;
     private int damage, speed;
     private boolean reachedTarget = false;
     private final Position destination;
 
-    public Ammo(Position position, int rayon, Unite target, int damage, int speed) {
+    public Ammo(Position position, int rayon, Position target, int damage, int speed) {
         super(position, rayon);
         this.target = target;
-        this.destination = new Position(target.getPosition().getX(), target.getPosition().getY());
+        this.destination = new Position(target.getX(), target.getY());
         this.damage = damage;
         this.speed = speed;
         AmmoManager.getInstance().addAmmo(this);
@@ -30,7 +30,7 @@ public class Ammo extends Objet {
     public int getDamage() {
         return damage;
     }
-    public Unite getTarget() {
+    public Position getTarget() {
         return target;
     }
     public void stop(){this .reachedTarget = true;}
@@ -42,15 +42,7 @@ public class Ammo extends Objet {
 
 
     public void deplacementAmmo(){
-        if (reachedTarget || target == null || !target.isAlive()) {
-            reachedTarget = true;
-            return;
-        }
-
-        if(GestionCollisions.collisionCC(this, target) > -1){
-            target.takeDamage(getDamage());
-            if(target.get_Hp() <= 0)
-                GamePanel.getInstance().killUnite(target);
+        if (reachedTarget || target == null ) {
             reachedTarget = true;
             return;
         }

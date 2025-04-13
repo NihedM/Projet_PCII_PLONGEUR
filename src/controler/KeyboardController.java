@@ -73,7 +73,7 @@ public class KeyboardController extends KeyAdapter {
     }
 
     private void handleAttackAction() {
-        panel.setShootingMode(true);
+        panel.setAttackinggMode(true);
     }
 
     private void handleFleeAction() {

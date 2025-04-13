@@ -4,6 +4,7 @@ import model.constructions.Base;
 import model.constructions.Construction;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
+import model.unite_controlables.PlongeurArme;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
@@ -169,6 +170,21 @@ public class ProximityChecker extends Thread{
                                                 // Une fois collectée, on réinitialise la cible et désactive le flag targeted
                                                 ((Plongeur)unite).getTargetResource().setTargeted(false);
                                                 ((Plongeur)unite).setTargetResource(null);
+                                            }
+                                        }
+                                    }
+                                }
+
+                                if (unite instanceof PlongeurArme) {
+                                    if (((PlongeurArme)unite).getTarget() != null && GamePanel.getInstance().isAttackingMode() && controler.GestionCollisions.collisionCC(unite, ((PlongeurArme)unite).getTarget()) > -1) {
+                                        synchronized (((PlongeurArme) unite).getTarget()){
+                                            try {
+                                                ((PlongeurArme) unite).getTarget().takeDamage(((PlongeurArme) unite).DAMAGEATTTACK);
+                                                GamePanel.getInstance().setAttackinggMode(false);
+                                                ((PlongeurArme) unite).setTarget(null);
+                                                unite.stopAction();
+                                            } catch (Exception e) {
+                                                System.out.println("Erreur lors de l'attaque : " + e.getMessage());
                                             }
                                         }
                                     }
