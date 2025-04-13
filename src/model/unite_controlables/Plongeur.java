@@ -295,4 +295,7 @@ public class Plongeur extends UniteControlable {
     }
 
 
+    public int getDetectionRange() {
+        return 1000;
+    }
 }

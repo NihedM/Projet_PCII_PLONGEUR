@@ -51,39 +51,50 @@ public class MinimapPanel extends JPanel {
         // Taille minimale pour les éléments
         final int MIN_SIZE = 3;
 
-        // Dessiner les ressources
+        // Dessiner les ressources UNIQUEMENT si détectées par un plongeur
         for (Ressource ressource : GamePanel.getInstance().getRessourcesMap()) {
-            int x = (int)(ressource.getPosition().getX() * getScaleX());
-            int y = (int)(ressource.getPosition().getY() * getScaleY());
-            int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * getScaleX()));
-
-            if (ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER) {
-                g.setColor(Color.GREEN);
-            } else {
-                g.setColor(Color.YELLOW);
+            if (isDetectedByDivers(ressource.getPosition())) {
+                int x = (int)(ressource.getPosition().getX() * getScaleX());
+                int y = (int)(ressource.getPosition().getY() * getScaleY());
+                int size = Math.max(MIN_SIZE, (int)(ressource.getRayon() * 2 * getScaleX()));
+                g.setColor(ressource.getEtat() == Ressource.Etat.PRET_A_RECOLTER ? Color.GREEN : Color.YELLOW);
+                g.fillOval(x, y, size, size);
             }
-            g.fillOval(x, y, size, size);
         }
 
-        // Dessiner les unités
+        // Dessiner les ennemis UNIQUEMENT si détectés par un plongeur
+        for (Enemy enemy : GameMaster.getInstance().getEnemies()) {
+            if (isDetectedByDivers(enemy.getPosition())) {
+                int x = (int)(enemy.getPosition().getX() * getScaleX());
+                int y = (int)(enemy.getPosition().getY() * getScaleY());
+                int size = Math.max(MIN_SIZE, (int)(enemy.getRayon() * 3 * getScaleX()));
+                g.setColor(Color.RED);
+                g.fillOval(x, y, size, size);
+            }
+        }
+
+        // Dessiner TOUTES les unités (plongeurs en carré, autres en cercle)
         for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
             int x = (int)(unite.getPosition().getX() * getScaleX());
             int y = (int)(unite.getPosition().getY() * getScaleY());
             int size = Math.max(MIN_SIZE, (int)(unite.getRayon() * 3 * getScaleX()));
 
-            g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
-            g.fillOval(x, y, size, size);
+            if (unite instanceof Plongeur) {
+                // Carré bleu pour les plongeurs
+                g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
+                g.fillRect(x - size/2, y - size/2, size, size);
+
+                // Optionnel : Dessiner leur zone de détection
+                g.setColor(new Color(0, 0, 255, 50));
+                int detectionSize = (int)(((Plongeur) unite).getDetectionRange() * 2 * getScaleX());
+                g.fillOval(x - detectionSize/2, y - detectionSize/2, detectionSize, detectionSize);
+            } else {
+                // Autres unités en cercle
+                g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
+                g.fillOval(x - size/2, y - size/2, size, size);
+            }
         }
 
-
-        for(Enemy enemy : GameMaster.getInstance().getEnemies()) {
-            int x = (int)(enemy.getPosition().getX() * getScaleX());
-            int y = (int)(enemy.getPosition().getY() * getScaleY());
-            int size = Math.max(MIN_SIZE, (int)(enemy.getRayon() * 3 * getScaleX()));
-
-            g.setColor(Color.RED);
-            g.fillOval(x, y, size, size);
-        }
         Base base = GamePanel.getInstance().getMainBase();
         int x = (int)(base.getPosition().getX() * getScaleX());
         int y = (int)(base.getPosition().getY() * getScaleY());
@@ -110,8 +121,20 @@ public class MinimapPanel extends JPanel {
         int viewH = (int)(GamePanel.VIEWPORT_HEIGHT * getScaleY());
         g.drawRect(viewX, viewY, viewW, viewH);
 
-        drawZoneBorders(g);
+        //drawZoneBorders(g);
 
+    }
+
+    private boolean isDetectedByDivers(Position position) {
+        for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
+            if (unite instanceof Plongeur) {
+                double distance = position.distanceTo(unite.getPosition());
+                if (distance <= ((Plongeur) unite).getDetectionRange()) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
