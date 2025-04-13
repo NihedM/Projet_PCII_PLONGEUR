@@ -6,18 +6,19 @@ import model.objets.Ressource;
 import javax.swing.*;
 import java.awt.*;
 
-public class InfoPanelUNC extends JPanel implements GestionRessource.RessourceListener {
+public class InfoPanelUNC extends BackgroundPanel implements GestionRessource.RessourceListener {
 
     private JLabel infoLabel;
     private JProgressBar progressBar;
 
     public InfoPanelUNC(){
         setLayout(new BorderLayout());
-        //setPreferredSize(new Dimension(200, 150)); // Augmenter la hauteur pour accommoder la barre de progression
-        setBackground(new Color(220, 220, 220));
+        setBackgroundImage("ressourcesPanelBackground.png");
+
 
         infoLabel = new JLabel("Informations :", SwingConstants.CENTER);
         infoLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        infoLabel.setOpaque(false);
         add(infoLabel, BorderLayout.NORTH);
 
         progressBar = new JProgressBar(0, 100); // Initialisation de la barre de progression
@@ -28,6 +29,7 @@ public class InfoPanelUNC extends JPanel implements GestionRessource.RessourceLi
 
         // Ajouter la barre de progression au panel
         JPanel progressPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        progressPanel.setOpaque(false);
         progressPanel.add(progressBar);
         add(progressPanel, BorderLayout.CENTER);
 

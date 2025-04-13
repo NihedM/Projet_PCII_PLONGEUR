@@ -19,10 +19,13 @@ public class BackgroundPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+
         setOpaque(false);
 
         if (backgroundImage != null) {
-            g.drawImage(backgroundImage, 0, -150, getWidth(), getHeight()*2, this);
+
+            g.drawImage(backgroundImage, 0, -150,getWidth(), getHeight()*2, this);
+
         }
     }
 }

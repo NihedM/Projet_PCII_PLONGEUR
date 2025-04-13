@@ -110,7 +110,7 @@ public class GamePanel extends JPanel {
     private Point dragStart = new Point();
 
     // Composants UI
-    private JPanel infoContainer;
+    private BackgroundPanel infoContainer;
     private InfoPanel infoPanel;
     private InfoPanelUNC infoPanelUNC;
     private MinimapPanel minimapPanel;
@@ -196,16 +196,19 @@ public class GamePanel extends JPanel {
         add(timeProgressBar);
 
         // Panel d'informations
-        infoContainer = new JPanel(new CardLayout());
-        infoContainer.setBackground(new Color(173, 216, 230)); // Même fond que le panel principal
+        infoContainer = new BackgroundPanel();
+        infoContainer.setLayout(new CardLayout());
+
         infoPanel = new InfoPanel();
         infoPanelUNC = new InfoPanelUNC();
+
 
         infoContainer.add(infoPanel, "unit");
         infoContainer.add(infoPanelUNC, "resource");
         infoContainer.add(new JPanel(), "empty");
 
         infoContainer.setBounds(getViewportWidth(), 0, getPanelInfoWidth(), getPanelHeight());
+
         add(infoContainer);
 
         // Bouton Market
@@ -800,6 +803,7 @@ public class GamePanel extends JPanel {
 
 
         //drawTerrainTest(g, getBounds());
+        drawTerrainBackground(g);
         drawPronfondeur(g);
         drawTiles(g);
         drawEnemiesGrid(g);
@@ -1019,6 +1023,8 @@ public class GamePanel extends JPanel {
         int minGridY = Math.max(cameraY / TileManager.TILESIZE, 0);
         int maxGridY = Math.min((cameraY + VIEWPORT_HEIGHT) / TileManager.TILESIZE, TileManager.nbTilesHeight - 1);
 
+
+        drawTerrainBackground(g);
         updatePlayerInfoPanel();
         drawBaseTest(g);
         drawBase(g);
@@ -1123,7 +1129,26 @@ public class GamePanel extends JPanel {
         }
     }
 
+    private void drawTerrainBackground(Graphics g) {
+        int minGridX = Math.max(cameraX / terrain.getCubeWidth(), 0);
+        int maxGridX = Math.min((cameraX + VIEWPORT_WIDTH) / terrain.getCubeWidth(), terrain.getBackgroundDepthMap().length - 1);
+        int minGridY = Math.max(cameraY / terrain.getCubeHeight(), 0);
+        int maxGridY = Math.min((cameraY + VIEWPORT_HEIGHT) / terrain.getCubeHeight(), terrain.getBackgroundDepthMap()[0].length - 1);
 
+        for (int gridX = minGridX; gridX <= maxGridX; gridX++) {
+            for (int gridY = minGridY; gridY <= maxGridY; gridY++) {
+                int depth = terrain.getBackgroundDepthMap()[gridX][gridY];
+                Image backgroundImage = terrain.getBackgroundImageForDepth(depth);
+
+                if (backgroundImage != null) {
+                    int screenX = (gridX * terrain.getCubeWidth()) - cameraX;
+                    int screenY = (gridY * terrain.getCubeHeight()) - cameraY;
+
+                    g.drawImage(backgroundImage, screenX, screenY, terrain.getCubeWidth(), terrain.getCubeHeight(), null);
+                }
+            }
+        }
+    }
 
 
 

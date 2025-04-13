@@ -1,5 +1,8 @@
 package model.objets;
 
+import view.GamePanel;
+
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -11,6 +14,9 @@ public class Terrain {
     private Map<Integer, DepthZone> depthZones; // Configuration des zones de profondeur
 
     private int[][] backgroundDepthMap;
+    private Map<Integer, Image> depthBackgroundImages;
+
+
     private int cubeWidth;
     private int cubeHeight;
 
@@ -21,6 +27,7 @@ public class Terrain {
         initializeDepthZones(); // Initialise les configurations de zones
         initializeDepthMap();   // Initialise la carte des profondeurs
         initializeBackground(this, 10, 10); // Initialise la carte de fond
+        loadDepthBackgroundImages();
     }
 
     private void initializeDepthZones() {
@@ -198,6 +205,21 @@ public class Terrain {
     public int getCubeHeight() {
         return cubeHeight;
     }
+
+
+
+    private void loadDepthBackgroundImages() {
+        depthBackgroundImages = new HashMap<>();
+        depthBackgroundImages.put(1, GamePanel.getCachedImage("sea0.png"));
+        depthBackgroundImages.put(2, GamePanel.getCachedImage("sea1.png"));
+        depthBackgroundImages.put(3, GamePanel.getCachedImage("sea2.png"));
+        depthBackgroundImages.put(4, GamePanel.getCachedImage("sea3.png"));
+    }
+
+    public Image getBackgroundImageForDepth(int depth) {
+        return depthBackgroundImages.getOrDefault(depth, null);
+    }
+
 
 }
 
