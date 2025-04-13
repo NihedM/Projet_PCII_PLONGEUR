@@ -4,7 +4,10 @@ import controler.*;
 import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
+import model.ressources.Bague;
+import model.ressources.Coffre;
 import model.ressources.Collier;
+import model.ressources.Tresor;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import model.unite_controlables.SousMarin;
@@ -376,6 +379,10 @@ public class GamePanel extends JPanel {
     public synchronized void setRessourceSelectionnee(Ressource ressource) {this.ressourceSelectionnee = ressource;}
 
     public void setVictoryManager(VictoryManager vm) {this.victoryManager = vm;}
+    // Méthode pour accéder à l'instance de VictoryManager
+    public VictoryManager getVictoryManager() {
+        return victoryManager;
+    }
     public void startGame() {victoryManager.startGame();}
 
     //---------------------------------------getters constantes------------------------------------------------
@@ -564,6 +571,18 @@ public class GamePanel extends JPanel {
        addUniteControlable(unite);
     }
 
+    // Dans GamePanel.java
+    public void refillOxygenForAll() {
+        // On parcourt toutes les unités en jeu
+        for (model.objets.UniteControlable unite : getUnitesEnJeu()) {
+            if (unite instanceof model.unite_controlables.Plongeur) {
+                // On remet l'oxygène au maximum (ici, 100 – ou utilisez une constante/méthode si vous préférez)
+                ((model.unite_controlables.Plongeur) unite).setCurrentOxygen(100);
+            }
+        }
+    }
+
+
     //-----------------------suppression d'objets
     public synchronized void removeObjet(Objet objet, CoordGrid coord) {
         CopyOnWriteArrayList<Objet> objetsAtCoord = objetsMap.get(coord);
@@ -725,9 +744,12 @@ public class GamePanel extends JPanel {
                 Collier.class, Color.YELLOW,
                 Plongeur.class, Color.BLUE,
                 PlongeurArme.class, Color.RED,
-                SousMarin.class, Color.GREEN,
                 Pieuvre.class, Color.MAGENTA,
-                PieuvreBebe.class, Color.PINK
+                PieuvreBebe.class, Color.PINK,
+                Bague.class, Color.CYAN,
+                Tresor.class, Color.ORANGE,
+                Coffre.class, Color.GRAY
+
         );
 
         Map<Class<? extends Objet>, ArrayList<Objet>> groupedObjects = new HashMap<>();
@@ -748,6 +770,7 @@ public class GamePanel extends JPanel {
         drawAmmoTest(g);
         drawPlayerInfoTest(g);
         drawDetectionProximite(g);
+        drawSubmarinesTest(g);
 
     }
 
@@ -919,6 +942,20 @@ public class GamePanel extends JPanel {
 
     }
 
+    private void drawSubmarinesTest(Graphics g) {
+        // Parcourir la liste des unités en jeu
+        for (model.objets.UniteControlable unite : getUnitesEnJeu()) {
+            // Si l'unité est un SousMarin, la dessiner comme un carré
+            if (unite instanceof model.unite_controlables.SousMarin) {
+                int squareSize = 20; // Taille du carré (modifiable selon vos besoins)
+                int x = (int)unite.getPosition().getX();
+                int y = (int)unite.getPosition().getY();
+                // Choix d'une couleur pour le sous-marin (ici, bleu)
+                g.setColor(Color.ORANGE);
+                g.fillRect(x, y, squareSize, squareSize);
+            }
+        }
+    }
 
     //------------------------------methodes de dessin JEU-------------------------------------------------------------
 

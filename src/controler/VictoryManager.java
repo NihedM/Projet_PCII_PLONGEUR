@@ -68,7 +68,7 @@ public class VictoryManager {
 
         SwingUtilities.invokeLater(() -> {
             String message = victory
-                    ? "Félicitations ! Vous avez atteint " + victoryPoints + " points de victoire !"
+                    ? "Félicitations ! Vous avez atteint " + Referee.getInstance().getPointsVictoire() + " points de victoire !"
                     : "Temps écoulé ! Vous n'avez pas atteint les " + victoryPoints + " points à temps.";
 
             JOptionPane.showMessageDialog(gamePanel, message, "Fin de partie", JOptionPane.INFORMATION_MESSAGE);
@@ -82,4 +82,9 @@ public class VictoryManager {
 
         });
     }
+
+    public void triggerVictory() {
+        endGame(true);
+    }
+
 }

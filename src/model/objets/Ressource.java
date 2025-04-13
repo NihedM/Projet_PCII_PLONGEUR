@@ -22,7 +22,7 @@ public class Ressource extends Objet {
     private boolean fixed = false;
 
 
-    public Ressource(Position position, int rayon, int valeur, int tempsRestant) {
+    public Ressource(Position position, int rayon, int valeur, int tempsRestant, String nom) {
         super(position, rayon);
         this.valeur = valeur;
         this.tempsRestant = tempsRestant;
@@ -31,7 +31,7 @@ public class Ressource extends Objet {
         this.etat = Etat.EN_CROISSANCE;
         this.position = new Position((int) (Math.random() * 800), (int) (Math.random() * 600));
         this.id = ++compteur; // Incrémenter le compteur et attribuer l'ID
-        this.nom = "collier" + id; // Générer le nom unique
+        this.nom = nom + id; // Générer le nom unique
 
         setScalingFactor(1.0);
     }
