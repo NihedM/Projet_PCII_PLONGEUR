@@ -104,7 +104,9 @@ public class Objet {
             dimensionsUpdated = true;
         }
     }
-
+    public void setPosition(Position position) {
+        this.position = position;
+    }
 
 }
 

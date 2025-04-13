@@ -19,7 +19,7 @@ public class BoutiqueDialog extends JDialog {
     public BoutiqueDialog(JFrame parent) {
 
         super(parent, "Boutique", true);
-        setSize(600, 300);
+        setSize(900, 600);
         setLocationRelativeTo(parent);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -41,7 +41,7 @@ public class BoutiqueDialog extends JDialog {
                 "Sous-marin",
                 "400€",
                 isDepth3Unlocked(),
-                "/view/images/sous-marin.png"
+                "src/view/images/sous-marin.png"
         );
         sousMarinPanel.addMouseListener(new MouseAdapter() {
             @Override
@@ -54,10 +54,11 @@ public class BoutiqueDialog extends JDialog {
                     JOptionPane.showMessageDialog(BoutiqueDialog.this, "Pas assez d'argent pour acheter un sous-marin");
                 } else {
                     // Créer un sous-marin à une position x,y
-                    Position pos = new Position(100, 100); // Exemple de position, à adapter
+                    Position pos = new Position(400, 150); // Exemple de position, à adapter
                     SousMarin sousMarin = new SousMarin(pos);
                     // Ajout du sous-marin à la base
-                    GamePanel.getInstance().getMainBase().addSubmarine(sousMarin);
+                    GamePanel.getInstance().addUniteControlable(sousMarin);
+
                     Referee.getInstance().retirerArgent(400);
                     Referee.getInstance().ajouterPointsVictoire(30); // 50 points de victoire
                     JOptionPane.showMessageDialog(BoutiqueDialog.this, "Sous-marin acheté et ajouté à la base !");
@@ -72,20 +73,30 @@ public class BoutiqueDialog extends JDialog {
                 "Essence",
                 "25€",
                 isDepth3Unlocked(),
-                "essenceIcon.png"
+                "src/view/images/oxygen.png"
         );
         itemsGrid.add(essencePanel);
         itemPanels.add(essencePanel);
 
-        // Oxygène
-        ItemPanel oxygenePanel = new ItemPanel(
-                "Oxygène",
-                "50€",
-                isDepth3Unlocked(),
-                "oxygenIcon.png"
-        );
+        ItemPanelEM oxygenePanel = new ItemPanelEM("Oxygène", 50, "src/view/images/oxygen.png") {
+            @Override
+            protected void onBuy() {
+                int cost = 50;
+                // Vérifier si le joueur possède suffisamment d'argent
+                if (Referee.getInstance().getArgentJoueur() >= cost) {
+                    // Déduire le coût
+                    model.gains_joueur.Referee.getInstance().retirerArgent(cost);
+                    // Recharger l'oxygène à son maximum pour tous les joueurs
+                    GamePanel.getInstance().refillOxygenForAll();
+                    JOptionPane.showMessageDialog(null, "Oxygène rechargé pour tous les joueurs !");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Fonds insuffisants pour acheter de l'oxygène.");
+                }
+            }
+        };
         itemsGrid.add(oxygenePanel);
-        itemPanels.add(oxygenePanel);
+
+
 
         //  ajoute d'autant d’items ???
 
@@ -108,6 +119,6 @@ public class BoutiqueDialog extends JDialog {
                 return true;
             }
         }
-        return false;
+        return true;
     }
 }

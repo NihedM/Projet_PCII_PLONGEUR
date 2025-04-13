@@ -26,6 +26,7 @@ public class Plongeur extends UniteControlable {
     private static final int BACKPACK_CAPACITY = 4;
     private Ressource targetResource;
 
+    private boolean visible = true;
 
     public Plongeur(int id, Position position) {
         super(id, position, 20, 10, MAX_HP);
@@ -166,22 +167,7 @@ public class Plongeur extends UniteControlable {
 
 
 
-    // Méthode pour vendre les colliers
-    public void vendre() {
-        if (!sac.isEmpty()) {
-            int gain = 0;
-            for (model.objets.Ressource key : sac.keySet()) {
-                gain += key.getValeur() * sac.get(key);
-            }
 
-            Referee.getInstance().ajouterArgent(gain);
-
-            sac.clear(); // Vider le sac après la vente
-            System.out.println("Colliers vendus ! Argent gagné: " + gain);
-        } else {
-            System.out.println("Aucun collier à vendre.");
-        }
-    }
 
     public void faireFuirCalamar(Calamar calamar) {
         calamar.fuit();
@@ -292,6 +278,21 @@ public class Plongeur extends UniteControlable {
         return actions;
     }
 
+
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+
+
+    public void boardSubmarine(SousMarin sub) {
+        sub.boardDiver(this);
+    }
 
 
 }
