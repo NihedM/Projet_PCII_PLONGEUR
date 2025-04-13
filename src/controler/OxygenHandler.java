@@ -26,7 +26,15 @@ public class OxygenHandler extends Thread {
                     if (!(unite instanceof Plongeur)) continue;
 
                     Plongeur plongeur = (Plongeur) unite;
-                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - OXYGEN_DECREMENT);
+
+                    int depth = GamePanel.getInstance().getTerrain().getDepthAt(
+                            plongeur.getPosition().getX(),
+                            plongeur.getPosition().getY()
+                    );
+
+                    int oxygenDecrement = calculateOxygenDecrement(depth);
+                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() - oxygenDecrement);
+
 
                     if (plongeur.getCurrentOxygen() <= 0) {
 
@@ -45,6 +53,16 @@ public class OxygenHandler extends Thread {
             }
         }
 
+    }
+
+    private int calculateOxygenDecrement(int depth) {
+        switch (depth) {
+            case 1: return OXYGEN_DECREMENT; // Shallow depth
+            case 2: return 2*OXYGEN_DECREMENT; // Moderate depth
+            case 3: return 3*OXYGEN_DECREMENT; // Deep depth
+            case 4: return 4*OXYGEN_DECREMENT; // Very deep
+            default: return 1*OXYGEN_DECREMENT; // Default decrement if depth is unknown
+        }
     }
 
 }

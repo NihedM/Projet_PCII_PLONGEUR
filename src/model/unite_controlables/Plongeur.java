@@ -314,4 +314,7 @@ public class Plongeur extends UniteControlable {
         super.draw(g2d, screenPos);
     }
 
+    public int getDetectionRange() {
+        return 1000;
+    }
 }
