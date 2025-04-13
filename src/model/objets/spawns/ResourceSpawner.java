@@ -1,4 +1,4 @@
-package model.objets;
+package model.objets.spawns;
 
 import controler.GameMaster;
 import controler.ThreadManager;
@@ -6,6 +6,7 @@ import controler.VictoryManager;
 import controler.ZoneMover;
 import model.objets.Position;
 import model.objets.GestionRessource;
+import model.objets.Ressource;
 import model.ressources.Bague;
 import model.ressources.Coffre;
 import model.ressources.Collier;

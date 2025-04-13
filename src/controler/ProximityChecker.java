@@ -216,7 +216,12 @@ public class ProximityChecker extends Thread{
                                         ((Plongeur)unite).deliverBackpack();
                                         Plongeur plongeur = (Plongeur) unite;
                                         plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
+                                        if (unite instanceof PlongeurArme plongeurArme) {
+                                            plongeurArme.reload(plongeurArme.getMaxAmmo());
+                                            System.out.println("PlongeurArme bullets refilled: " + plongeurArme.getAmmo());
+                                        }
                                     }
+
 
 
                                 }

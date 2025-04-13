@@ -4,6 +4,7 @@ import controler.*;
 import model.constructions.Base;
 import model.gains_joueur.Referee;
 import model.objets.*;
+import model.objets.spawns.EnemySpawnPoint;
 import model.ressources.Bague;
 import model.ressources.Coffre;
 import model.ressources.Collier;
@@ -11,16 +12,14 @@ import model.ressources.Tresor;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import model.unite_controlables.SousMarin;
+import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Enemy;
 import model.unite_non_controlables.Pieuvre;
 import model.unite_non_controlables.PieuvreBebe;
-import view.debeug.GameInfoWindow;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -787,6 +786,8 @@ public class GamePanel extends JPanel {
                 Plongeur.class, Color.BLUE,
                 PlongeurArme.class, Color.RED,
                 Pieuvre.class, Color.MAGENTA,
+                Calamar.class, Color.RED,
+                SousMarin.class, Color.GREEN,
                 PieuvreBebe.class, Color.PINK,
                 Bague.class, Color.CYAN,
                 Tresor.class, Color.ORANGE,
@@ -807,7 +808,7 @@ public class GamePanel extends JPanel {
         drawPronfondeur(g);
         drawTiles(g);
         drawEnemiesGrid(g);
-        drawSpawnPoints(g);
+        drawSpawnPointsTest(g);
         drawBaseTest(g);
         drawObjectsTest(g, getBounds(), colorMap, groupedObjects);
         drawAmmoTest(g);
@@ -875,7 +876,7 @@ public class GamePanel extends JPanel {
             g.fillOval(screenPos.x - ammo.getRayon(), screenPos.y - ammo.getRayon(), diameter, diameter);
         }
     }
-    private void drawSpawnPoints(Graphics g) {
+    private void drawSpawnPointsTest(Graphics g) {
         g.setColor(Color.ORANGE);
         for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getSpawnPoints()) {
             Point screenPos = worldToScreen(spawnPoint.getPosition().getX(), spawnPoint.getPosition().getY());
@@ -1026,7 +1027,9 @@ public class GamePanel extends JPanel {
 
         drawTerrainBackground(g);
         updatePlayerInfoPanel();
+        drawSpawnPoints(g);
         drawBaseTest(g);
+        drawAmmo(g);
         drawBase(g);
         drawObjects(g, minGridX, minGridY, maxGridX, maxGridY);
 
@@ -1040,7 +1043,7 @@ public class GamePanel extends JPanel {
     private static Font loadCustomFont() {
         try {
             Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(GamePanel.class.getResourceAsStream("/view/fonts/Gelio Pasteli.ttf")));
-            return font.deriveFont(Font.BOLD, 16); // Set size and style
+            return font.deriveFont(Font.BOLD, 12); // Set size and style
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
             return new Font("Arial", Font.BOLD, 16); // Fallback font
@@ -1108,8 +1111,30 @@ public class GamePanel extends JPanel {
 
         }
     }
+    private void drawSpawnPoints(Graphics g) {
+        for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getEpicSpawnPoints()) {
+            Point screenPos = worldToScreen(spawnPoint.getPosition().getX(), spawnPoint.getPosition().getY());
+            if (isVisibleInViewport(screenPos, spawnPoint.getRayon())) {
+                Graphics2D g2d = (Graphics2D) g.create();
 
+                spawnPoint.draw((Graphics2D) g, screenPos);
+                g2d.dispose();
+            }
+        }
+    }
 
+    private void drawAmmo(Graphics g) {
+        if(AmmoManager.getInstance().getActiveAmmo().isEmpty()) return;
+        for (Ammo ammo : AmmoManager.getInstance().getActiveAmmo()) {
+            Point screenPos = worldToScreen(ammo.getPosition().getX(), ammo.getPosition().getY());
+
+            Graphics2D g2d = (Graphics2D) g.create();
+            g.setColor(Color.BLACK);
+            g.fillOval(screenPos.x- ammo.getRayon(), screenPos.y- ammo.getRayon() , ammo.getRayon()*2, ammo.getRayon()*2);
+            ammo.draw((Graphics2D) g, screenPos);
+            g2d.dispose();
+        }
+    }
 
 
     private static final Map<String, Image> imageCache = new HashMap<>();

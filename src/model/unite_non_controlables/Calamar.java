@@ -15,12 +15,14 @@ public class Calamar extends Enemy {
     private Ressource objectifCourrant;
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
+    private boolean isTimerPaused = false;
+
     public Calamar(Position position) {
         super(position,10, 50, 10);
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
 
         setImage("calamar.png");
-        setImage("calamar.png");
+        setMovingImage("calamar.png");
     }
 
     public void setRessourcesDisponibles(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
@@ -99,11 +101,22 @@ public class Calamar extends Enemy {
             }
         }
     }
-
+    @Override
+    public void stopAction() {
+        super.stopAction(); // Call the parent class's stopAction logic
+        stopTimer(); // Pause the timer
+        isTimerPaused = true; // Mark the timer as paused
+    }
 
 
     @Override
     public void action() {
+
+        if (isTimerPaused) {
+            startTimer();
+            isTimerPaused = false;
+        }
+
         //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
 

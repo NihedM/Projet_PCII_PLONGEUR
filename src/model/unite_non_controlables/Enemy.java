@@ -51,6 +51,9 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
     public void decrementerTemps(int t){secondesRestant -= t;}
     public void stopTimer(){timer.cancel();}
+    public void startTimer(){
+        timer.schedule(new model.objets.Fuite(this), secondesRestant * 1000); // tempsRestant en secondes
+    }
 
 
     public Objet selectClosest(CopyOnWriteArrayList<Objet> objets){

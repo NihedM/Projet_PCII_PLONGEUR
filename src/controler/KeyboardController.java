@@ -90,7 +90,7 @@ public class KeyboardController extends KeyAdapter {
     private void handleDefenceAction() {
         for (UniteControlable unit : unitesSelectionnees) {
             if (unit instanceof model.unite_controlables.PlongeurArme) {
-                ((model.unite_controlables.PlongeurArme) unit).startDefendCircle(unit.getPosition(), 1000);
+                ((model.unite_controlables.PlongeurArme) unit).startDefendCircle(unit.getPosition(), 300);
             }
         }
     }

@@ -1,4 +1,4 @@
-package model.objets;
+package model.objets.spawns;
 
 import controler.*;
 import model.objets.CoordGrid;
@@ -17,29 +17,43 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
     private int maxEnemies;
     private int spawnedEnemies;
-    private static final int RAYON =200;
+    private  final int RAYON;
 
     private Class<? extends Enemy> enemyType;
 
 
-    public EnemySpawnPoint(CoordGrid tile, int maxEnemies) {
-        super(generateRandomPositionInTile(tile), RAYON);
+    public EnemySpawnPoint(Position pos, int maxEnemies, int rayon) {
+        super(pos, rayon);
+        this.RAYON = rayon;
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
         this.enemyType = Calamar.class; // Default
     }
-    public static Position generateRandomPositionInTile(CoordGrid tile) {
-        int cellSize = GameMaster.CELL_SIZE;
-        int x = tile.getX() * cellSize + (int) (Math.random() * cellSize);
-        int y = tile.getY() * cellSize + (int) (Math.random() * cellSize);
-        return new Position(x, y);
-    }
+
 
     public Position generateRandomPositionInsideSpawnPoint(){
-        //generate a random position inside the spawn point of rayon 200
-        int x = (int) (Math.random() * (2 * RAYON)) - RAYON;
-        int y = (int) (Math.random() * (2 * RAYON)) - RAYON;
-        return new Position(getPosition().getX() + x, getPosition().getY() + y);
+        int attempts = 0;
+        int maxAttempts = 100;
+
+        while (attempts < maxAttempts) {
+            int x = (int) (Math.random() * (2 * RAYON)) - RAYON;
+            int y = (int) (Math.random() * (2 * RAYON)) - RAYON;
+            Position position = new Position(getPosition().getX() + x, getPosition().getY() + y);
+
+            int tX = TileManager.transformeP_to_grid(position.getX());
+            int tY = TileManager.transformeP_to_grid(position.getY());
+
+            // Validate the position
+            if (GamePanel.getInstance().isWithinTerrainBounds(position) &&
+                    tX >= 0 && tX < TileManager.nbTilesWidth &&
+                    tY >= 0 && tY < TileManager.nbTilesHeight){
+                return position;
+            }
+
+            attempts++;
+        }    throw new IllegalStateException("Failed to generate a valid position inside the spawn point.");
+
+
     }
 
     public boolean canSpawn() {
@@ -56,12 +70,9 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
     private void spawnEnemy() {
         incrementSpawnedEnemies();
-        //generate random position in tile
-        //Position position = EnemySpawnPoint.generateRandomPositionInTile(getCoordGrid());
 
         Position position = generateRandomPositionInsideSpawnPoint();
 
-        //if ( !ZoneMover.isInsideAnyZone(position)) return;
 
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);
@@ -85,8 +96,6 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     }
 
 
-
-
     @Override
     public void run() {
         ThreadManager.incrementThreadCount("EnemySpawnPoints");
@@ -95,7 +104,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
             spawnEnemy();
 
             try {
-                Thread.sleep(SpawnManager.getRandomInterval(1000,5000)); // Random interval between 1 and 5 seconds
+                Thread.sleep(SpawnManager.getRandomInterval()); // Random interval between 1 and 5 seconds
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

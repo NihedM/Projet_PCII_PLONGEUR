@@ -10,15 +10,25 @@ public class Ammo extends Objet {
     private boolean reachedTarget = false;
     private final Position destination;
     private final UniteControlable shooter;
+    private static final int MAX_LIFETIME = 5000;//5 secondes
+    private final long creationTime;
 
     public Ammo(Position position, int rayon, Position target, int damage, int speed, UniteControlable shooter) {
         super(position, rayon);
+        this.creationTime = System.currentTimeMillis();
         this.shooter = shooter;
         this.target = target;
         this.destination = new Position(target.getX(), target.getY());
         this.damage = damage;
         this.speed = speed;
         AmmoManager.getInstance().addAmmo(this);
+
+        setImage("ammo.png");
+
+    }
+
+    public boolean hasExceededLifetime() {
+        return System.currentTimeMillis() - creationTime > MAX_LIFETIME;
     }
 
     public Position getDestination() {
@@ -37,7 +47,7 @@ public class Ammo extends Objet {
     public void stop(){this .reachedTarget = true;}
 
     public boolean reachedDestination() {
-        return this.distance(target) <= getRayon();
+        return this.distance(target) <= getRayon() || reachedTarget;
     }
 
     public boolean checkCollision(Objet objet) {

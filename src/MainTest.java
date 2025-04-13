@@ -1,22 +1,15 @@
 import controler.*;
 import model.constructions.Base;
-import model.objets.CoordGrid;
 import model.objets.Position;
-import model.objets.ResourceSpawner;
+import model.objets.spawns.ResourceSpawner;
 import model.objets.Terrain;
-import model.ressources.Collier;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import view.GameLaunchDialog;
 import view.GamePanel;
 import view.Redessine;
-import view.debeug.ThreadManagerPanel;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
-import java.util.Random;
 
 public class MainTest {
 

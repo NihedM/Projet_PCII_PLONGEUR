@@ -13,8 +13,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlongeurArme extends Plongeur {
 
     private static final int MAX_AMMO = 10;
-    public final int DAMAGE = 10, DAMAGEATTTACK = 2;
-    private static final int SHOOTING_RANGE = 1000;
+    public final int DAMAGE = 10, DAMAGEATTTACK = 5;
+    private static final int SHOOTING_RANGE = 500;
     private Unite target;
 
 
@@ -38,6 +38,7 @@ public class PlongeurArme extends Plongeur {
         setUnitIcon(new ImageIcon(GamePanel.getCachedImage("plongeurArmeIcon.png")));
     }
     public int getAmmo(){return ammo;}
+    public int getMaxAmmo(){return MAX_AMMO;}
     public void reload(int amount){ammo = Math.min(ammo + amount, MAX_AMMO);}
     public boolean shoot(Position target){
         if (ammo > 0 && this.distance(target) <= SHOOTING_RANGE) {
@@ -121,7 +122,7 @@ public class PlongeurArme extends Plongeur {
             if (gamePanel != null) {
                 for (UniteControlable unite : gamePanel.getUnitesSelected()) {
                     if (unite instanceof Plongeur plongeurArme) {
-                        startDefendCircle(plongeurArme.getPosition(), 1000);
+                        startDefendCircle(plongeurArme.getPosition(), 300);
                     }
                 }
             }
@@ -171,4 +172,21 @@ public class PlongeurArme extends Plongeur {
     public void updateLastShotTime() {
         lastShotTime = System.currentTimeMillis();
     }
+
+    //-----------------------------------------------------------------------------------
+    @Override
+    public void draw(Graphics2D g2d, Point screenPos) {
+        if (isDefending()) {
+            g2d.setColor(new Color(0, 0, 255, 50)); // Transparent blue
+            g2d.fillOval(
+                    screenPos.x - getDefendCircleRadius(),
+                    screenPos.y - getDefendCircleRadius(),
+                    getDefendCircleRadius() * 2,
+                    getDefendCircleRadius() * 2
+            );
+        }
+
+        super.draw(g2d, screenPos);
+    }
+
 }

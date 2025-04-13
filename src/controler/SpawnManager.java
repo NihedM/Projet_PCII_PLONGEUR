@@ -1,31 +1,34 @@
 package controler;
 
-import model.objets.CoordGrid;
-import model.objets.EnemySpawnPoint;
+import model.objets.spawns.EnemySpawnPoint;
 import model.objets.Position;
+import model.objets.spawns.EpicSpawnPoint;
 import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Pieuvre;
-import model.unite_non_controlables.PieuvreBebe;
 import view.GamePanel;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class SpawnManager extends Thread{
     private CopyOnWriteArrayList<EnemySpawnPoint> spawnPoints;
+    private CopyOnWriteArrayList<EpicSpawnPoint> epicSpawnPoints;
     private static SpawnManager instance;
     private static Random random = new Random();
+    private static int randominterval = 10000;
 
 
     public SpawnManager() {
         this.spawnPoints = new CopyOnWriteArrayList<>();
+        this.epicSpawnPoints = new CopyOnWriteArrayList<>();
         instance = this;
     }
 
-    public void addSpawnPoint(CoordGrid tile, int maxEnemies) {
-        EnemySpawnPoint spawnPoint = new EnemySpawnPoint(tile, maxEnemies);
-        spawnPoint.setEnemyType(Pieuvre.class);
+    public void addSpawnPoint(Position pos, int maxEnemies) {
+        EnemySpawnPoint spawnPoint = new EnemySpawnPoint(pos, maxEnemies, 20);
+        spawnPoint.setEnemyType(random.nextBoolean() ? Calamar.class : Pieuvre.class);
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
     }
@@ -34,49 +37,96 @@ public class SpawnManager extends Thread{
         return instance;
     }
 
-    public static int getRandomInterval(int min, int max) {
-        return random.nextInt(max - min + 1) + min;
+    public static int getRandomInterval() {
+        return randominterval;
     }
 
     public CopyOnWriteArrayList<EnemySpawnPoint> getSpawnPoints() {
         return spawnPoints;
     }
-
-
-
-
-    public void generateRandomSpawnPoint(int maxEnemies) {/*
-        int randomX = random.nextInt(GameMaster.GRID_WIDTH);
-        int randomY = random.nextInt(GameMaster.GRID_HEIGHT);
-        CoordGrid randomTile = new CoordGrid(randomX, randomY);         //NOOOOOOOOOOOOOOOOOOOO never ever nexw
-        Position randomPosition = EnemySpawnPoint.generateRandomPositionInTile(randomTile);
-        if (ZoneMover.isInsideAnyZone(randomPosition)) {
-            addSpawnPoint(randomTile, maxEnemies);
-        }*/
-
-        addSpawnPoint(GameMaster.getSpatialCell(0,0), maxEnemies);
-
+    public CopyOnWriteArrayList<EpicSpawnPoint> getEpicSpawnPoints() {
+        return epicSpawnPoints;
     }
 
 
 
 
+    private Position generateRandomPositionInZone(ZoneEnFonctionnement zone) {
+        int attempts = 0;
+        int maxAttempts = 100;
 
-    private int cpt = 0;
+        while (attempts < maxAttempts) {
+            int x = random.nextInt(zone.getMaxX() - zone.getMinX() + 1) + zone.getMinX();
+            int y = random.nextInt(zone.getMaxY() - zone.getMinY() + 1) + zone.getMinY();
+            Position position = new Position(x, y);
+
+            int tX = TileManager.transformeP_to_grid(position.getX());
+            int tY = TileManager.transformeP_to_grid(position.getY());
+
+            // Validate the position
+            if (GamePanel.getInstance().isWithinTerrainBounds(position) &&
+                    tX >= 0 && tX < TileManager.nbTilesWidth &&
+                    tY >= 0 && tY < TileManager.nbTilesHeight) {
+                return position;
+            }
+
+            attempts++;
+        }
+        throw new IllegalStateException("Failed to generate a valid position inside the zone after " + maxAttempts + " attempts.");
+    }
+
+    public void generateRandomSpawnPoint(int maxEnemies) {
+        // Get all zones
+        List<ZoneEnFonctionnement> zones = new ArrayList<>(GamePanel.getInstance().getDynamicZones());
+        zones.add(GamePanel.getInstance().getMainZone());
+
+        ZoneEnFonctionnement selectedZone = zones.get(random.nextInt(zones.size()));
+        Position randomPosition = generateRandomPositionInZone(selectedZone);
+        int depth = GamePanel.getInstance().getTerrain().getDepthAt(randomPosition.getX(), randomPosition.getY());
+
+        randominterval = Math.max(60000 - depth * 1000, 20000);
+
+        addSpawnPoint(randomPosition, maxEnemies);
+
+    }
+
+    public void addEpicSpawnPoint(Position pos) {
+        EpicSpawnPoint epicSpawnPoint = new EpicSpawnPoint(pos);
+
+
+        spawnPoints.add(epicSpawnPoint);
+        epicSpawnPoints.add(epicSpawnPoint);
+        new Thread(epicSpawnPoint).start();
+    }
+
+    public void epicSpawnPoints() {
+        List<Position> epicPositions = List.of(
+                new Position(2000, 2000),
+                new Position(1000, 8000),
+                new Position(5000, 5000),
+                new Position(8000, 1000),
+                new Position(9000, 9000)
+        );
+
+        for (Position position : epicPositions) {
+            addEpicSpawnPoint(position);
+        }
+
+    }
 
 
 
-    @Override
+        @Override
     public void run() {
         ThreadManager.incrementThreadCount("SpawnManager");
 
+        epicSpawnPoints();
+
         while (true) {
-            if(cpt == 0){
                 generateRandomSpawnPoint(10);
-                cpt++;
-            }
+
             try {
-                Thread.sleep(getRandomInterval(100, 200));
+                Thread.sleep(getRandomInterval());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

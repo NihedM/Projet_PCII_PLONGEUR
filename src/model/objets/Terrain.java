@@ -63,6 +63,16 @@ public class Terrain {
         }
     }
 
+    public int getCurrentDepth() {
+        int cameraX = GamePanel.getInstance().getCameraX();
+        int cameraY = GamePanel.getInstance().getCameraY();
+
+        int centerX = cameraX + GamePanel.VIEWPORT_WIDTH / 2;
+        int centerY = cameraY + GamePanel.VIEWPORT_HEIGHT / 2;
+
+        return getDepthAt(centerX, centerY);
+    }
+
     private void initializeDepthMap() {
         depthMap = new int[width][height];
         Random rand = new Random(12345); // Seed fixe pour un motif cohérent

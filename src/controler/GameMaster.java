@@ -57,7 +57,7 @@ public class GameMaster extends Thread{
         if (x >= 0 && x < GRID_WIDTH && y >= 0 && y < GRID_HEIGHT) {
             return Grid[x][y];
         }
-        throw new IllegalArgumentException("Invalid grid coordinates: (" + x + ", " + y + ")");
+        return null; // Return null or handle out-of-bounds case as needed
     }
     private void updateGrid() {
         enemiesGrid.clear();
@@ -66,7 +66,9 @@ public class GameMaster extends Thread{
                 continue; // sécurité
             }
             CoordGrid cell = getCellForPosition(enemy.getPosition());
-
+            if (cell == null) {
+                continue; // sécurité
+            }
             if (enemiesGrid.containsKey(cell) ){
                 enemiesGrid.get(cell).add(enemy);
 
@@ -137,6 +139,12 @@ public class GameMaster extends Thread{
         GamePanel.getInstance().addObjet(enemy);
     }
     public void removeEnemy(Enemy enemy) {
+        try {
+            if(enemies.contains(enemy))
+                enemies.remove(enemy);
+
+        } catch (Exception e) {}
+
         CoordGrid cell = getCellForPosition(enemy.getPosition());
         if (enemiesGrid.containsKey(cell)) {
             enemiesGrid.get(cell).remove(enemy);
@@ -146,11 +154,6 @@ public class GameMaster extends Thread{
                 enemiesGrid.remove(cell);
             }
         }
-
-        if(enemies.contains(enemy))
-            enemies.remove(enemy);
-        else
-            throw new UnsupportedOperationException("Enemy not found in list");
     }
 
 
@@ -194,6 +197,8 @@ public class GameMaster extends Thread{
     public void run() {
         ThreadManager.incrementThreadCount("GameMaster");
 
+        Position[] coins = GamePanel.getInstance().getMainBase().getCoints();
+
         while(true) {
 
             updateGrid();
@@ -206,7 +211,8 @@ public class GameMaster extends Thread{
                     processedEnemies.add(enemy);
                     enemyExecutor.submit(() -> {
 
-                        if(!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition()) || enemy.get_Hp() <= 0) {
+                        if(!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition()) || enemy.get_Hp() <= 0||
+                                GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), enemy.getPosition().getX(), enemy.getPosition().getY())) {
                             GamePanel.getInstance().killUnite(enemy);
                             return;
                         }
@@ -236,7 +242,8 @@ public class GameMaster extends Thread{
                             enemy.vadrouille();
                             enemy.action();
 
-                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())|| enemy.get_Hp() <= 0) {
+                            if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())|| enemy.get_Hp() <= 0 ||
+                                    GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), enemy.getPosition().getX(), enemy.getPosition().getY())) {
                                 GamePanel.getInstance().killUnite(enemy);
 
                             }
@@ -250,6 +257,7 @@ public class GameMaster extends Thread{
             for (Enemy enemy : enemies) {
                 if (!processedEnemies.contains(enemy)) {
                     //System.out.println("Enemy outside active zones: " + enemy + ", InsideZone: " + enemy.isInsideZone());
+                    enemy.stopAction();
 
                     if (enemy.isInsideZone()) {
                         enemy.stopAllThreads();

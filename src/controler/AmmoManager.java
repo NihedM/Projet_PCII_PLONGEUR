@@ -58,7 +58,12 @@ public class AmmoManager extends Thread{
         while (running) {
             long startTime = System.currentTimeMillis();
 
-            updateBullets();
+            try {
+                updateBullets();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
             // Maintain consistent update rate
             long elapsed = System.currentTimeMillis() - startTime;
@@ -74,6 +79,15 @@ public class AmmoManager extends Thread{
 
     private void updateBullets() {
         for (Ammo bullet : activeBullets) {
+            if (bullet.hasExceededLifetime()) {
+                System.out.println("Ammo exceeded lifetime and is being removed: " + bullet);
+                activeBullets.remove(bullet);
+                GamePanel.getInstance().repaint();
+                continue;
+            }
+
+
+
             if (bullet.reachedDestination()) {
                 activeBullets.remove(bullet);
                 GamePanel.getInstance().repaint();

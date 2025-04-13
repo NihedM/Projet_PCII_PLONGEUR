@@ -295,4 +295,23 @@ public class Plongeur extends UniteControlable {
     }
 
 
+    //-------------------------------------------------------------------------------
+    @Override
+    public void draw(Graphics2D g2d, Point screenPos) {
+        if (isFaitFuire()) {
+            // setcolor to  Transparent orange
+            g2d.setColor(new Color(255, 165, 0, 100)); // Orange transparent
+
+            g2d.fillOval(
+                    screenPos.x - getRayonFuite(),
+                    screenPos.y - getRayonFuite(),
+                    getRayonFuite() * 2,
+                    getRayonFuite() * 2
+            );
+        }
+
+        // Call the parent class's draw method to render the unit
+        super.draw(g2d, screenPos);
+    }
+
 }
