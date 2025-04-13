@@ -5,14 +5,15 @@ import controler.AmmoManager;
 import view.GamePanel;
 
 public class Ammo extends Objet {
-    private DeplacementThread deplacementThread;
     private Position target;
     private int damage, speed;
     private boolean reachedTarget = false;
     private final Position destination;
+    private final UniteControlable shooter;
 
-    public Ammo(Position position, int rayon, Position target, int damage, int speed) {
+    public Ammo(Position position, int rayon, Position target, int damage, int speed, UniteControlable shooter) {
         super(position, rayon);
+        this.shooter = shooter;
         this.target = target;
         this.destination = new Position(target.getX(), target.getY());
         this.damage = damage;
@@ -35,11 +36,24 @@ public class Ammo extends Objet {
     }
     public void stop(){this .reachedTarget = true;}
 
-    public boolean reachedDestination(){return reachedTarget;}
+    public boolean reachedDestination() {
+        return this.distance(target) <= getRayon();
+    }
 
+    public boolean checkCollision(Objet objet) {
+        if (objet == shooter) {
+            return false;
+        }
+        return GestionCollisions.collisionCC(this, objet) > -1;
+    }
 
+    public void applyDamage(Objet objet) {
+        if (objet instanceof Unite) {
+            ((Unite) objet).takeDamage(damage);
+            System.out.println("Bullet hit " + objet + "! Damage dealt: " + damage);
 
-
+        }
+    }
 
     public void deplacementAmmo(){
         if (reachedTarget || target == null ) {

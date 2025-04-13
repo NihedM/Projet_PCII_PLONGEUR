@@ -18,6 +18,13 @@ public class PlongeurArme extends Plongeur {
     private Unite target;
 
 
+    private Position defendCircleCenter;
+    private int defendCircleRadius;
+    private boolean isDefending;
+    private static final int SHOOTING_INTERVAL = 1000;
+    private long lastShotTime = 0;
+
+
     private int ammo;
     private boolean hasWeapon;
 
@@ -36,9 +43,13 @@ public class PlongeurArme extends Plongeur {
         if (ammo > 0 && this.distance(target) <= SHOOTING_RANGE) {
             ammo--;
             // Créer une nouvelle instance de la balle
-            Ammo ammoInstance = new Ammo(new Position(getPosition().getX(),getPosition().getY() ), 5, target, DAMAGE, 10);
+            Ammo ammoInstance = new Ammo(new Position(getPosition().getX(),getPosition().getY() ), 5, target, DAMAGE, 10, this);
             return true;
         }
+        if(ammo <= 0){
+            stopDefendCircle();
+        }
+
         return false;
     }
 
@@ -90,6 +101,7 @@ public class PlongeurArme extends Plongeur {
     public void stopAction() {
         super.stopAction();
         GamePanel.getInstance().setAttackinggMode(false);
+        stopDefendCircle();
     }
     @Override
     public List<ButtonAction> getButtonActions() {
@@ -99,11 +111,64 @@ public class PlongeurArme extends Plongeur {
 
         actions.add(new ButtonAction("Attack (A)", e -> {
             GamePanel.getInstance().setAttackinggMode(true);
-
         }));
+        actions.add(new ButtonAction("Shoot (T)", e -> {
+            GamePanel.getInstance().setPendingShootAction(true);
+        }));
+
+        actions.add(new ButtonAction("Defend Circle", e -> {
+            GamePanel gamePanel = GamePanel.getInstance();
+            if (gamePanel != null) {
+                for (UniteControlable unite : gamePanel.getUnitesSelected()) {
+                    if (unite instanceof Plongeur plongeurArme) {
+                        startDefendCircle(plongeurArme.getPosition(), 1000);
+                    }
+                }
+            }
+        }));
+
 
         return actions;
     }
 
 
+
+    //-----------------------------defence action-------------------------------------------
+    public void startDefendCircle(Position center, int radius) {
+        this.defendCircleCenter = center;
+        this.defendCircleRadius = radius;
+        this.isDefending = true;
+
+        System.out.println("PlongeurArme is defending a circle at " + center + " with radius " + radius);
+    }
+
+    public void stopDefendCircle() {
+        this.defendCircleCenter = null;
+        this.defendCircleRadius = 0;
+        this.isDefending = false;
+
+        System.out.println("PlongeurArme stopped defending the circle.");
+    }
+
+
+    public boolean isDefending() {
+        return isDefending;
+    }
+
+    public Position getDefendCircleCenter() {
+        return defendCircleCenter;
+    }
+
+    public int getDefendCircleRadius() {
+        return defendCircleRadius;
+    }
+
+    public boolean canShoot() {
+        long currentTime = System.currentTimeMillis();
+        return (currentTime - lastShotTime) >= SHOOTING_INTERVAL;
+    }
+
+    public void updateLastShotTime() {
+        lastShotTime = System.currentTimeMillis();
+    }
 }

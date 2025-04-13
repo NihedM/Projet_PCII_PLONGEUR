@@ -175,7 +175,14 @@ public class ProximityChecker extends Thread{
                                     }
                                 }
 
-                                if (unite instanceof PlongeurArme) {
+                                if (unite instanceof PlongeurArme plongeurArme) {
+                                    if(voisin instanceof Enemy enemy && plongeurArme.isDefending() && GestionCollisions.collisionDefendCircle(plongeurArme, enemy) > -1 ){
+                                        if (plongeurArme.canShoot()) { // Check if enough time has passed since the last shot
+                                            plongeurArme.shoot(enemy.getPosition());
+                                            plongeurArme.updateLastShotTime(); // Update the last shot time
+                                        }
+                                    }
+
                                     if (((PlongeurArme)unite).getTarget() != null && GamePanel.getInstance().isAttackingMode() && controler.GestionCollisions.collisionCC(unite, ((PlongeurArme)unite).getTarget()) > -1) {
                                         synchronized (((PlongeurArme) unite).getTarget()){
                                             try {

@@ -5,6 +5,7 @@ import model.objets.Objet;
 import model.objets.Unite;
 import model.unite_controlables.Plongeur;
 import model.unite_non_controlables.Enemy;
+import model.unite_controlables.PlongeurArme;
 
 public class GestionCollisions{
 
@@ -42,6 +43,16 @@ public class GestionCollisions{
         return collision(p.getPosition().getX(), e.getPosition().getX(), p.getPosition().getY(), e.getPosition().getY(), p.getRayonFuite(),e.getRayon());
     }
 
+    public static int collisionDefendCircle(PlongeurArme plongeurArme, Enemy enemy) {
+        return collision(
+                plongeurArme.getDefendCircleCenter().getX(),
+                enemy.getPosition().getX(),
+                plongeurArme.getDefendCircleCenter().getY(),
+                enemy.getPosition().getY(),
+                plongeurArme.getDefendCircleRadius(),
+                enemy.getRayon()
+        );
+    }
 
 
     //collsion entre un objet circulaire et un objet rectangulaire

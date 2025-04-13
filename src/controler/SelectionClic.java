@@ -96,6 +96,14 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
 
         if (e.getButton() == MouseEvent.BUTTON1) {
+
+            if (GamePanel.getInstance().isPendingShootAction()) {
+                handleShootingAction(x, y);
+                GamePanel.getInstance().setPendingShootAction(false); // Reset the pending shoot action
+                return;
+            }
+
+
             handleSelection(e, x, y);
             if(panel.isRecuperationMode()){
                 handleRecuperationMode(x, y);
@@ -285,8 +293,23 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
     }
 
 
+    private void handleShootingAction(int x, int y) {
+        Position targetPosition = new Position(x, y);
 
+        for (UniteControlable selectedUnit : panel.getUnitesSelected()) {
+            if (selectedUnit instanceof PlongeurArme) {
+                PlongeurArme plongeurArme = (PlongeurArme) selectedUnit;
 
+                // Fire the Ammo toward the target position
+                boolean success = plongeurArme.shoot(targetPosition);
+                if (success) {
+                    System.out.println("PlongeurArme fired Ammo toward: " + targetPosition);
+                } else {
+                    System.out.println("PlongeurArme failed to shoot (out of ammo or out of range).");
+                }
+            }
+        }
+    }
 
     private void handleDeplacementMode(int x, int y) {
         Position destination = new Position(x, y);
