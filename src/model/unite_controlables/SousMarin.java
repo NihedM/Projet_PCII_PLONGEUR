@@ -68,7 +68,9 @@ public class SousMarin extends UniteControlable {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    fuel --;
+                    if (Math.abs(getVx()) > 0.1 || Math.abs(getVy()) > 0.1) {
+                        fuel--;
+                    }
                 }
                 // Dès que le carburant est épuisé, débarquer le plongeur
                 deboardDiver();
@@ -99,6 +101,11 @@ public class SousMarin extends UniteControlable {
             boardedDiver = null;
         }
     }
+
+    public void rechargeFuel() {
+        this.fuel = MAX_FUEL;
+    }
+
 
 
 

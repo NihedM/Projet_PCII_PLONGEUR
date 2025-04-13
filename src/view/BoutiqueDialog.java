@@ -2,6 +2,7 @@ package view;
 
 import model.gains_joueur.Referee;
 import model.objets.Position;
+import model.objets.UniteControlable;
 import model.unite_controlables.SousMarin;
 
 import javax.swing.*;
@@ -19,7 +20,7 @@ public class BoutiqueDialog extends JDialog {
     public BoutiqueDialog(JFrame parent) {
 
         super(parent, "Boutique", true);
-        setSize(900, 600);
+        setSize(500, 300);
         setLocationRelativeTo(parent);
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -30,55 +31,72 @@ public class BoutiqueDialog extends JDialog {
         mainPanel.add(titleLabel, BorderLayout.NORTH);
 
         // Panneau contenant la grille d'items
-        JPanel itemsGrid = new JPanel(new GridLayout(2, 3, 10, 10));
+        JPanel itemsGrid = new JPanel(new GridLayout(1, 3, 20, 10)); // 1 ligne, 3 colonnes, avec un peu d'espace
         itemsGrid.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         mainPanel.add(itemsGrid, BorderLayout.CENTER);
 
         // Création des items
 
         // Sous-marin (verrouillé si la profondeur 3 n'est pas atteinte)
-        ItemPanel sousMarinPanel = new ItemPanel(
-                "Sous-marin",
-                "400€",
-                isDepth3Unlocked(),
-                "src/view/images/sous-marin.png"
-        );
-        sousMarinPanel.addMouseListener(new MouseAdapter() {
+        ItemPanelEM sousMarinPanel = new ItemPanelEM("Sous-marin", 400, "src/view/images/sous-marin.png") {
             @Override
-            public void mouseClicked(MouseEvent e) {
-                if (!sousMarinPanel.isUnlocked()) {
-                    JOptionPane.showMessageDialog(BoutiqueDialog.this, "Cet item est verrouillé !");
+            protected void onBuy() {
+                if (!isDepth3Unlocked()) {
+                    JOptionPane.showMessageDialog(null, "Cet item est verrouillé !");
                     return;
                 }
-                if (Referee.getInstance().getArgentJoueur() < 400) {
-                    JOptionPane.showMessageDialog(BoutiqueDialog.this, "Pas assez d'argent pour acheter un sous-marin");
-                } else {
-                    // Créer un sous-marin à une position x,y
-                    Position pos = new Position(400, 150); // Exemple de position, à adapter
-                    SousMarin sousMarin = new SousMarin(pos);
-                    // Ajout du sous-marin à la base
-                    GamePanel.getInstance().addUniteControlable(sousMarin);
 
-
-
-                    Referee.getInstance().retirerArgent(400);
-                    Referee.getInstance().ajouterPointsVictoire(30); // 50 points de victoire
-                    JOptionPane.showMessageDialog(BoutiqueDialog.this, "Sous-marin acheté et ajouté à la base !");
-                    dispose();
+                int cost = 400;
+                if (Referee.getInstance().getArgentJoueur() < cost) {
+                    JOptionPane.showMessageDialog(null, "Pas assez d'argent pour acheter un sous-marin.");
+                    return;
                 }
+
+                // Créer un sous-marin à une position x,y (exemple ici)
+                Position pos = new Position(400, 150);
+                SousMarin sousMarin = new SousMarin(pos);
+
+                // Ajout du sous-marin dans le jeu
+                GamePanel.getInstance().addUniteControlable(sousMarin);
+
+                Referee.getInstance().retirerArgent(cost);
+                Referee.getInstance().ajouterPointsVictoire(30);
+
+                JOptionPane.showMessageDialog(null, "Sous-marin acheté et ajouté à la base !");
             }
-        });
+        };
         itemsGrid.add(sousMarinPanel);
 
-        // Essence
-        ItemPanel essencePanel = new ItemPanel(
-                "Essence",
-                "25€",
-                isDepth3Unlocked(),
-                "src/view/images/oxygen.png"
-        );
+
+// Essence
+        ItemPanelEM essencePanel = new ItemPanelEM("Essence", 25, "src/view/images/essence.png") {
+            @Override
+            protected void onBuy() {
+                if (!isDepth3Unlocked()) {
+                    JOptionPane.showMessageDialog(null, "Cet item est verrouillé !");
+                    return;
+                }
+                int cost = 25;
+
+                if (Referee.getInstance().getArgentJoueur() >= cost) {
+                    Referee.getInstance().retirerArgent(cost);
+
+                    // Recharge le carburant pour tous les sous-marins
+                    for (UniteControlable uc : GamePanel.getInstance().getUnitesEnJeu()) {
+                        if (uc instanceof SousMarin) {
+                            ((SousMarin) uc).rechargeFuel();
+                        }
+                    }
+
+                    JOptionPane.showMessageDialog(null, "Essence rechargée pour tous les sous-marins !");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Fonds insuffisants pour acheter de l'essence.");
+                }
+            }
+        };
         itemsGrid.add(essencePanel);
-        itemPanels.add(essencePanel);
+
+
 
         ItemPanelEM oxygenePanel = new ItemPanelEM("Oxygène", 50, "src/view/images/oxygen.png") {
             @Override
@@ -121,6 +139,6 @@ public class BoutiqueDialog extends JDialog {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 }
