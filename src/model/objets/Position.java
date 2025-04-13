@@ -46,5 +46,7 @@ public class Position {
     }
 
 
-
+    public double distanceTo(Position position) {
+        return Math.sqrt(Math.pow(this.x - position.getX(), 2) + Math.pow(this.y - position.getY(), 2));
+    }
 }
