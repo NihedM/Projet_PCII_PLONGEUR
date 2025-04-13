@@ -116,7 +116,7 @@ public class PlongeurArme extends Plongeur {
             GamePanel.getInstance().setPendingShootAction(true);
         }));
 
-        actions.add(new ButtonAction("Defend Circle", e -> {
+        actions.add(new ButtonAction("Defend Circle (X)", e -> {
             GamePanel gamePanel = GamePanel.getInstance();
             if (gamePanel != null) {
                 for (UniteControlable unite : gamePanel.getUnitesSelected()) {

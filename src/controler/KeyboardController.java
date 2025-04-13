@@ -61,6 +61,7 @@ public class KeyboardController extends KeyAdapter {
             case KeyEvent.VK_F -> handleFleeAction();
             case KeyEvent.VK_S -> handleStopAction();
             case KeyEvent.VK_T -> handleShootAction();
+            case KeyEvent.VK_X -> handleDefenceAction();
         }
     }
 
@@ -83,6 +84,13 @@ public class KeyboardController extends KeyAdapter {
         for (UniteControlable unit : unitesSelectionnees) {
             if (unit instanceof Plongeur) {
                 ((Plongeur) unit).setFaitFuire(true);
+            }
+        }
+    }
+    private void handleDefenceAction() {
+        for (UniteControlable unit : unitesSelectionnees) {
+            if (unit instanceof model.unite_controlables.PlongeurArme) {
+                ((model.unite_controlables.PlongeurArme) unit).startDefendCircle(unit.getPosition(), 1000);
             }
         }
     }
