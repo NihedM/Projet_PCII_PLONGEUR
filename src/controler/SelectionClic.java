@@ -291,20 +291,9 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
 
     private void handleDeplacementMode(int x, int y) {
         Position destination = new Position(x, y);
-        for (UniteControlable unite : panel.getUnitesSelected()) {
-            if (unite.getMovementThread() != null) {
-                unite.getMovementThread().stopThread();
-            }
-            unite.setDestination(destination);
-        }
-        panel.setDeplacementMode(false);
-        //panel.showFixedInfoPanel("unit");
-    }
-
-
-    private void handleRightClickOrder(int x, int y) {
-        Position destination = new Position(x, y);
-
+        int index = 0;
+        int baseRadius = 30;
+        double angleIncrement = Math.PI / 4;
         panel.setDeplacementMode(true);
 
         if (!panel.getUnitesSelected().isEmpty() && !panel.isRecuperationMode()) {
@@ -312,13 +301,30 @@ public class SelectionClic extends MouseAdapter implements MouseListener {
                 if (unite.getMovementThread() != null) {
                     unite.getMovementThread().stopThread();
                 }
-                unite.setDestination(destination);
+                int radiusIncrement = unite.getRayon();
+
+                int layer = index / 8;
+                double radius = baseRadius + layer * radiusIncrement;
+                double angle = index * angleIncrement;
+
+                // Calculate the adjusted destination
+                int offsetX = (int) (radius * Math.cos(angle));
+                int offsetY = (int) (radius * Math.sin(angle));
+                Position adjustedDestination = new Position(destination.getX() + offsetX, destination.getY() + offsetY);
+
+                unite.setDestination(adjustedDestination );
+                index++;
 
             }
             panel.showFixedInfoPanel("unit");
 
         }
         panel.setDeplacementMode(false);
+    }
+
+
+    private void handleRightClickOrder(int x, int y) {
+        handleDeplacementMode(x,y);
 
     }
 

@@ -112,8 +112,6 @@ public class GestionCollisions{
             b.getPosition().setY(b.getPosition().getY() + (int) (dy * overlap));
         }
 
-
-
     }
 
 
