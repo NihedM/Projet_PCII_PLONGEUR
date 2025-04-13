@@ -119,6 +119,6 @@ public class BoutiqueDialog extends JDialog {
                 return true;
             }
         }
-        return true;
+        return false;
     }
 }
