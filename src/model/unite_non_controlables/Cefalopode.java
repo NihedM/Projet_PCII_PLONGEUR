@@ -69,6 +69,9 @@ public class Cefalopode extends Enemy{
 
     public boolean voleTarget(){return false;}
 
+    @Override
+
+    public void fuit(){}
 
     @Override
     public void action() {

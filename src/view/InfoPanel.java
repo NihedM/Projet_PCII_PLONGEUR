@@ -104,8 +104,8 @@ public class InfoPanel extends JPanel {
     public void updateEnemyInfo(Enemy enemy) {
         removeAll();
         atributInfo = new AtributInfo(enemy);
-        add(atributInfo);
         atributInfo.updateInfo(enemy.getAttributes());
+        add(atributInfo);
 
         buttonPanel.removeAll(); // No action buttons for enemies
         buttonPanel.setBackgroundImage("unitIconBackground.png");
