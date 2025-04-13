@@ -60,6 +60,7 @@ public class KeyboardController extends KeyAdapter {
             case KeyEvent.VK_A -> handleAttackAction();
             case KeyEvent.VK_F -> handleFleeAction();
             case KeyEvent.VK_S -> handleStopAction();
+            case KeyEvent.VK_T -> handleShootAction();
         }
     }
 
@@ -73,10 +74,12 @@ public class KeyboardController extends KeyAdapter {
     }
 
     private void handleAttackAction() {
+
         panel.setAttackinggMode(true);
     }
 
     private void handleFleeAction() {
+
         for (UniteControlable unit : unitesSelectionnees) {
             if (unit instanceof Plongeur) {
                 ((Plongeur) unit).setFaitFuire(true);
@@ -84,9 +87,31 @@ public class KeyboardController extends KeyAdapter {
         }
     }
 
+
+
+    private void handleShootAction() {
+        handleStopAction();
+        for (UniteControlable unit : unitesSelectionnees) {
+            if (unit instanceof model.unite_controlables.PlongeurArme) {
+                GamePanel.getInstance().setPendingShootAction(true);
+                return;
+            }
+        }
+
+    }
+
+
     private void handleStopAction() {
         for (UniteControlable unit : unitesSelectionnees) {
             unit.stopAction();
         }
+
+
+        GamePanel.getInstance().setPendingShootAction(false);
+        panel.setDeplacementMode(false);
+        panel.setRecuperationMode(false);
+        panel.setAttackinggMode(false);
+
+        System.out.println("All actions interrupted for selected units.");
     }
 }

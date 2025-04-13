@@ -36,7 +36,7 @@ public class PlongeurArme extends Plongeur {
         if (ammo > 0 && this.distance(target) <= SHOOTING_RANGE) {
             ammo--;
             // Créer une nouvelle instance de la balle
-            Ammo ammoInstance = new Ammo(new Position(getPosition().getX(),getPosition().getY() ), 5, target, DAMAGE, 10);
+            Ammo ammoInstance = new Ammo(new Position(getPosition().getX(),getPosition().getY() ), 5, target, DAMAGE, 10, this);
             return true;
         }
         return false;
@@ -100,6 +100,11 @@ public class PlongeurArme extends Plongeur {
         actions.add(new ButtonAction("Attack (A)", e -> {
             GamePanel.getInstance().setAttackinggMode(true);
 
+
+        }));
+        actions.add(new ButtonAction("Shoot (T)", e -> {
+            System.out.println("Shoot action activated. Click on a target to shoot.");
+            GamePanel.getInstance().setPendingShootAction(true);
         }));
 
         return actions;

@@ -137,6 +137,8 @@ public class GamePanel extends JPanel {
     private boolean boardingMode = false;
     private SousMarin targetSubmarine = null;
 
+    private boolean pendingShootAction = false;
+
 
 
     public GamePanel() {
@@ -434,6 +436,21 @@ public class GamePanel extends JPanel {
             setCursor(Cursor.getDefaultCursor());
         }
     }
+
+    public boolean isPendingShootAction() {
+        return pendingShootAction;
+    }
+
+    public void setPendingShootAction(boolean pendingShootAction) {
+
+        this.pendingShootAction = pendingShootAction;
+        if (pendingShootAction) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            setCursor(Cursor.getDefaultCursor());
+        }
+    }
+
 
     //--------------------------------------------autres getters et setters--------------------------------
 

@@ -1,6 +1,9 @@
 package controler;
 
 import model.objets.Ammo;
+import model.objets.CoordGrid;
+import model.objets.Objet;
+import view.GamePanel;
 
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -25,6 +28,30 @@ public class AmmoManager extends Thread{
         activeBullets.add(ammo);
     }
 
+    private CopyOnWriteArrayList<Objet> getVoisins(Ammo ammo) {
+        CopyOnWriteArrayList<Objet> voisins = new CopyOnWriteArrayList<>();
+        ammo.updatePosition();
+        CoordGrid coord = ammo.getCoordGrid();
+
+        CopyOnWriteArrayList<Objet> objetsDansTile = GamePanel.getInstance().getObjetsMap().get(coord);
+        if (objetsDansTile != null) {
+            voisins.addAll(objetsDansTile);
+        }
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dy = -1; dy <= 1; dy++) {
+                if (dx == 0 && dy == 0) continue;
+
+                CoordGrid neighborCoord = new CoordGrid(coord.getX() + dx, coord.getY() + dy);
+                CopyOnWriteArrayList<Objet> objetsDansTileVoisine = GamePanel.getInstance().getObjetsMap().get(neighborCoord);
+                if (objetsDansTileVoisine != null) {
+                    voisins.addAll(objetsDansTileVoisine);
+                }
+            }
+        }
+
+        return voisins;
+    }
 
     @Override
     public void run() {
@@ -51,6 +78,17 @@ public class AmmoManager extends Thread{
                 activeBullets.remove(bullet);
             } else {
                 bullet.deplacementAmmo();
+                CopyOnWriteArrayList<Objet> voisins = getVoisins(bullet);
+                for (Objet voisin : voisins) {
+                    if (bullet.checkCollision(voisin)) {
+                        // Apply damage and destroy the bullet
+                        bullet.applyDamage(voisin);
+                        activeBullets.remove(bullet);
+                        GamePanel.getInstance().repaint();
+
+                        break; // Stop checking after a collision
+                    }
+                }
             }
         }
     }
