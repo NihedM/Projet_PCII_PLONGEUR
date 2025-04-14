@@ -21,10 +21,6 @@ public class Pieuvre extends Cefalopode{
 
     public Pieuvre(Position position) {
         super(position, 20, 5);
-        setImage("pieuvre.png");
-        setMovingImage("pieuvre.png");
-        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("pieuvreIcon.png")));
-
     }
 
 

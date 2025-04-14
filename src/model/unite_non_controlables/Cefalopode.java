@@ -8,6 +8,7 @@ import model.objets.UniteControlable;
 import model.unite_controlables.Plongeur;
 import view.GamePanel;
 
+import javax.swing.*;
 import java.awt.*;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -32,6 +33,10 @@ public class Cefalopode extends Enemy{
 
         this.targetsDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu());
         setEtat(Etat.ATTENTE);
+
+        setImage("pieuvre.png");
+        setMovingImage("pieuvre.png");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("pieuvreIcon.png")));
     }
 
     //---------------------------------------------------------------------------------

@@ -25,10 +25,6 @@ public class PieuvreBebe extends Cefalopode{
         this.parent = parent;
         this.target = parent.getTarget();
         setEtat(Etat.ATTENTE);
-
-        setImage("pieuvre.png");
-        setMovingImage("pieuvre.png");
-        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("pieuvreIcon.png")));
     }
 
     public ConcurrentHashMap<String, String> getAttributes() {
