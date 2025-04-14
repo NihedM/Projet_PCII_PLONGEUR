@@ -11,18 +11,13 @@ import java.awt.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SousMarin extends UniteControlable {
-    // Plongeur actuellement à bord, null s'il n'y en a pas
-    private Plongeur boardedDiver;
 
-    // Carburant disponible pour se déplacer (essence)
+    private Plongeur boardedDiver;
     private int fuel;
     private final int MAX_FUEL = 100;   // Valeur max de carburant
-    // Vitesse "normale" et vitesse boostée pour le sous-marin
-    private final int NORMAL_SPEED = 10;
     private final int BOOST_SPEED = 15;
-
-    // Indique si le sous-marin est en mode déplacement accéléré (lorsqu'un plongeur est à bord)
     private boolean isBoosted = false;
+
     public SousMarin(Position position) {
         super(5, position, 10, 40, 100);    //à modifier
         this.fuel = MAX_FUEL; // Carburant initial
@@ -100,7 +95,7 @@ public class SousMarin extends UniteControlable {
             boardedDiver.setVisible(true);
             boardedDiver.setDestination(null);
 
-            // Très important : remettre le plongeur dans le jeu
+            // remettre le plongeur dans le jeu
             GamePanel.getInstance().addUniteControlable(boardedDiver);
 
             boardedDiver = null;

@@ -14,7 +14,6 @@ import java.awt.event.MouseEvent;
 // Fenêtre de vente des ressources
 class SellDialog extends JDialog {
     private JPanel resourceListPanel;
-    // Pour mémoriser la ressource sélectionnée
     private ResourceItemPanel selectedResourcePanel = null;
 
     public SellDialog(JFrame parent) {
@@ -90,7 +89,7 @@ class SellDialog extends JDialog {
             setBackground(Color.WHITE);
 
             // Aperçu graphique de la ressource
-            String imagePath = getImagePathFor(resource); // voir méthode ci-dessous
+            String imagePath = getImagePathFor(resource);
             ImageIcon icon = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
             JLabel iconLabel = new JLabel(icon);
             iconLabel.setAlignmentX(CENTER_ALIGNMENT);

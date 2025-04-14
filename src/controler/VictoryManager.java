@@ -72,9 +72,7 @@ public class VictoryManager {
                     : "Temps écoulé ! Vous n'avez pas atteint les " + victoryPoints + " points à temps.";
 
             JOptionPane.showMessageDialog(gamePanel, message, "Fin de partie", JOptionPane.INFORMATION_MESSAGE);
-            // Au lieu de fermer le jeu, on affiche le menu de fin de partie
-           // GameOverDialog gameOverDialog = new GameOverDialog(SwingUtilities.getWindowAncestor(gamePanel));
-           // gameOverDialog.setVisible(true);
+
 
           System.exit(0);
 

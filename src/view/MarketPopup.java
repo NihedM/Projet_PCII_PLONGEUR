@@ -14,7 +14,6 @@ public class MarketPopup extends JDialog {
         setSize(400, 200);
         setLocationRelativeTo(parent);
 
-        // Gestion de la fermeture par la croix
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
         // Gestionnaire pour toutes les fermetures

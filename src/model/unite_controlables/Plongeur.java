@@ -139,28 +139,6 @@ public class Plongeur extends UniteControlable {
     }
 
 
-    // Méthode pour ajouter un collier au sac
-    public boolean ajouterAuxSac(model.objets.Ressource ressource) {
-
-        /*faire la somme des values du sac*/
-        int quantite = 0;
-        for (int value : sac.values()) {
-            quantite += value;
-        }
-        /*ajouter une ressource au sac si le sac n'est pas plein, */
-
-
-        if (quantite< CAPACITE_SAC) {
-            sac.put(ressource, sac.get(ressource)+ 1);
-            System.out.println("Ressource ramassé ! Points de victoire: " + Referee.getInstance().getPointsVictoire());
-            return true; // Le collier a été ajouté avec succès
-        } else {
-            System.out.println("Sac plein ! Impossible de ramasser un autre collier.");
-            JOptionPane.showMessageDialog(null, "Sac plein ! Impossible de ramasser un autre collier.", "Information", JOptionPane.INFORMATION_MESSAGE);
-            return false; // Le sac est plein, le collier n'a pas été ajouté
-        }
-
-    }
 
 
 
@@ -229,7 +207,7 @@ public class Plongeur extends UniteControlable {
         if(!backpack.isEmpty()) {
             for(Ressource res : backpack) {
                 GamePanel.getInstance().addCollectedResource(res);
-                // On pourrait ajouter ici un système de points ou d'argent
+                // On pourrait ajouter ici un système de points ou d'argent ???
             }
             backpack.clear();
             System.out.println("Backpack livré au market.");
@@ -280,9 +258,6 @@ public class Plongeur extends UniteControlable {
 
 
 
-    public boolean isVisible() {
-        return visible;
-    }
 
     public void setVisible(boolean visible) {
         this.visible = visible;
@@ -290,9 +265,7 @@ public class Plongeur extends UniteControlable {
 
 
 
-    public void boardSubmarine(SousMarin sub) {
-        sub.boardDiver(this);
-    }
+
 
 
     //-------------------------------------------------------------------------------

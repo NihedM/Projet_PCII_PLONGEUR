@@ -16,7 +16,6 @@ import java.util.List;
 
 public class BoutiqueDialog extends JDialog {
 
-    private List<ItemPanel> itemPanels = new ArrayList<>();
     public BoutiqueDialog(JFrame parent) {
 
         super(parent, "Boutique", true);
@@ -52,7 +51,7 @@ public class BoutiqueDialog extends JDialog {
                     return;
                 }
 
-                // Créer un sous-marin à une position x,y (exemple ici)
+                // Créer un sous-marin à une position x,y
                 Position pos = new Position(400, 150);
                 SousMarin sousMarin = new SousMarin(pos);
 

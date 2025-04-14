@@ -47,12 +47,6 @@ public class Base extends Construction {
         return new Position[]{topLeft, topRight, bottomLeft, bottomRight};
     }
 
-    public void addSubmarine(SousMarin sm) {
-        submarines.add(sm);
-        System.out.println("Sous-marin ajouté à la base. Total: " + submarines.size());
-    }
-    public List<SousMarin> getSubmarines() {
-        return submarines;
-    }
+
 
 }

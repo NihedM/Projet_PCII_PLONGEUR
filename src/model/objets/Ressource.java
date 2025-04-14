@@ -78,18 +78,13 @@ public class Ressource extends Objet {
         return 0;
     }
 
-    public boolean isTargeted() {
-        return targeted;
-    }
 
     public void setTargeted(boolean targeted) {
         this.targeted = targeted;
         setFixed(targeted);
     }
 
-    public boolean isFixed() {
-        return fixed;
-    }
+
 
     public void setFixed(boolean fixed) {
         this.fixed = fixed;
