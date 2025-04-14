@@ -131,6 +131,11 @@ public class GameMaster extends Thread{
     }
     public void addEnemy(Enemy enemy, CopyOnWriteArrayList<Objet> targets) {
         synchronized (enemies) {
+            if (enemies.size() >= 500) {
+                System.out.println("Limite maximale d'ennemis atteinte. Aucun nouvel ennemi ne peut être ajouté.");
+                return;
+            }
+
             this.enemies.add(enemy);
             updateTargets();
 
@@ -276,13 +281,3 @@ public class GameMaster extends Thread{
         ThreadManager.decrementThreadCount("GameMaster");
     }
 }
-/* if (!GamePanel.getInstance().isWithinTerrainBounds(enemy.getPosition())) {
-                        GamePanel.getInstance().killUnite(enemy);
-                    }
-                    Base base = GamePanel.getInstance().getMainBase();
-                    if(GestionCollisions.estDans(base.getCoints()[0].getX(), base.getCoints()[0].getY(), base.getCoints()[3].getX(), base.getCoints()[3].getY(), enemy.getPosition().getX(), enemy.getPosition().getY())){
-                        if(enemy instanceof PieuvreBebe){
-                            ((PieuvreBebe) enemy).getParent().removeChild((PieuvreBebe) enemy);
-                        }
-                        GamePanel.getInstance().killUnite(enemy);
-                    }*/

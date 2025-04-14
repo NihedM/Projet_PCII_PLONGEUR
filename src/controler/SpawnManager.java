@@ -26,6 +26,12 @@ public class SpawnManager extends Thread{
     }
 
     public void addSpawnPoint(Position pos, int maxEnemies, int interval) {
+        if (GameMaster.getInstance().getEnemies().size() >= 500) {
+            System.out.println("Limite maximale d'ennemis atteinte. Aucun nouveau spawn n'est autorisé.");
+            return;
+        }
+
+
         EnemySpawnPoint spawnPoint = new EnemySpawnPoint(pos, maxEnemies, 20, interval);
         spawnPoint.setEnemyType(random.nextBoolean() ? Calamar.class : Pieuvre.class);
         spawnPoints.add(spawnPoint);
@@ -51,6 +57,7 @@ public class SpawnManager extends Thread{
 
 
     private Position generateRandomPositionInZone(ZoneEnFonctionnement zone) {
+
         int attempts = 0;
         int maxAttempts = 100;
 
@@ -75,6 +82,11 @@ public class SpawnManager extends Thread{
     }
 
     public void generateRandomSpawnPoint(int maxEnemies) {
+        if (GameMaster.getInstance().getEnemies().size() >= 500) {
+            System.out.println("Limite maximale d'ennemis atteinte. Aucun nouveau spawn n'est autorisé.");
+            return;
+        }
+
         // Get all zones
         List<ZoneEnFonctionnement> zones = new ArrayList<>(GamePanel.getInstance().getDynamicZones());
         zones.add(GamePanel.getInstance().getMainZone());
@@ -120,10 +132,10 @@ public class SpawnManager extends Thread{
         epicSpawnPoints();
 
         while (true) {
-                generateRandomSpawnPoint(10);
+                generateRandomSpawnPoint(random.nextInt(50) + 1);
 
             try {
-                Thread.sleep(getRandomInterval(1000, 60000));
+                Thread.sleep(getRandomInterval(10000, 60000));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

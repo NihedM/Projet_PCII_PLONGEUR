@@ -41,10 +41,9 @@ public class MainTest {
         terrain.configureDepthZone(4, 0); // Profondeur 4: max 40 ressources
 
         Base base = gamePanel.getMainBase();
-        for(int i = 0; i < 2; i++)
-            gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY()+(i+1)*100)));
-        for(int i = 0; i < 2; i++)
-         gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur()+i*100, base.getPosition().getY())));
+        //plongeur initial
+
+        gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
 
 
 
