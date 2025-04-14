@@ -60,10 +60,10 @@ public class MarketPopup extends JDialog {
     }
 
     private void returnFocusToGamePanel() {
-        // 1. Focus sur la frame parente
+        // Focus sur la frame parente
         parentFrame.requestFocusInWindow();
 
-        // 2. Focus sur le GamePanel après un léger délai
+        // Focus sur le GamePanel après un léger délai
         SwingUtilities.invokeLater(() -> {
             Component gamePanel = findGamePanel(parentFrame);
             if (gamePanel != null) {
