@@ -21,6 +21,15 @@ public class OxygenHandler extends Thread {
     @Override
     public void run() {
         while (true) {
+            while (GamePanel.getInstance().isPaused()) {
+                try {
+                    Thread.sleep(50);  // Petite pause / ralentissement
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
+
             try {
                 for (UniteControlable unite : GamePanel.getInstance().getUnitesEnJeu()) {
                     if (!(unite instanceof Plongeur)) continue;

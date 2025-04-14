@@ -19,11 +19,15 @@ public class SousMarin extends UniteControlable {
     private boolean isBoosted = false;
 
     public SousMarin(Position position) {
-        super(5, position, 10, 40, 100);    //à modifier
+        super(5, position, 75, 40, 100);    //à modifier
         this.fuel = MAX_FUEL; // Carburant initial
+
         setImage("sous-marin.png");
         setMovingImage("sous-marinMove.png");
         setUnitIcon(new ImageIcon(GamePanel.getCachedImage("sous-marin.png")));
+
+        setScalingFactor(1.0);
+        updateDimensions();
 
     }
 
@@ -105,7 +109,6 @@ public class SousMarin extends UniteControlable {
     public void rechargeFuel() {
         this.fuel = MAX_FUEL;
     }
-
 
 
 

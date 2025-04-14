@@ -111,7 +111,7 @@ public class InfoPanel extends JPanel {
         add(atributInfo);
 
         buttonPanel.removeAll(); // No action buttons for enemies
-        buttonPanel.setBackgroundImage("unitIconBackground.png");
+        buttonPanel.setBackgroundImage("actionsBackground.png");
 
         add(buttonPanel, BorderLayout.CENTER);
         emptyPanel.setBackgroundImage("unitIconBackground.png");

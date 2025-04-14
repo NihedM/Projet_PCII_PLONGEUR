@@ -107,7 +107,8 @@ public class DeplacementThread extends Thread {
                         vitesseCourante = unite.getVitesseMax();
                     } else {
                         // Décélération rapide lorsque très proche de la destination
-                        vitesseCourante = Math.max(vitesseCourante - accel * 2, 0.1);
+                        double decelerationFactor = (unite instanceof model.unite_controlables.SousMarin) ? 5.0 : 2.0; // Décélération plus rapide pour le sous-marin
+                        vitesseCourante = Math.max(vitesseCourante - accel * decelerationFactor, 0.1);
                     }
 
                     // Mise à jour de la vitesse courante
@@ -171,24 +172,6 @@ public class DeplacementThread extends Thread {
                     GamePanel.getInstance().repaint();*/
 
 
-                    if (unite instanceof model.unite_controlables.Plongeur) {
-                        model.unite_controlables.Plongeur p = (model.unite_controlables.Plongeur) unite;
-                        for (model.objets.UniteControlable uc : GamePanel.getInstance().getUnitesEnJeu()) {
-                            if (uc instanceof model.unite_controlables.SousMarin) {
-                                model.unite_controlables.SousMarin sub = (model.unite_controlables.SousMarin) uc;
-                                int collisionResult = GestionCollisions.collisionCC(p, sub);
-                                if (collisionResult >=-3 ) { // collision détectée
-                                    sub.boardDiver(p); // le plongeur entre dans le sous-marin
-                                    GamePanel.getInstance().killUnite(p); // on le retire du terrain
-                                    break;
-                                }
-                            }
-                        }
-                        if (p.getTargetResource() != null) {
-
-                        }
-
-                    }
 
                     unite.setVitesseCourante(0);
                     unite.setAcceleration(0.1);

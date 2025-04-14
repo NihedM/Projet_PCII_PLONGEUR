@@ -182,7 +182,7 @@ public class Unite extends Objet {
             return; // No image to draw
         }
 
-        if (vitesseCourante > 0) {
+        if (vitesseCourante > 0 && deplacementThread != null && getDestination() != null) {
             //on calcule l'angle de rotation
             double angle = Math.atan2(vy, vx);
             AffineTransform originalTransform = g2d.getTransform();

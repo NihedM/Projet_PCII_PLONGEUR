@@ -6,6 +6,7 @@ import model.objets.spawns.ResourceSpawner;
 import model.objets.Terrain;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
+import model.unite_controlables.SousMarin;
 import model.unite_non_controlables.Kraken;
 import model.unite_non_controlables.SeaSerpent;
 import view.GameLaunchDialog;
@@ -36,15 +37,15 @@ public class MainTest {
         // Configuration des limites de ressources par profondeur
         Terrain terrain = gamePanel.getTerrain();
         terrain.configureDepthZone(1, 20); // Profondeur 1: max 30 ressources
-        terrain.configureDepthZone(2, 0); // Profondeur 2: max 50 ressources
-        terrain.configureDepthZone(3, 0); // Profondeur 3: max 20 ressources
-        terrain.configureDepthZone(4, 0); // Profondeur 4: max 40 ressources
+        terrain.configureDepthZone(2, 50); // Profondeur 2: max 50 ressources
+        terrain.configureDepthZone(3, 20); // Profondeur 3: max 20 ressources
+        terrain.configureDepthZone(4, 40); // Profondeur 4: max 40 ressources
 
         Base base = gamePanel.getMainBase();
         //plongeur initial
 
-        gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
-
+        //gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
+        gamePanel.addUniteControlable(new SousMarin(new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
 
 
 
@@ -88,7 +89,7 @@ public class MainTest {
                 spawnManager.start();
 
 //        gameMaster.setRessourcesVisibilesJoueur(gamePanel.getRessources());
-//
+
                 z.start();
                 gamePanel.startGame();
                 Redessine r = new Redessine();

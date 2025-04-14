@@ -206,6 +206,14 @@ public class GameMaster extends Thread{
         Position[] coins = GamePanel.getInstance().getMainBase().getCoints();
 
         while(true) {
+            while (GamePanel.getInstance().isPaused()) {
+                try {
+                    Thread.sleep(50);  // Petite pause / ralentissement
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    return;
+                }
+            }
 
             updateGrid();
 
@@ -223,10 +231,14 @@ public class GameMaster extends Thread{
                             return;
                         }
 
-                        if(enemy instanceof Calamar)
-                            ((Calamar) enemy).setRessourcesDisponibles(ressources);
+                        if(enemy instanceof Calamar calamar) {
+                            calamar.setRessourcesDisponibles(ressources);
+                            if (calamar.getDestination() == null || calamar.getPosition().equals(calamar.getDestination()) || calamar.getVitesseCourante() == 0) {
+                                GamePanel.getInstance().killUnite(calamar);
+                                return;
+                            }
 
-
+                        }
 
 
                         enemy.action();

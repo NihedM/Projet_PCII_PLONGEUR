@@ -90,6 +90,15 @@ public class Objet {
         dimensionsUpdated = false;
     }
 
+    public void setImgWidth(int imgWidth) {
+        this.imgWidth = imgWidth;
+        dimensionsUpdated = false;
+    }
+    public void setImgHeight(int imgHeight) {
+        this.imgHeight = imgHeight;
+        dimensionsUpdated = false;
+    }
+
     public void draw(Graphics2D g2d, Point screenPos) {
         if (image == null) {
             return;

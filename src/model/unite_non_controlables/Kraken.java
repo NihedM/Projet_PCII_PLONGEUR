@@ -112,7 +112,7 @@ public class Kraken extends Cefalopode{
 
     @Override
     public void draw(Graphics2D g2d, Point screenPos) {
-       
+
 
         // Draw the Kraken's attack radius
         g2d.setColor(new Color(255, 0, 0, 50));

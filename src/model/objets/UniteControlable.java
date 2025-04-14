@@ -21,6 +21,7 @@ public class UniteControlable extends Unite {
     public UniteControlable(int id, Position position, int rayon, int vitesse, int hp) {
         super(position, rayon, vitesse,hp);
         this.id = id;
+
     }
     public int getId() {return id;}
 
@@ -109,7 +110,9 @@ public class UniteControlable extends Unite {
     }
 
 
-
+    public int getDetectionRange() {
+        return 1000;
+    }
 
 
 }

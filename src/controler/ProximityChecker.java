@@ -5,6 +5,7 @@ import model.constructions.Construction;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
+import model.unite_controlables.SousMarin;
 import model.unite_non_controlables.*;
 import view.GamePanel;
 
@@ -149,85 +150,89 @@ public class ProximityChecker extends Thread{
     public void run() {
         controler.ThreadManager.incrementThreadCount("ProximityChecker");
         try{
-            while (running){
+            while (running) {
                 for (UniteControlable unite : unitesEnJeu) {
 
-                        checkCollisionWithCameraBorder(unite);
+                    checkCollisionWithCameraBorder(unite);
 
-                        CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
-                        for (Objet voisin : voisins) {
+                    CopyOnWriteArrayList<Objet> voisins = getVoisins(unite);
+                    for (Objet voisin : voisins) {
 
 
+                        if (unite instanceof Plongeur) {
 
-                            if (unite instanceof Plongeur) {
-
-                                if (voisin.equals(((Plongeur)unite).getTargetResource())){
-                                    if(GestionCollisions.collisionCC(unite, voisin) > -1){
-                                        if(((Ressource)voisin).estRecoltable()) {
-                                            boolean collected = ((Plongeur)unite).recolter((Ressource) voisin);
-                                            if (collected) {
-                                                // Une fois collectée, on réinitialise la cible et désactive le flag targeted
-                                                ((Plongeur)unite).getTargetResource().setTargeted(false);
-                                                ((Plongeur)unite).setTargetResource(null);
-                                            }
+                            if (voisin.equals(((Plongeur) unite).getTargetResource())) {
+                                if (GestionCollisions.collisionCC(unite, voisin) > -1) {
+                                    if (((Ressource) voisin).estRecoltable()) {
+                                        boolean collected = ((Plongeur) unite).recolter((Ressource) voisin);
+                                        if (collected) {
+                                            // Une fois collectée, on réinitialise la cible et désactive le flag targeted
+                                            ((Plongeur) unite).getTargetResource().setTargeted(false);
+                                            ((Plongeur) unite).setTargetResource(null);
                                         }
                                     }
                                 }
+                            }
 
-                                if (unite instanceof PlongeurArme plongeurArme) {
-                                    if(voisin instanceof Enemy enemy && plongeurArme.isDefending() && GestionCollisions.collisionDefendCircle(plongeurArme, enemy) > -1 ){
-                                        if (plongeurArme.canShoot()) { // Check if enough time has passed since the last shot
-                                            plongeurArme.shoot(enemy.getPosition());
-                                            plongeurArme.updateLastShotTime(); // Update the last shot time
-                                        }
-                                    }
-
-                                    if (((PlongeurArme)unite).getTarget() != null && GamePanel.getInstance().isAttackingMode() && controler.GestionCollisions.collisionCC(unite, ((PlongeurArme)unite).getTarget()) > -1) {
-                                        synchronized (((PlongeurArme) unite).getTarget()){
-                                            try {
-                                                ((PlongeurArme) unite).getTarget().takeDamage(((PlongeurArme) unite).DAMAGEATTTACK);
-                                                GamePanel.getInstance().setAttackinggMode(false);
-                                                ((PlongeurArme) unite).setTarget(null);
-                                                unite.stopAction();
-                                            } catch (Exception e) {
-                                                System.out.println("Erreur lors de l'attaque : " + e.getMessage());
-                                            }
-                                        }
+                            if (unite instanceof PlongeurArme plongeurArme) {
+                                if (voisin instanceof Enemy enemy && plongeurArme.isDefending() && GestionCollisions.collisionDefendCircle(plongeurArme, enemy) > -1) {
+                                    if (plongeurArme.canShoot()) { // Check if enough time has passed since the last shot
+                                        plongeurArme.shoot(enemy.getPosition());
+                                        plongeurArme.updateLastShotTime(); // Update the last shot time
                                     }
                                 }
 
-                                if (voisin instanceof Calamar) {
-                                    if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
-                                        ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                                if (((PlongeurArme) unite).getTarget() != null && GamePanel.getInstance().isAttackingMode() && controler.GestionCollisions.collisionCC(unite, ((PlongeurArme) unite).getTarget()) > -1) {
+                                    synchronized (((PlongeurArme) unite).getTarget()) {
+                                        try {
+                                            ((PlongeurArme) unite).getTarget().takeDamage(((PlongeurArme) unite).DAMAGEATTTACK);
+                                            GamePanel.getInstance().setAttackinggMode(false);
+                                            ((PlongeurArme) unite).setTarget(null);
+                                            unite.stopAction();
+                                        } catch (Exception e) {
+                                            System.out.println("Erreur lors de l'attaque : " + e.getMessage());
+                                        }
                                     }
-                                }else if (voisin instanceof Cefalopode) {
-                                    ((Cefalopode) voisin).repaireTarget(unite);
-                                     if (voisin instanceof PieuvreBebe)
+                                }
+                            }
+
+                            if (voisin instanceof Calamar) {
+                                if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
+                                    ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
+                                }
+                            } else if (voisin instanceof Cefalopode) {
+                                ((Cefalopode) voisin).repaireTarget(unite);
+                                if (voisin instanceof PieuvreBebe)
                                     ((PieuvreBebe) voisin).passTargetToSiblings();
 
-                                }else if(voisin instanceof Base){
-                                    Position[] coins = ((Base) voisin).getCoints();
-                                    if(GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())){
-                                        ((Plongeur)unite).deliverBackpack();
-                                        Plongeur plongeur = (Plongeur) unite;
-                                        plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
-                                        if (unite instanceof PlongeurArme plongeurArme) {
-                                            plongeurArme.reload(plongeurArme.getMaxAmmo());
-                                            System.out.println("PlongeurArme bullets refilled: " + plongeurArme.getAmmo());
-                                        }
+                            } else if (voisin instanceof Base) {
+                                Position[] coins = ((Base) voisin).getCoints();
+                                if (GestionCollisions.estDans(coins[0].getX(), coins[0].getY(), coins[3].getX(), coins[3].getY(), unite.getPosition().getX(), unite.getPosition().getY())) {
+                                    ((Plongeur) unite).deliverBackpack();
+                                    Plongeur plongeur = (Plongeur) unite;
+                                    plongeur.setCurrentOxygen(plongeur.getCurrentOxygen() + OxygenHandler.OXYGEN_INCREMENT);
+                                    if (unite instanceof PlongeurArme plongeurArme) {
+                                        plongeurArme.reload(plongeurArme.getMaxAmmo());
+                                        System.out.println("PlongeurArme bullets refilled: " + plongeurArme.getAmmo());
                                     }
-
-
-
                                 }
-
-                                if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
-                                    GestionCollisions.preventOverlap(unite, voisin);
+                            } else if (voisin instanceof model.unite_controlables.SousMarin) {
+                                if (GestionCollisions.collisionCC(unite, voisin) > -1) {
+                                    ((SousMarin) voisin).boardDiver((Plongeur) unite); // le plongeur entre dans le sous-marin
+                                    GamePanel.getInstance().killUnite(unite); // on le retire du terrain
+                                    break;
                                 }
                             }
                         }
-                }
 
+
+                        if (controler.GestionCollisions.collisionCC(unite, voisin) > -1) {
+                            GestionCollisions.preventOverlap(unite, voisin);
+                        }
+
+                    }
+
+                }
                 Thread.sleep(DELAY);
             }
 

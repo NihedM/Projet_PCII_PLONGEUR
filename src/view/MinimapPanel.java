@@ -92,6 +92,10 @@ public class MinimapPanel extends JPanel {
                 // Autres unités en cercle
                 g.setColor(unite.isSelected() ? Color.RED : Color.BLUE);
                 g.fillOval(x - size/2, y - size/2, size, size);
+
+                g.setColor(new Color(0, 0, 255, 50));
+                int detectionSize = (int)(unite.getDetectionRange() * 2 * getScaleX());
+                g.fillOval(x - detectionSize/2, y - detectionSize/2, detectionSize, detectionSize);
             }
         }
 

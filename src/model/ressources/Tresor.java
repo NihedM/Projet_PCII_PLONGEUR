@@ -10,7 +10,7 @@ public class Tresor extends Ressource {
 
 
     public Tresor(Position position) {
-        super(position, 10, 30, 15,"Trésor "  );
+        super(position, 20, 30, 15,"Trésor "  );
         setImage("tresor.png");
     }
 

@@ -54,7 +54,7 @@ public class EmbaucheDialog extends JDialog {
             @Override
             protected void onBuy() {
                 if (!checkMoney(100)) return;
-                // Générer une position aléatoire
+                // Générer une position aléatoire près de la base
                 Position pos = generateRandomPosition();
                 // Créer et ajouter un PlongeurArme
                 PlongeurArme newUnit = new PlongeurArme(3, pos);

@@ -55,6 +55,7 @@ public class BoutiqueDialog extends JDialog {
                 Position pos = new Position(400, 150);
                 SousMarin sousMarin = new SousMarin(pos);
 
+
                 // Ajout du sous-marin dans le jeu
                 GamePanel.getInstance().addUniteControlable(sousMarin);
 
