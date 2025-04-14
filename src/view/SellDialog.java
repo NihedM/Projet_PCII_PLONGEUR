@@ -23,12 +23,11 @@ class SellDialog extends JDialog {
         setSize(400, 300);
         setLocationRelativeTo(parent);
 
-        resourceListPanel = new JPanel();
-        resourceListPanel.setLayout(new BoxLayout(resourceListPanel, BoxLayout.Y_AXIS));
+        resourceListPanel = new JPanel(new GridLayout(1, 3, 10, 10));
+        resourceListPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         updateResourceList();
 
-        JScrollPane scrollPane = new JScrollPane(resourceListPanel);
-        add(scrollPane, BorderLayout.CENTER);
+        add(resourceListPanel, BorderLayout.CENTER);
 
         JButton vendreButton = new JButton("Vendre");
         vendreButton.addActionListener(new ActionListener() {
@@ -59,10 +58,23 @@ class SellDialog extends JDialog {
     // Met à jour la liste affichée en fonction des ressources collectées
     private void updateResourceList() {
         resourceListPanel.removeAll();
-        for (Ressource r : GamePanel.getInstance().getCollectedResources()) {
+
+        java.util.List<Ressource> ressources = GamePanel.getInstance().getCollectedResources();
+        int total = ressources.size();
+
+        if (total <= 3) {
+            resourceListPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        } else {
+            int columns = 3;
+            int rows = (int) Math.ceil(total / (double) columns);
+            resourceListPanel.setLayout(new GridLayout(rows, columns, 10, 10));
+        }
+
+        for (Ressource r : ressources) {
             ResourceItemPanel itemPanel = new ResourceItemPanel(r);
             resourceListPanel.add(itemPanel);
         }
+
         resourceListPanel.revalidate();
         resourceListPanel.repaint();
     }
@@ -72,29 +84,25 @@ class SellDialog extends JDialog {
         private Ressource resource;
         public ResourceItemPanel(Ressource resource) {
             this.resource = resource;
-            setLayout(new BorderLayout());
+            setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+            setPreferredSize(new Dimension(120, 120));
             setBorder(BorderFactory.createLineBorder(Color.GRAY));
-            setPreferredSize(new Dimension(350, 60));
+            setBackground(Color.WHITE);
 
             // Aperçu graphique de la ressource
-            JPanel previewPanel = new JPanel() {
-                @Override
-                protected void paintComponent(Graphics g) {
-                    super.paintComponent(g);
-                    int diameter = 40;
-                    int x = (getWidth() - diameter) / 2;
-                    int y = (getHeight() - diameter) / 2;
-                    g.setColor(Color.ORANGE);
-                    g.fillOval(x, y, diameter, diameter);
-                }
-            };
-            previewPanel.setPreferredSize(new Dimension(60, 60));
-            add(previewPanel, BorderLayout.WEST);
+            String imagePath = getImagePathFor(resource); // voir méthode ci-dessous
+            ImageIcon icon = new ImageIcon(new ImageIcon(imagePath).getImage().getScaledInstance(64, 64, Image.SCALE_SMOOTH));
+            JLabel iconLabel = new JLabel(icon);
+            iconLabel.setAlignmentX(CENTER_ALIGNMENT);
+            add(iconLabel);
+
+
 
             // Affichage du type et du prix de la ressource
             JLabel label = new JLabel("<html>" + resource.getClass().getSimpleName() +
                     "<br/>Prix : " + resource.getValeur() + "</html>");
-            add(label, BorderLayout.CENTER);
+            label.setAlignmentX(CENTER_ALIGNMENT);
+            add(label);
 
             // Sélection via clic
             addMouseListener(new MouseAdapter(){
@@ -114,9 +122,13 @@ class SellDialog extends JDialog {
         public Ressource getResource() {
             return resource;
         }
+        private String getImagePathFor(Ressource r) {
+            String name = r.getClass().getSimpleName().toLowerCase();
+            return "src/view/images/" + name + ".png";
+        }
+
     }
 }
-
 
 
 
