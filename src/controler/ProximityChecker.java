@@ -18,6 +18,8 @@ public class ProximityChecker extends Thread{
 
     private static ProximityChecker instance;
 
+    private static final int DELAY = 30;
+
     private volatile boolean running = true;
 
 
@@ -226,7 +228,7 @@ public class ProximityChecker extends Thread{
                         }
                 }
 
-                Thread.sleep(50);
+                Thread.sleep(DELAY);
             }
 
 

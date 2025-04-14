@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 public class GameMaster extends Thread{
     private volatile static GameMaster instance;
+    private static final int DELAY = 30;
     private final ExecutorService enemyExecutor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     public static final int CELL_SIZE = 2000;
@@ -266,7 +267,7 @@ public class GameMaster extends Thread{
 
 
             try {
-                Thread.sleep(30);
+                Thread.sleep(DELAY);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 break;

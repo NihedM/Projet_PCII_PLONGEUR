@@ -1028,7 +1028,6 @@ public class GamePanel extends JPanel {
         drawTerrainBackground(g);
         updatePlayerInfoPanel();
         drawSpawnPoints(g);
-        drawBaseTest(g);
         drawAmmo(g);
         drawBase(g);
         drawObjects(g, minGridX, minGridY, maxGridX, maxGridY);
@@ -1075,13 +1074,6 @@ public class GamePanel extends JPanel {
         for (Objet objet : objetsMap.values().stream().flatMap(CopyOnWriteArrayList::stream).toList()) {
             Point screenPos = worldToScreen(objet.getPosition().getX(), objet.getPosition().getY());
 
-            int diametre = objet.getRayon() * 2;
-            g.setColor(Color.RED);
-            g.fillOval(screenPos.x- objet.getRayon(), screenPos.y- objet.getRayon() , diametre, diametre);
-
-
-            // Affichage de l'image de l'objet
-
             Graphics2D g2d = (Graphics2D) g.create();
 
             objet.draw((Graphics2D) g, screenPos);
@@ -1111,6 +1103,7 @@ public class GamePanel extends JPanel {
 
         }
     }
+
     private void drawSpawnPoints(Graphics g) {
         for (EnemySpawnPoint spawnPoint : SpawnManager.getInstance().getEpicSpawnPoints()) {
             Point screenPos = worldToScreen(spawnPoint.getPosition().getX(), spawnPoint.getPosition().getY());
