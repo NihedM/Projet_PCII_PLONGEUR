@@ -11,6 +11,7 @@ public class Tresor extends Ressource {
 
     public Tresor(Position position) {
         super(position, 10, 30, 15,"Trésor "  ); // Exemple : nom et valeur de la ressource
+        setImage("tresor.png");
     }
 
 

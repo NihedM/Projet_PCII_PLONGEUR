@@ -17,7 +17,6 @@ public class SpawnManager extends Thread{
     private CopyOnWriteArrayList<EpicSpawnPoint> epicSpawnPoints;
     private static SpawnManager instance;
     private static Random random = new Random();
-    private static int randominterval = 10000;
 
 
     public SpawnManager() {
@@ -26,8 +25,8 @@ public class SpawnManager extends Thread{
         instance = this;
     }
 
-    public void addSpawnPoint(Position pos, int maxEnemies) {
-        EnemySpawnPoint spawnPoint = new EnemySpawnPoint(pos, maxEnemies, 20);
+    public void addSpawnPoint(Position pos, int maxEnemies, int interval) {
+        EnemySpawnPoint spawnPoint = new EnemySpawnPoint(pos, maxEnemies, 20, interval);
         spawnPoint.setEnemyType(random.nextBoolean() ? Calamar.class : Pieuvre.class);
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
@@ -37,8 +36,8 @@ public class SpawnManager extends Thread{
         return instance;
     }
 
-    public static int getRandomInterval() {
-        return randominterval;
+    public static int getRandomInterval(int min, int max) {
+        return random.nextInt(max - min + 1) + min;
     }
 
     public CopyOnWriteArrayList<EnemySpawnPoint> getSpawnPoints() {
@@ -84,9 +83,7 @@ public class SpawnManager extends Thread{
         Position randomPosition = generateRandomPositionInZone(selectedZone);
         int depth = GamePanel.getInstance().getTerrain().getDepthAt(randomPosition.getX(), randomPosition.getY());
 
-        randominterval = Math.max(60000 - depth * 1000, 20000);
-
-        addSpawnPoint(randomPosition, maxEnemies);
+        addSpawnPoint(randomPosition, maxEnemies, Math.max(60000 - depth * 1000, 20000));
 
     }
 
@@ -126,7 +123,7 @@ public class SpawnManager extends Thread{
                 generateRandomSpawnPoint(10);
 
             try {
-                Thread.sleep(getRandomInterval());
+                Thread.sleep(getRandomInterval(1000, 60000));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

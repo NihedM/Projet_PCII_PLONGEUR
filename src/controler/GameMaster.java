@@ -217,12 +217,10 @@ public class GameMaster extends Thread{
                             return;
                         }
 
-                       /* if (!enemy.isInsideZone()) {
-                            enemy.setInsideZone(true);
-                            enemy.attente(); // Switch to "attente" state
-                            //System.out.println("Reactivating enemy: " + enemy);
+                        if(enemy instanceof Calamar)
+                            ((Calamar) enemy).setRessourcesDisponibles(ressources);
 
-                        }*/
+
 
 
                         enemy.action();

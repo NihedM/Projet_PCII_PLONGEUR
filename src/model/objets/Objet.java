@@ -14,7 +14,7 @@ public class Objet {
     private volatile Position position;
     public volatile CoordGrid coordGrid;
 
-    private final int rayon;                //TODO faire les constantes(rayons) de tout les objets
+    private  int rayon;
 
     protected Image image;
     protected double scalingFactor = 1.0;
@@ -112,5 +112,9 @@ public class Objet {
         this.position = position;
     }
 
+    protected void setRayon(int r) {
+        this.rayon = r;
+
+    }
 }
 

@@ -12,7 +12,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
         VADROUILLE, FUITE, ATTENTE
     }
     public static final double VITESSE_ATTENTE = 2.0;
-    private static final int ATTENTE_RANGE = TileManager.TILESIZE*2;
+    protected static final int ATTENTE_RANGE = TileManager.TILESIZE*2;
 
 
     private Etat etat;
@@ -20,7 +20,7 @@ public class Enemy extends Unite implements UniteNonControlableInterface {
 
     private int secondesRestant;
     private Timer timer = new Timer();
-    private Random random = new Random();
+    protected Random random = new Random();
 
 
     public Enemy(Position position, int rayon, int secondesRestant, double vitesse) {

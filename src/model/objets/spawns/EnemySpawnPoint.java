@@ -18,16 +18,18 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     private int maxEnemies;
     private int spawnedEnemies;
     private  final int RAYON;
+    private final int spawnInterval; // Spawn interval in milliseconds
 
     private Class<? extends Enemy> enemyType;
 
 
-    public EnemySpawnPoint(Position pos, int maxEnemies, int rayon) {
+    public EnemySpawnPoint(Position pos, int maxEnemies, int rayon, int interval) {
         super(pos, rayon);
         this.RAYON = rayon;
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
         this.enemyType = Calamar.class; // Default
+        this.spawnInterval = interval;
     }
 
 
@@ -104,7 +106,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
             spawnEnemy();
 
             try {
-                Thread.sleep(SpawnManager.getRandomInterval()); // Random interval between 1 and 5 seconds
+                Thread.sleep(spawnInterval); // Random interval between 1 and 5 seconds
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

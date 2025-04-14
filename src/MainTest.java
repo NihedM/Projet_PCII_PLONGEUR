@@ -1,15 +1,19 @@
 import controler.*;
 import model.constructions.Base;
+import model.objets.Objet;
 import model.objets.Position;
 import model.objets.spawns.ResourceSpawner;
 import model.objets.Terrain;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
+import model.unite_non_controlables.Kraken;
+import model.unite_non_controlables.SeaSerpent;
 import view.GameLaunchDialog;
 import view.GamePanel;
 import view.Redessine;
 
 import javax.swing.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class MainTest {
 
@@ -41,6 +45,10 @@ public class MainTest {
             gamePanel.addUniteControlable(new PlongeurArme(3, new Position(base.getPosition().getX()+ base.getLongueur(), base.getPosition().getY()+(i+1)*100)));
         for(int i = 0; i < 2; i++)
          gamePanel.addUniteControlable(new Plongeur(3, new Position(base.getPosition().getX()+ base.getLongueur()+i*100, base.getPosition().getY())));
+
+
+
+
 
         AmmoManager ammo = new AmmoManager();
 

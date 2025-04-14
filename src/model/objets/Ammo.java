@@ -60,8 +60,6 @@ public class Ammo extends Objet {
     public void applyDamage(Objet objet) {
         if (objet instanceof Unite) {
             ((Unite) objet).takeDamage(damage);
-            System.out.println("Bullet hit " + objet + "! Damage dealt: " + damage);
-
         }
     }
 

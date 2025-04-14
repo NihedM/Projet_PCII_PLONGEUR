@@ -5,10 +5,7 @@ import model.constructions.Construction;
 import model.objets.*;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
-import model.unite_non_controlables.Calamar;
-import model.unite_non_controlables.Enemy;
-import model.unite_non_controlables.Pieuvre;
-import model.unite_non_controlables.PieuvreBebe;
+import model.unite_non_controlables.*;
 import view.GamePanel;
 
 import java.util.ArrayList;
@@ -201,14 +198,10 @@ public class ProximityChecker extends Thread{
                                     if (((Plongeur) unite).isFaitFuire() && controler.GestionCollisions.collisionPerimetreFuite((Plongeur) unite, (Calamar) voisin) > -1) {
                                         ((Plongeur) unite).faireFuirCalamar((Calamar) voisin);
                                     }
-                                }else if (voisin instanceof Pieuvre) {
-                                    ((Pieuvre) voisin).repaireTarget(unite);
-                                } else if (voisin instanceof PieuvreBebe) {
-                                    ((PieuvreBebe) voisin).repaireTarget(unite);
+                                }else if (voisin instanceof Cefalopode) {
+                                    ((Cefalopode) voisin).repaireTarget(unite);
+                                     if (voisin instanceof PieuvreBebe)
                                     ((PieuvreBebe) voisin).passTargetToSiblings();
-
-
-
 
                                 }else if(voisin instanceof Base){
                                     Position[] coins = ((Base) voisin).getCoints();

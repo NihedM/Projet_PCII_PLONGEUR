@@ -1,5 +1,6 @@
 package model.objets;
 
+import model.unite_non_controlables.Enemy;
 import view.ButtonAction;
 import view.GamePanel;
 import view.Redessine;
@@ -23,7 +24,7 @@ public class Unite extends Objet {
     private double vitesseMax; //vitesse de l'unité
     private double acceleration = 0.1; //acceleration de l'unité
     private int heat_points;    //vie de l'unité
-    private final int MAX_HP;
+    private int MAX_HP;
 
     private Image currentImage;
     private Image movingImage;
@@ -56,8 +57,14 @@ public class Unite extends Objet {
         return destination;
     }
     public int get_Hp() {return heat_points;}
-    public void set_Hp(int hp) {this.heat_points = hp;}
-    public void takeDamage(int damage) {
+    public void set_Hp(int hp) {
+        if(hp > MAX_HP) return;
+        this.heat_points = hp;
+    }
+    public void setMaxHp(int maxHp) {//faire attention
+        this.MAX_HP = maxHp;
+    }
+    public synchronized void takeDamage(int damage) {
         this.heat_points -= damage;
 
         if (this.heat_points <= 0) {

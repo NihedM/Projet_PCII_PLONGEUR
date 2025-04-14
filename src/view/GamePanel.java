@@ -425,7 +425,7 @@ public class GamePanel extends JPanel {
     //--------------panels
 
     public InfoPanelUNC getInfoPanelUNC() {return infoPanelUNC;}
-    public InfoPanel getInfoPanel() {return infoPanel;}
+    public synchronized InfoPanel getInfoPanel() {return infoPanel;}
     public MinimapPanel getMinimapPanel() {return minimapPanel;}
 
     public boolean isRecuperationMode() {return recuperationMode;}public void setRecuperationMode(boolean mode) {this.recuperationMode = mode;}

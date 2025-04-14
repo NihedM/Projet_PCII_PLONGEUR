@@ -117,7 +117,7 @@ public class PlongeurArme extends Plongeur {
             GamePanel.getInstance().setPendingShootAction(true);
         }));
 
-        actions.add(new ButtonAction("Defend Circle (X)", e -> {
+        actions.add(new ButtonAction("Defend (X)", e -> {
             GamePanel gamePanel = GamePanel.getInstance();
             if (gamePanel != null) {
                 for (UniteControlable unite : gamePanel.getUnitesSelected()) {
@@ -139,16 +139,12 @@ public class PlongeurArme extends Plongeur {
         this.defendCircleCenter = center;
         this.defendCircleRadius = radius;
         this.isDefending = true;
-
-        System.out.println("PlongeurArme is defending a circle at " + center + " with radius " + radius);
     }
 
     public void stopDefendCircle() {
         this.defendCircleCenter = null;
         this.defendCircleRadius = 0;
         this.isDefending = false;
-
-        System.out.println("PlongeurArme stopped defending the circle.");
     }
 
 

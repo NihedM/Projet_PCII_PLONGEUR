@@ -115,10 +115,23 @@ public class Calamar extends Enemy {
         if (isTimerPaused) {
             startTimer();
             isTimerPaused = false;
+            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources());
+            selectionneRessourcePlusProche(ressourcesDisponibles);
         }
 
         //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
+
+        if (objectifCourrant == null || !ressourcesDisponibles.contains(objectifCourrant)) {
+            // Sélectionner une nouvelle ressource comme cible
+            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources());
+            selectionneRessourcePlusProche(ressourcesDisponibles);
+        }
+
+        if (ressourcesDisponibles.isEmpty()) {
+            fuit();
+            return;
+        }
 
 
         if(GestionCollisions.collisionCC(this, objectifCourrant) > -1 ) {
