@@ -44,8 +44,7 @@ public class MainTest {
         Base base = gamePanel.getMainBase();
         //plongeur initial
 
-        //gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
-        gamePanel.addUniteControlable(new SousMarin(new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
+        gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
 
 
 
