@@ -76,8 +76,10 @@ public class VictoryManager {
                     : "Temps écoulé ! Vous n'avez pas atteint les " + victoryPoints + " points à temps.";
 
             // Obtenir la Window parente
-            Window parentWindow = SwingUtilities.getWindowAncestor(gamePanel);
-            new GameOverDialog(parentWindow, message).setVisible(true);
+            //Window parentWindow = SwingUtilities.getWindowAncestor(gamePanel);
+            //new GameOverDialog(parentWindow, message).setVisible(true);
+            System.exit(0);
+
         });
     }
 
