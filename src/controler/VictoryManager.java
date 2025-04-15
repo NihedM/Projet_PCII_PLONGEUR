@@ -5,6 +5,7 @@ import view.GameOverDialog;
 import view.GamePanel;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -67,17 +68,16 @@ public class VictoryManager {
         gameTimer.cancel();
 
         SwingUtilities.invokeLater(() -> {
+            // Griser le jeu
+            gamePanel.setGameOver(true);
+
             String message = victory
                     ? "Félicitations ! Vous avez atteint " + Referee.getInstance().getPointsVictoire() + " points de victoire !"
                     : "Temps écoulé ! Vous n'avez pas atteint les " + victoryPoints + " points à temps.";
 
-            JOptionPane.showMessageDialog(gamePanel, message, "Fin de partie", JOptionPane.INFORMATION_MESSAGE);
-
-
-          System.exit(0);
-
-
-
+            // Obtenir la Window parente
+            Window parentWindow = SwingUtilities.getWindowAncestor(gamePanel);
+            new GameOverDialog(parentWindow, message).setVisible(true);
         });
     }
 

@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class GameOverDialog extends JDialog {
-    public GameOverDialog(Window parent) {
+    public GameOverDialog(Window parent, String message) {
         super(parent, "Fin de partie", ModalityType.APPLICATION_MODAL);
 
         // Afficher un fond opaque via le glass pane
@@ -14,7 +14,7 @@ public class GameOverDialog extends JDialog {
             JFrame frame = (JFrame) parent;
             JPanel glassPane = (JPanel) frame.getGlassPane();
             glassPane.setOpaque(true);
-            glassPane.setBackground(new Color(0, 0, 0, 128));
+            glassPane.setBackground(new Color(0, 0, 0, 255));
             glassPane.setVisible(true);
         }
 
@@ -22,7 +22,7 @@ public class GameOverDialog extends JDialog {
         setSize(300, 150);
         setLocationRelativeTo(parent);
 
-        JLabel messageLabel = new JLabel("Que souhaitez-vous faire ?", SwingConstants.CENTER);
+        JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         add(messageLabel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
@@ -34,13 +34,16 @@ public class GameOverDialog extends JDialog {
 
         addWindowListener(new WindowAdapter() {
             @Override
-            public void windowClosing(WindowEvent e) {
-                if (parent instanceof JFrame) {
-                    ((JFrame) parent).getGlassPane().setVisible(false);
-                }
-            }
-            @Override
             public void windowClosed(WindowEvent e) {
+                resetGlassPane();
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                resetGlassPane();
+            }
+
+            private void resetGlassPane() {
                 if (parent instanceof JFrame) {
                     ((JFrame) parent).getGlassPane().setVisible(false);
                 }
