@@ -178,7 +178,7 @@ public class GameMaster extends Thread{
         for (Enemy enemy : activeEnemies) {
             if (enemy instanceof Calamar) {
                 // Update available resources for Calamar
-                ((Calamar) enemy).setRessourcesDisponibles(ressources);
+                //((Calamar) enemy).setRessourcesDisponibles(ressources);
             } else if (enemy instanceof Pieuvre || enemy instanceof PieuvreBebe) {
                 // Update available targets for Pieuvre and PieuvreBebe
                 CopyOnWriteArrayList<UniteControlable> availableTargets = new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu());

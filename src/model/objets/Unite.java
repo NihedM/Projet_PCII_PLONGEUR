@@ -178,7 +178,7 @@ public class Unite extends Objet {
 
     @Override
     public void draw(Graphics2D g2d, Point screenPos) {
-        if (image == null) {
+        if (image == null || !isAlive()) {
             return; // No image to draw
         }
 

@@ -18,7 +18,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     private int maxEnemies;
     private int spawnedEnemies;
     private  final int RAYON;
-    private int spawnInterval; // Spawn interval in milliseconds
+    private int intervalNouveauEnemie;
 
     private Class<? extends Enemy> enemyType;
 
@@ -29,7 +29,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         this.maxEnemies = maxEnemies;
         this.spawnedEnemies = 0;
         this.enemyType = Calamar.class; // Default
-        this.spawnInterval = interval;
+        this.intervalNouveauEnemie= interval;
     }
 
 
@@ -68,7 +68,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
 
     public void setEnemyType(Class<? extends Enemy> enemyType) {
         if(enemyType == Calamar.class)
-            this.spawnInterval = spawnInterval/2;
+            this.intervalNouveauEnemie = intervalNouveauEnemie*3/4;
         this.enemyType = enemyType;
     }
 
@@ -81,7 +81,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
         try {
             Enemy enemy = enemyType.getConstructor(Position.class).newInstance(position);
             if (enemy instanceof Calamar) {
-                GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources()));
+                GameMaster.getInstance().addEnemy(enemy, GamePanel.getInstance().getRessources());
 
             } else if (enemy instanceof Pieuvre) {
                 GameMaster.getInstance().addEnemy(enemy, new CopyOnWriteArrayList<>(GamePanel.getInstance().getUnitesEnJeu()));
@@ -108,7 +108,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
             spawnEnemy();
 
             try {
-                Thread.sleep(spawnInterval); // Random interval between 1 and 5 seconds
+                Thread.sleep(intervalNouveauEnemie); // Random interval between 1 and 5 seconds
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

@@ -17,6 +17,7 @@ public class SpawnManager extends Thread{
     private CopyOnWriteArrayList<EpicSpawnPoint> epicSpawnPoints;
     private static SpawnManager instance;
     private static Random random = new Random();
+    private int spawnInterval;
 
 
     public SpawnManager() {
@@ -37,7 +38,6 @@ public class SpawnManager extends Thread{
         // 75% de chance pour Calamar, 25% pour Pieuvre
         if (chance < 75) {
             spawnPoint.setEnemyType(Calamar.class);
-            System.out.println("Spawn de Calamar");
         } else {
             spawnPoint.setEnemyType(Pieuvre.class);
         }
@@ -62,6 +62,12 @@ public class SpawnManager extends Thread{
 
 
 
+    public boolean isInsideBase(Position pos){
+        Position[] coins = GamePanel.getInstance().getMainBase().getCoints();
+        return (pos.getX() >= coins[0].getX() && pos.getX() <= coins[1].getX() &&
+                pos.getY() >= coins[0].getY() && pos.getY() <= coins[2].getY());
+    }
+
 
     private Position generateRandomPositionInZone(ZoneEnFonctionnement zone) {
 
@@ -79,7 +85,8 @@ public class SpawnManager extends Thread{
             // Validate the position
             if (GamePanel.getInstance().isWithinTerrainBounds(position) &&
                     tX >= 0 && tX < TileManager.nbTilesWidth &&
-                    tY >= 0 && tY < TileManager.nbTilesHeight) {
+                    tY >= 0 && tY < TileManager.nbTilesHeight
+                    && !isInsideBase(position)){
                 return position;
             }
 
@@ -88,21 +95,49 @@ public class SpawnManager extends Thread{
         throw new IllegalStateException("Failed to generate a valid position inside the zone after " + maxAttempts + " attempts.");
     }
 
-    public void generateRandomSpawnPoint(int maxEnemies) {
+    public void generateRandomSpawnPoint(int maxEnemies, ZoneEnFonctionnement zone) {
         if (GameMaster.getInstance().getEnemies().size() >= 500) {
             System.out.println("Limite maximale d'ennemis atteinte. Aucun nouveau spawn n'est autorisé.");
             return;
         }
 
-        // Get all zones
-        List<ZoneEnFonctionnement> zones = new ArrayList<>(GamePanel.getInstance().getDynamicZones());
-        zones.add(GamePanel.getInstance().getMainZone());
 
-        ZoneEnFonctionnement selectedZone = zones.get(random.nextInt(zones.size()));
-        Position randomPosition = generateRandomPositionInZone(selectedZone);
+        Position randomPosition = generateRandomPositionInZone(zone);
         int depth = GamePanel.getInstance().getTerrain().getDepthAt(randomPosition.getX(), randomPosition.getY());
 
-        addSpawnPoint(randomPosition, maxEnemies, Math.max(60000 - depth * 1000, 20000));
+        int enemyIntervalMin;
+        int enemyIntervalMax;
+
+        switch (depth) {
+            case 1: // Profondeur 1
+                spawnInterval = 120000; // 120 secondes
+                enemyIntervalMin = 60000; // 60 secondes
+                enemyIntervalMax = 80000; // 80 secondes
+                break;
+            case 2: // Profondeur 2
+                spawnInterval = 80000; // 80 secondes
+                enemyIntervalMin = 50000; // 50 secondes
+                enemyIntervalMax = 70000; // 70 secondes
+                break;
+            case 3: // Profondeur 3
+                spawnInterval = 40000; // 40 secondes
+                enemyIntervalMin = 30000; // 30 secondes
+                enemyIntervalMax = 60000; // 60 secondes
+                break;
+            case 4: // Profondeur 4
+                spawnInterval = 30000; // 30 secondes
+                enemyIntervalMin = 10000; // 10 secondes
+                enemyIntervalMax = 25000; // 25 secondes
+                break;
+            default: // Profondeur inconnue
+                spawnInterval = 60000; // Valeur par défaut
+                enemyIntervalMin = 60000;
+                enemyIntervalMax = 80000;
+                break;
+        }
+        int enemyInterval = getRandomInterval(enemyIntervalMin, enemyIntervalMax);
+        addSpawnPoint(randomPosition, maxEnemies, enemyInterval );
+
 
     }
 
@@ -139,10 +174,16 @@ public class SpawnManager extends Thread{
         epicSpawnPoints();
 
         while (true) {
-                generateRandomSpawnPoint(random.nextInt(50) + 1);
+
+            // Get all zones
+                List<ZoneEnFonctionnement> zones = new ArrayList<>(GamePanel.getInstance().getDynamicZones());
+                zones.add(GamePanel.getInstance().getMainZone());
+
+                ZoneEnFonctionnement selectedZone = zones.get(random.nextInt(zones.size()));
+                generateRandomSpawnPoint(random.nextInt(50) + 1, selectedZone );
 
             try {
-                Thread.sleep(getRandomInterval(10000, 60000));
+                Thread.sleep(spawnInterval);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 break;

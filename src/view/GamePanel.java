@@ -662,6 +662,10 @@ public class GamePanel extends JPanel {
 
         } else {
             if (unite instanceof Enemy) {
+
+
+
+
                 GameMaster.getInstance().removeEnemy((Enemy) unite);
             }
         }

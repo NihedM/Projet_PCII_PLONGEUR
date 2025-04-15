@@ -84,8 +84,6 @@ public class Kraken extends Cefalopode{
                 setEtat(Etat.ATTENTE);
             } else {
 
-                System.out.println("Kraken: " + target.getClass().getSimpleName() + " distance: " + distance);
-
                 //attaque la cible
                 if (getDestination() != target.getPosition())
                     setDestination(target.getPosition());

@@ -15,15 +15,15 @@ public class Calamar extends Enemy {
 
     ArrayList<Object> inventaire = new ArrayList<Object>();
     private Ressource objectifCourrant;
-    private long tempsDeFuite;
-    private static final long DUREE_DE_VIE_APRES_FUITE = 10000;
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     private boolean isTimerPaused = false;
 
     public Calamar(Position position) {
         super(position,10, 45, 10);
-        this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
+        this.ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessourcesMap());
+
+        setEtat(Etat.VADROUILLE);
 
         setImage("calamar.png");
         setMovingImage("calamar.png");
@@ -95,7 +95,6 @@ public class Calamar extends Enemy {
         setVitesseCourante(getVitesseMax());
 
         this.objectifCourrant = null;
-        this.tempsDeFuite = System.currentTimeMillis();
 
     }
 
@@ -127,12 +126,9 @@ public class Calamar extends Enemy {
             selectionneRessourcePlusProche(ressourcesDisponibles);
         }
 
-        if(getEtat() == Etat.FUITE)return;
 
-        if (System.currentTimeMillis() - tempsDeFuite > DUREE_DE_VIE_APRES_FUITE) {
-            GamePanel.getInstance().killUnite(this);
-            return;
-        }
+
+        if(getEtat() != Etat.VADROUILLE)return;
 
 
         if (objectifCourrant == null || !ressourcesDisponibles.contains(objectifCourrant)) {

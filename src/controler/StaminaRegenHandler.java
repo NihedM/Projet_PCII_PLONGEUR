@@ -36,10 +36,10 @@ public class StaminaRegenHandler extends Thread {
                     Plongeur plongeur = (Plongeur) unite;
                     updateStamina(plongeur);
 
-                    if (GamePanel.getInstance().getUnitesSelected().contains(plongeur)
+                    if (GamePanel.getInstance().getInfoPanel().getAtributInfo()!= null &&
+                            GamePanel.getInstance().getUnitesSelected().contains(plongeur)
                             && GamePanel.getInstance().getUnitesSelected().size() == 1) {
                         GamePanel.getInstance().getInfoPanel().getAtributInfo().updateInfo(plongeur.getAttributes());
-                        //GamePanel.getInstance().getInfoPanel().getAtributInfo().repaint();
                     }
                 }
 
