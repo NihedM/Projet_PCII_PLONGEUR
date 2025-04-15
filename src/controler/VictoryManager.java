@@ -85,4 +85,8 @@ public class VictoryManager {
         endGame(true);
     }
 
+    public int getVictoryPoints() {
+        return victoryPoints;
+    }
+
 }

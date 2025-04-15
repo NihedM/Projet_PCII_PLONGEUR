@@ -255,7 +255,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN,
-                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -1035,8 +1035,25 @@ public class GamePanel extends JPanel {
 
     }
     private void updatePlayerInfoPanel() {
-        ((JLabel) pointsLabel.getComponent(0)).setText(String.valueOf(Referee.getInstance().getPointsVictoire()));
-        ((JLabel) moneyLabel.getComponent(0)).setText(String.valueOf(Referee.getInstance().getArgentJoueur()));
+        Referee referee = Referee.getInstance();
+        int currentPoints = referee.getPointsVictoire();
+        int pointsToWin = victoryManager != null ? victoryManager.getVictoryPoints() : 0;
+
+        JLabel pointsValue = (JLabel) pointsLabel.getComponent(0);
+        pointsValue.setText(currentPoints + " / " + pointsToWin);
+
+        if (pointsToWin > 0) {
+            double progress = (double) currentPoints / pointsToWin;
+            if (progress >= 1.0) {
+                pointsValue.setForeground(Color.GREEN); // Objectif atteint
+            } else if (progress >= 0.75) {
+                pointsValue.setForeground(Color.ORANGE); // Proche de l'objectif
+            } else {
+                pointsValue.setForeground(Color.BLACK); // Début de partie
+            }
+        }
+
+        ((JLabel) moneyLabel.getComponent(0)).setText(String.valueOf(referee.getArgentJoueur()));
         ((JLabel) unitsLabel.getComponent(0)).setText(String.valueOf(unitesEnJeu.size()));
     }
     private static Font loadCustomFont() {
