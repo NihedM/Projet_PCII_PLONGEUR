@@ -138,7 +138,7 @@ public class GamePanel extends JPanel {
     private boolean boardingMode = false;
     private SousMarin targetSubmarine = null;
 
-
+    private JPanel overlayPanel;
 
 
 
@@ -161,6 +161,14 @@ public class GamePanel extends JPanel {
 
         mainZone = new ZoneEnFonctionnement(viewportMinX, viewportMinY, viewportMaxX, viewportMaxY);
         dynamicZones = new CopyOnWriteArrayList<>();
+
+        overlayPanel = new JPanel();
+        overlayPanel.setBackground(new Color(0, 0, 0, 255));
+        overlayPanel.setBounds(0, 0, getWidth(), getHeight());
+        overlayPanel.setVisible(false);
+        add(overlayPanel);
+
+        setLayout(null);
 
 
         //createBackBuffer();
@@ -255,7 +263,7 @@ public class GamePanel extends JPanel {
         minimapPanel = new MinimapPanel();
         minimapPanel.setBounds(
                 MINIMAP_MARGIN,
-                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN - 50,
+                getPanelHeight() - MINIMAP_HEIGHT - MINIMAP_MARGIN,
                 MINIMAP_WIDTH,
                 MINIMAP_HEIGHT
         );
@@ -485,8 +493,11 @@ public class GamePanel extends JPanel {
         return ressources;
     }
 
-
-
+    public void setGameOver(boolean gameOver) {
+        overlayPanel.setVisible(gameOver);
+        // Désactiver les interactions si nécessaire
+        setEnabled(!gameOver);
+    }
 
     //--------------------------------------------méthodes pour le fonctionnement------------------------------------------------
 
@@ -524,7 +535,10 @@ public class GamePanel extends JPanel {
         // (les autres variables booléennes si nécessaire)
 
         // Vider toutes les collections d'objets
-        objetsMap.clear();
+        // Synchroniser toutes les opérations critiques
+        synchronized(objetsMap) {
+            objetsMap.clear();
+        }
         unitesEnJeu.clear();
         unitesSelected.clear();
         collectedResources.clear();
@@ -629,9 +643,9 @@ public class GamePanel extends JPanel {
         if (objetsAtCoord != null) {
             boolean removed = objetsAtCoord.remove(objet);
             if (removed) {
+                // Déplacer l'appel à updateTargets avant la suppression
                 if (objet instanceof Ressource) {
-                    // Décrémente le compteur de ressources pour cette zone
-                    terrain.decrementResourcesAt(objet.getPosition().getX(), objet.getPosition().getY());
+                    GameMaster.getInstance().updateTargets();
                 }
 
                 if (objetsAtCoord.isEmpty()) {
@@ -1039,8 +1053,25 @@ public class GamePanel extends JPanel {
 
     }
     private void updatePlayerInfoPanel() {
-        ((JLabel) pointsLabel.getComponent(0)).setText(String.valueOf(Referee.getInstance().getPointsVictoire()));
-        ((JLabel) moneyLabel.getComponent(0)).setText(String.valueOf(Referee.getInstance().getArgentJoueur()));
+        Referee referee = Referee.getInstance();
+        int currentPoints = referee.getPointsVictoire();
+        int pointsToWin = victoryManager != null ? victoryManager.getVictoryPoints() : 0;
+
+        JLabel pointsValue = (JLabel) pointsLabel.getComponent(0);
+        pointsValue.setText(currentPoints + " / " + pointsToWin);
+
+        if (pointsToWin > 0) {
+            double progress = (double) currentPoints / pointsToWin;
+            if (progress >= 1.0) {
+                pointsValue.setForeground(Color.GREEN); // Objectif atteint
+            } else if (progress >= 0.75) {
+                pointsValue.setForeground(Color.ORANGE); // Proche de l'objectif
+            } else {
+                pointsValue.setForeground(Color.BLACK); // Début de partie
+            }
+        }
+
+        ((JLabel) moneyLabel.getComponent(0)).setText(String.valueOf(referee.getArgentJoueur()));
         ((JLabel) unitsLabel.getComponent(0)).setText(String.valueOf(unitesEnJeu.size()));
     }
     private static Font loadCustomFont() {

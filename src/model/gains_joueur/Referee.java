@@ -1,5 +1,7 @@
 package model.gains_joueur;
 
+import controler.VictoryManager;
+
 public class Referee {
     private int argentJoueur;
     private int pointsVictoire;

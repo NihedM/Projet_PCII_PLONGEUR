@@ -8,6 +8,7 @@ import view.GamePanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class SousMarin extends UniteControlable {
@@ -109,6 +110,22 @@ public class SousMarin extends UniteControlable {
     public void rechargeFuel() {
         this.fuel = MAX_FUEL;
     }
+
+
+    @Override
+    public java.util.List<ButtonAction> getButtonActions() {
+        java.util.List<ButtonAction> actions = super.getButtonActions();
+
+        if (boardedDiver != null) {
+            actions.add(new ButtonAction("Sortir du sous marin", e -> {
+                this.deboardDiver();
+            }));
+        }
+
+        return actions;
+    }
+
+
 
 
 
