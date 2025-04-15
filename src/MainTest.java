@@ -32,6 +32,10 @@ public class MainTest {
         GameMaster gameMaster = new GameMaster();
         GamePanel gamePanel = new GamePanel();
 
+        //musique de fond RIP Régis
+        BackgroundMusicPlayer musicPlayer = new BackgroundMusicPlayer("src/controler/sound/background.wav");
+
+
 
 
         // Configuration des limites de ressources par profondeur
@@ -93,6 +97,7 @@ public class MainTest {
                 gamePanel.startGame();
                 Redessine r = new Redessine();
                 r.start();
+                musicPlayer.start();
                 return null;
             }
         }.execute();
