@@ -233,10 +233,7 @@ public class GameMaster extends Thread{
 
                         if(enemy instanceof Calamar calamar) {
                             calamar.setRessourcesDisponibles(ressources);
-                            if (calamar.getDestination() == null || calamar.getPosition().equals(calamar.getDestination()) || calamar.getVitesseCourante() == 0) {
-                                GamePanel.getInstance().killUnite(calamar);
-                                return;
-                            }
+
 
                         }
 

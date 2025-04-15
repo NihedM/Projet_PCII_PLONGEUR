@@ -7,6 +7,7 @@ import model.objets.Terrain;
 import model.unite_controlables.Plongeur;
 import model.unite_controlables.PlongeurArme;
 import model.unite_controlables.SousMarin;
+import model.unite_non_controlables.Calamar;
 import model.unite_non_controlables.Kraken;
 import model.unite_non_controlables.SeaSerpent;
 import view.GameLaunchDialog;
@@ -49,7 +50,6 @@ public class MainTest {
         //plongeur initial
 
         gamePanel.addUniteControlable(new Plongeur(0, new Position(base.getPosition().getX() + base.getLongueur() + 100, base.getPosition().getY())));
-
 
 
 

@@ -31,9 +31,16 @@ public class SpawnManager extends Thread{
             return;
         }
 
-
         EnemySpawnPoint spawnPoint = new EnemySpawnPoint(pos, maxEnemies, 20, interval);
-        spawnPoint.setEnemyType(random.nextBoolean() ? Calamar.class : Pieuvre.class);
+        int chance = random.nextInt(100);
+
+        // 75% de chance pour Calamar, 25% pour Pieuvre
+        if (chance < 75) {
+            spawnPoint.setEnemyType(Calamar.class);
+            System.out.println("Spawn de Calamar");
+        } else {
+            spawnPoint.setEnemyType(Pieuvre.class);
+        }
         spawnPoints.add(spawnPoint);
         new Thread(spawnPoint).start();
     }

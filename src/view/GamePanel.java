@@ -473,8 +473,8 @@ public class GamePanel extends JPanel {
         return ressourcesList;
     }
 
-    public ArrayList<Ressource> getRessources() {
-        ArrayList<Ressource> ressources = new ArrayList<>();
+    public CopyOnWriteArrayList<Objet> getRessources() {
+        CopyOnWriteArrayList<Objet> ressources = new CopyOnWriteArrayList<>();
         for (CopyOnWriteArrayList<Objet> objets : objetsMap.values()) {
             for (Objet objet : objets) {
                 if (objet instanceof Ressource) {

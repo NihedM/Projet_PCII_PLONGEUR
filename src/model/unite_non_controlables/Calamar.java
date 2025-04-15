@@ -1,11 +1,13 @@
 package model.unite_non_controlables;
 
+import controler.GameMaster;
 import controler.GestionCollisions;
 import model.objets.Objet;
 import model.objets.Position;
 import model.objets.Ressource;
 import view.GamePanel;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -13,16 +15,20 @@ public class Calamar extends Enemy {
 
     ArrayList<Object> inventaire = new ArrayList<Object>();
     private Ressource objectifCourrant;
+    private long tempsDeFuite;
+    private static final long DUREE_DE_VIE_APRES_FUITE = 10000;
     private CopyOnWriteArrayList<Ressource> ressourcesDisponibles;
 
     private boolean isTimerPaused = false;
 
     public Calamar(Position position) {
-        super(position,10, 50, 10);
+        super(position,10, 45, 10);
         this.ressourcesDisponibles = new CopyOnWriteArrayList<>();
 
         setImage("calamar.png");
         setMovingImage("calamar.png");
+        setUnitIcon(new ImageIcon(GamePanel.getCachedImage("calamarIcon.png")));
+
     }
 
     public void setRessourcesDisponibles(CopyOnWriteArrayList<Ressource> ressourcesDisponibles){
@@ -89,6 +95,8 @@ public class Calamar extends Enemy {
         setVitesseCourante(getVitesseMax());
 
         this.objectifCourrant = null;
+        this.tempsDeFuite = System.currentTimeMillis();
+
     }
 
 
@@ -115,16 +123,21 @@ public class Calamar extends Enemy {
         if (isTimerPaused) {
             startTimer();
             isTimerPaused = false;
-            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources());
+            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessourcesMap());
             selectionneRessourcePlusProche(ressourcesDisponibles);
         }
 
-        //si l'objet est à portée, le ramasser
         if(getEtat() == Etat.FUITE)return;
 
+        if (System.currentTimeMillis() - tempsDeFuite > DUREE_DE_VIE_APRES_FUITE) {
+            GamePanel.getInstance().killUnite(this);
+            return;
+        }
+
+
         if (objectifCourrant == null || !ressourcesDisponibles.contains(objectifCourrant)) {
-            // Sélectionner une nouvelle ressource comme cible
-            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessources());
+                // Sélectionner une nouvelle ressource comme cible
+            ressourcesDisponibles = new CopyOnWriteArrayList<>(GamePanel.getInstance().getRessourcesMap());
             selectionneRessourcePlusProche(ressourcesDisponibles);
         }
 

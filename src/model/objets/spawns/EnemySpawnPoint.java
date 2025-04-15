@@ -18,7 +18,7 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     private int maxEnemies;
     private int spawnedEnemies;
     private  final int RAYON;
-    private final int spawnInterval; // Spawn interval in milliseconds
+    private int spawnInterval; // Spawn interval in milliseconds
 
     private Class<? extends Enemy> enemyType;
 
@@ -67,6 +67,8 @@ public class EnemySpawnPoint extends Objet implements Runnable {
     }
 
     public void setEnemyType(Class<? extends Enemy> enemyType) {
+        if(enemyType == Calamar.class)
+            this.spawnInterval = spawnInterval/2;
         this.enemyType = enemyType;
     }
 
