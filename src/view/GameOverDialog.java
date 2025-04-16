@@ -14,7 +14,7 @@ public class GameOverDialog extends JDialog {
             JFrame frame = (JFrame) parent;
             JPanel glassPane = (JPanel) frame.getGlassPane();
             glassPane.setOpaque(true);
-            glassPane.setBackground(new Color(0, 0, 0, 255));
+            glassPane.setBackground(new Color(0, 0, 255, 255));
             glassPane.setVisible(true);
         }
 
