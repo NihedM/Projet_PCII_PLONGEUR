@@ -53,6 +53,20 @@ public class GameLaunchDialog extends JDialog {
         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
         paramPanel.add(timeSpinner, gbc);
 
+        ((JSpinner.DefaultEditor) timeSpinner.getEditor()).getTextField().setInputVerifier(new InputVerifier() {
+            @Override
+            public boolean verify(JComponent input) {
+                try {
+                    Integer.parseInt(((JTextField) input).getText());
+                    return true;
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(input, "Veuillez entrer uniquement des chiffres.", "Erreur de saisie", JOptionPane.WARNING_MESSAGE);
+                    return false;
+                }
+            }
+        });
+
+
         JLabel moneyLabel = new JLabel("<html><div style='color:white;font-family:Segoe UI;font-size:18pt;text-shadow: 1px 1px 2px black;'>Argent de départ (en €) :</div></html>");
         gbc.gridx = 0; gbc.gridy = 1; gbc.anchor = GridBagConstraints.EAST;
         paramPanel.add(moneyLabel, gbc);
@@ -61,6 +75,18 @@ public class GameLaunchDialog extends JDialog {
         moneySpinner.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         gbc.gridx = 1; gbc.anchor = GridBagConstraints.WEST;
         paramPanel.add(moneySpinner, gbc);
+        ((JSpinner.DefaultEditor) moneySpinner.getEditor()).getTextField().setInputVerifier(new InputVerifier() {
+            @Override
+            public boolean verify(JComponent input) {
+                try {
+                    Integer.parseInt(((JTextField) input).getText());
+                    return true;
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(input, "Veuillez entrer uniquement des chiffres.", "Erreur de saisie", JOptionPane.WARNING_MESSAGE);
+                    return false;
+                }
+            }
+        });
 
         pointsLabel = new JLabel("<html><div style='color:white;font-family:Segoe UI;font-size:20pt;text-shadow: 1px 1px 2px black;'>Points pour gagner : 292</div></html>");
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2; gbc.anchor = GridBagConstraints.CENTER;
