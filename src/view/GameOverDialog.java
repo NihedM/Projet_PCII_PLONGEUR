@@ -19,16 +19,14 @@ public class GameOverDialog extends JDialog {
         }
 
         setLayout(new BorderLayout());
-        setSize(300, 150);
+        setSize(700, 150);
         setLocationRelativeTo(parent);
 
         JLabel messageLabel = new JLabel(message, SwingConstants.CENTER);
         add(messageLabel, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
-        JButton restartButton = new JButton("Rejouer");
         JButton quitButton = new JButton("Quitter");
-        buttonPanel.add(restartButton);
         buttonPanel.add(quitButton);
         add(buttonPanel, BorderLayout.SOUTH);
 
@@ -50,27 +48,7 @@ public class GameOverDialog extends JDialog {
             }
         });
 
-        restartButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Masquer la vue de jeu
-                GamePanel.getInstance().setVisible(false);
-                dispose();
-                if (parent instanceof JFrame) {
-                    ((JFrame) parent).getGlassPane().setVisible(false);
-                }
-                // Réinitialiser les compteurs et l'état du jeu
-                Referee.getInstance().reset();
-                GamePanel.getInstance().reset();
-                // (Optionnel) Réinitialiser GameMaster si nécessaire :
-                // gameMaster.reset(); ou recréer une nouvelle instance
 
-                // Ouvrir la fenêtre de paramétrage pour une nouvelle partie
-                JFrame frame = (JFrame) parent;
-                GameLaunchDialog launchDialog = new GameLaunchDialog(frame);
-                launchDialog.setVisible(true);
-            }
-        });
 
         quitButton.addActionListener(new ActionListener() {
             @Override

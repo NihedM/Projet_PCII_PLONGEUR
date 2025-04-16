@@ -1060,6 +1060,9 @@ public class GamePanel extends JPanel {
         JLabel pointsValue = (JLabel) pointsLabel.getComponent(0);
         pointsValue.setText(currentPoints + " / " + pointsToWin);
 
+        Font currentFont = pointsValue.getFont();
+        pointsValue.setFont(currentFont.deriveFont(15f));
+
         if (pointsToWin > 0) {
             double progress = (double) currentPoints / pointsToWin;
             if (progress >= 1.0) {
