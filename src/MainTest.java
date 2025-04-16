@@ -24,6 +24,7 @@ public class MainTest {
 
         JFrame maFenetre = new JFrame("Jeu");
         maFenetre.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        maFenetre.setResizable(false);
 
         // Activer le plein écran
 
